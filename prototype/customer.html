@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>客户价值分层 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>客户潜力分层 · 购货频率 · 采购趋势</h1>
+    <p>四维打分升级客户 A/B/C/D 分级，并以走量 / 盈利双维矩阵区分客户类型；核心复用客户、销售员、销售日期、重量、金额、账期、业务净利等字段。</p>
+  </div>
+
+  <div class="grid g6" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">量利双优</span><span class="k-ic bg-green">⭐</span></div><div class="k-val">2</div><div class="k-foot">核心头部客户</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">高盈利获利</span><span class="k-ic bg-blue">💎</span></div><div class="k-val">3</div><div class="k-foot">利润支柱</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">高走量流水</span><span class="k-ic bg-orange">🌊</span></div><div class="k-val">3</div><div class="k-foot">现金流客户</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">量利双弱</span><span class="k-ic bg-red">🍂</span></div><div class="k-val" style="color:var(--red)">2</div><div class="k-foot">待淘汰/收缩</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">高频客户占比</span><span class="k-ic bg-teal">🔁</span></div><div class="k-val">34<small>%</small></div><div class="k-foot">间隔＜30天</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">流失预警</span><span class="k-ic bg-red">⚠</span></div><div class="k-val" style="color:var(--red)">37</div><div class="k-foot">环比下滑≥50%</div></div>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs">
+      <button class="on" data-tab="val">客户价值分层</button>
+      <button data-tab="freq">购货频率专项</button>
+      <button data-tab="risk">采购趋势 & 风险</button>
+      <button data-tab="assign">跟进分配</button>
+    </div>
+
+    <div class="tabpane on" data-pane="val">
+      <div class="grid g3">
+        <div class="card"><div class="c-head"><h3>客户分级漏斗</h3></div><div class="c-body tight"><div id="cus-funnel" class="chart lg"></div></div></div>
+        <div class="card" style="grid-column:span 1"><div class="c-head"><h3>走量 / 盈利客户矩阵</h3><span class="sub">X 采购吨 · Y 单吨净利</span></div><div class="c-body tight"><div id="cus-quad" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>A/B/C/D 毛利贡献</h3></div><div class="c-body tight"><div id="cus-pie" class="chart lg"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="freq">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>采购间隔分层统计</h3><span class="sub">高频 / 中频 / 低频沉睡</span></div><div class="c-body tight"><div id="freq-bar" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>全客户采购间隔天数分布</h3></div><div class="c-body tight"><div id="freq-hist" class="chart lg"></div></div></div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="c-head"><h3>单客户 12 月购货频次 & 采购金额趋势</h3><span class="sub">无锡精机制造</span></div><div class="c-body tight"><div id="freq-single" class="chart"></div></div></div>
+    </div>
+
+    <div class="tabpane" data-pane="risk">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>客户月度采购波动预警</h3><span class="sub">红线=环比下滑50%</span></div><div class="c-body tight"><div id="risk-line" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>账期 vs 逾期金额风险散点</h3></div><div class="c-body tight"><div id="risk-scatter" class="chart lg"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="assign">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>各销售 A/B 级客户储备对比</h3></div><div class="c-body tight"><div id="assign-bar" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>跟进频次达标率热力</h3></div><div class="c-body tight"><div id="assign-heat" class="chart lg"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 客户分层表 -->
+  <div class="section-title"><span class="n">📋</span><h2>客户价值分层与跟进分配表</h2><span class="sub">自动打标签 + AI 诊断建议</span><span class="line"></span></div>
+  <div class="card">
+    <div class="c-body" style="padding:0;overflow:auto">
+      <table class="tbl" id="cus-table">
+        <thead><tr>
+          <th>客户名称</th><th>分级</th><th>客户类型</th><th>行业</th><th>归属销售</th>
+          <th class="num">采购吨</th><th class="num">单吨净利</th><th class="num">采购间隔</th><th>频率</th>
+          <th class="num">账期</th><th>潜力分</th><th>跟进优先级</th><th>AI 建议</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:18px">
+    <div class="ai-card">
+      <div class="ai-h"><span class="ai-badge">🤖 高盈利客户挖掘</span><span class="ai-obj">宁波特钢加工（B级）</span><span class="pill blue" style="margin-left:auto">升A潜力</span></div>
+      <div class="ai-seg"><span class="lab">数据解读</span>单吨净利135元，采购间隔26天稳定，账期30天，近半年增长。</div>
+      <div class="ai-seg act"><span class="lab">落地动作</span>提升跟进频次，投放阶梯优惠缩短采购间隔；推送未采购的合金型材，锁定年度框架，具备升级 A 级潜力。</div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-h"><span class="ai-badge">🤖 高走量客户优化</span><span class="ai-obj">廊坊金属贸易（高走量）</span><span class="pill orange" style="margin-left:auto">资金风险</span></div>
+      <div class="ai-seg"><span class="lab">数据解读</span>月均采购大但单吨净利仅22元，账期72天，仅采购低价普板。</div>
+      <div class="ai-seg act"><span class="lab">落地动作</span>推现款每吨减15元政策引导缩短账期；同步推送型材品类提升单吨毛利；半月回访一次。</div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, M=DATA.months, CU=DATA.customers;
+  const typeColor={"①量利双优":"#16a34a","②高盈利获利":"#2563eb","③高走量流水":"#f97316","④量利双弱":"#dc2626"};
+
+  const funnel=echarts.init(document.getElementById("cus-funnel"));
+  funnel.setOption({
+    tooltip:Object.assign(C.tipItem(),{formatter:"{b}: {c} 家"}),
+    series:[{type:"funnel",top:20,bottom:20,left:"8%",width:"84%",minSize:"28%",gap:2,
+      label:{color:"#fff",fontSize:12,formatter:"{b} {c}"},labelLine:{show:false},
+      itemStyle:{borderWidth:0},
+      data:[{value:1286,name:"全部客户",itemStyle:{color:"#9aa4bb"}},{value:640,name:"D 低效",itemStyle:{color:"#c4735a"}},
+        {value:420,name:"C 普通",itemStyle:{color:"#d99e00"}},{value:140,name:"B 成长",itemStyle:{color:"#2563eb"}},
+        {value:86,name:"A 黄金",itemStyle:{color:"#16a34a"}}]}]
+  });
+
+  const quad=echarts.init(document.getElementById("cus-quad"));
+  quad.setOption({
+    grid:{left:52,right:18,top:20,bottom:40},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>采购 ${p.data[0]}吨 · 单吨净利 ${p.data[1]}元<br/>${p.data[4]}`}),
+    xAxis:C.val({name:"采购吨数"}),yAxis:C.val({name:"单吨净利(元)"}),
+    series:[{type:"scatter",symbolSize:d=>Math.max(12,Math.sqrt(d[2])),
+      data:CU.map(c=>({value:[c.ton,c.perTon,c.net,c.name,c.type],itemStyle:{color:typeColor[c.type],opacity:.85}})),
+      markLine:{silent:true,lineStyle:{color:"#c4ccdb",type:"dashed"},data:[{xAxis:1000},{yAxis:90}]},
+      markArea:{silent:true,itemStyle:{color:"rgba(22,163,74,.05)"},data:[[{coord:[1000,90]},{coord:[4500,180]}]]}}]
+  });
+
+  const pie=echarts.init(document.getElementById("cus-pie"));
+  pie.setOption({
+    tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
+    series:[{type:"pie",radius:["42%","70%"],center:["50%","44%"],itemStyle:{borderColor:"#fff",borderWidth:2},
+      label:{formatter:"{b}\n{d}%",fontSize:11,color:C.axisText},
+      data:[{name:"A 黄金",value:62,itemStyle:{color:"#16a34a"}},{name:"B 成长",value:22,itemStyle:{color:"#2563eb"}},
+        {name:"C 普通",value:12,itemStyle:{color:"#d99e00"}},{name:"D 低效",value:4,itemStyle:{color:"#9aa4bb"}}]}]
+  });
+
+  const fbar=echarts.init(document.getElementById("freq-bar"));
+  fbar.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:["高频(<30天)","中频(30-90)","低频(90-180)","沉睡(>180)"]}),
+    yAxis:[C.val({name:"客户数"}),C.val({name:"净利(万)",splitLine:{show:false}})],
+    series:[
+      {name:"客户数",type:"bar",barWidth:26,data:[438,512,236,100],itemStyle:{color:"#2563eb",borderRadius:[4,4,0,0]}},
+      {name:"贡献净利",type:"line",yAxisIndex:1,smooth:true,data:[1180,720,180,34],lineStyle:{color:"#16a34a",width:3},itemStyle:{color:"#16a34a"}}]
+  });
+
+  const hist=echarts.init(document.getElementById("freq-hist"));
+  const bins=["0-15","15-30","30-45","45-60","60-90","90-120","120-180",">180"];
+  hist.setOption({
+    grid:C.grid,tooltip:C.tip(),xAxis:C.cat({data:bins,name:"采购间隔(天)"}),yAxis:C.val({name:"客户数"}),
+    series:[{type:"bar",barWidth:"70%",data:[180,258,286,226,168,90,60,58].map((v,i)=>({value:v,itemStyle:{color:i<3?"#2563eb":i<5?"#d99e00":"#dc2626",borderRadius:[3,3,0,0]}}))}]
+  });
+
+  const single=echarts.init(document.getElementById("freq-single"));
+  single.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:M}),yAxis:[C.val({name:"下单次数"}),C.val({name:"采购额(万)",splitLine:{show:false}})],
+    series:[
+      {name:"下单次数",type:"bar",barWidth:16,data:[3,3,2,3,3,2,3,2,1,1,1,1],itemStyle:{color:"#8fb6ff",borderRadius:[3,3,0,0]}},
+      {name:"采购金额",type:"line",yAxisIndex:1,smooth:true,data:[86,92,68,88,84,72,90,66,42,38,36,34],lineStyle:{color:"#dc2626",width:3},itemStyle:{color:"#dc2626"},
+       markArea:{itemStyle:{color:"rgba(220,38,38,.06)"},data:[[{xAxis:"9月"},{xAxis:"12月"}]]}}]
+  });
+
+  const rline=echarts.init(document.getElementById("risk-line"));
+  const rd=[120,132,108,140,118,96,138,80,120,132,60,72];
+  rline.setOption({
+    grid:C.grid,tooltip:C.tip(),xAxis:C.cat({data:M}),yAxis:C.val({name:"采购量(吨)"}),
+    series:[{type:"line",smooth:true,data:rd,lineStyle:{color:"#2563eb",width:3},itemStyle:{color:"#2563eb"},areaStyle:{opacity:.08},
+      markLine:{symbol:"none",lineStyle:{color:"#dc2626",type:"dashed"},label:{formatter:"流失预警线",color:"#dc2626",fontSize:10},data:[{yAxis:70}]},
+      markPoint:{data:[{coord:["11月",60],value:"↓50%"}],itemStyle:{color:"#dc2626"},label:{color:"#fff",fontSize:10}}}]
+  });
+
+  const rsc=echarts.init(document.getElementById("risk-scatter"));
+  rsc.setOption({
+    grid:{left:56,right:18,top:20,bottom:40},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>账期 ${p.data[0]}天 · 逾期 ${p.data[1]}万`}),
+    xAxis:C.val({name:"平均账期(天)"}),yAxis:C.val({name:"逾期金额(万)"}),
+    series:[{type:"scatter",symbolSize:d=>Math.max(12,d[2]/2),
+      data:CU.map(c=>({value:[c.account,c.overdue*c.net*0.4+c.overdue*8,c.ton/100,c.name],
+        itemStyle:{color:c.account>60?"#dc2626":c.account>40?"#f97316":"#16a34a",opacity:.8}})),
+      markArea:{silent:true,itemStyle:{color:"rgba(220,38,38,.06)"},data:[[{coord:[60,20]},{coord:[100,80]}]]}}]
+  });
+
+  const abar=echarts.init(document.getElementById("assign-bar"));
+  const emps=DATA.employees;
+  abar.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:emps.map(e=>e.name)}),yAxis:C.val({name:"客户数"}),
+    series:[
+      {name:"A级客户",type:"bar",stack:"x",data:emps.map(e=>e.custA),itemStyle:{color:"#16a34a"}},
+      {name:"B级客户",type:"bar",stack:"x",data:emps.map(e=>e.custB),itemStyle:{color:"#2563eb",borderRadius:[3,3,0,0]}}],
+  });
+
+  const heat=echarts.init(document.getElementById("assign-heat"));
+  const gy=["A黄金","B成长","C普通","D沉睡"], gx=emps.map(e=>e.name);
+  const hd=[];
+  gy.forEach((_,y)=>gx.forEach((_,x)=>{hd.push([x,y,Math.round(50+Math.random()*50)]);}));
+  heat.setOption({
+    grid:{left:60,right:20,top:20,bottom:60},tooltip:Object.assign(C.tipItem(),{formatter:p=>`${gx[p.data[0]]} · ${gy[p.data[1]]}<br/>达标率 ${p.data[2]}%`}),
+    xAxis:C.cat({data:gx,splitArea:{show:true}}),yAxis:C.cat({data:gy,splitArea:{show:true}}),
+    visualMap:{min:50,max:100,calculable:true,orient:"horizontal",left:"center",bottom:6,
+      inRange:{color:["#dc2626","#f7c948","#16a34a"]},textStyle:{color:C.axisText,fontSize:10}},
+    series:[{type:"heatmap",data:hd,label:{show:true,formatter:p=>p.data[2],fontSize:10,color:"#fff"},itemStyle:{borderColor:"#fff",borderWidth:2}}]
+  });
+
+  // 表格
+  const tb=document.querySelector("#cus-table tbody");
+  const prio={"①量利双优":["一级(每周拜访)","green"],"②高盈利获利":["一级(专属报价)","blue"],"③高走量流水":["二级(优化账期)","orange"],"④量利双弱":["三级(月度回访)","gray"]};
+  const ai={"①量利双优":"锁定年度框架，拓展全品类","②高盈利获利":"推送高毛利型材，升A潜力","③高走量流水":"现款优惠缩短账期","④量利双弱":"收缩授信，评估淘汰"};
+  tb.innerHTML=CU.map(c=>{
+    const p=prio[c.type];const tr={up:'<span class="trend up">↑</span>',down:'<span class="trend down">↓</span>',flat:'—'}[c.trend];
+    return `<tr>
+      <td><b>${c.name}</b></td>
+      <td><span class="grade ${c.grade}">${c.grade}</span></td>
+      <td>${c.type}</td><td>${c.cat}</td><td>${c.sale}</td>
+      <td class="num">${c.ton}</td><td class="num">${c.perTon}</td><td class="num">${c.interval}天</td>
+      <td><span class="pill ${c.freq==='高频'?'green':c.freq==='中频'?'blue':c.freq==='低频'?'yellow':'red'}">${c.freq}</span></td>
+      <td class="num">${c.account}天</td>
+      <td><b>${c.score}</b> ${tr}</td>
+      <td><span class="pill ${p[1]}">${p[0]}</span></td>
+      <td style="color:var(--muted);font-size:12px">${ai[c.type]}</td>
+    </tr>`;}).join("");
+
+  const all=[funnel,quad,pie,fbar,hist,single,rline,rsc,abar,heat];
+  window.addEventListener("resize",()=>all.forEach(c=>c.resize()));
+}
+Layout.render("customer",{title:"客户价值分层",crumb:"客户价值分层"});
+</script>
+</body>
+</html>

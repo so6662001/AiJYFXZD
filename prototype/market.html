@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>市场潜力分析 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>市场潜力挖掘 & 趋势分析</h1>
+    <p>依托字段：地区、品类、材质、牌号、产地、客户分类。识别区域四象限潜力、品类盈利结构与下游行业赛道，输出资源倾斜方案。</p>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">明星 / 蓝海市场</span><span class="k-ic bg-green">⭐</span></div><div class="k-val">2 / 3</div><div class="k-foot">建议重点倾斜资源</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">衰退市场</span><span class="k-ic bg-red">📉</span></div><div class="k-val" style="color:var(--red)">2</div><div class="k-foot">廊坊 · 天津 建议收缩</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">核心盈利品类</span><span class="k-ic bg-blue">🥇</span></div><div class="k-val">H型钢</div><div class="k-foot">净利贡献 400 万</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">滞销/亏损规格</span><span class="k-ic bg-orange">⚠</span></div><div class="k-val">6<small>项</small></div><div class="k-foot">建议清库调价</div></div>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs">
+      <button class="on" data-tab="region">板块1 · 区域市场潜力</button>
+      <button data-tab="cat">板块2 · 品类 / 材质细分</button>
+      <button data-tab="ind">板块3 · 下游行业趋势</button>
+    </div>
+
+    <!-- 区域 -->
+    <div class="tabpane on" data-pane="region">
+      <div class="grid g2">
+        <div class="card">
+          <div class="c-head"><h3>区域潜力分级地图</h3><span class="sub">色块深浅 = 区域业务净利</span></div>
+          <div class="c-body tight"><div id="mkt-map" class="chart lg"></div></div>
+        </div>
+        <div class="card">
+          <div class="c-head"><h3>区域潜力四象限</h3><span class="sub">X 销量增速 · Y 净利率</span></div>
+          <div class="c-body tight"><div id="mkt-quad" class="chart lg"></div>
+            <div class="legend" style="padding:0 8px 6px"><span><i style="background:#16a34a"></i>明星</span><span><i style="background:#2563eb"></i>蓝海</span><span><i style="background:#d99e00"></i>存量</span><span><i style="background:#dc2626"></i>衰退</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><div class="c-head"><h3>月度区域走势（销量 / 净利双轴）</h3></div><div class="c-body tight"><div id="mkt-trend" class="chart"></div></div></div>
+        <div class="card"><div class="c-head"><h3>区域客户结构</h3><span class="sub">终端 / 工程 / 中间商</span></div><div class="c-body tight"><div id="mkt-struct" class="chart"></div></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><div class="c-head"><h3>区域盈利 TOP / 亏损排名</h3></div><div class="c-body tight"><div id="mkt-rank" class="chart"></div></div></div>
+        <div class="card"><div class="c-head"><h3>区域结算结构占比</h3><span class="sub">资金风险</span></div><div class="c-body tight"><div id="mkt-settle" class="chart"></div></div></div>
+      </div>
+    </div>
+
+    <!-- 品类 -->
+    <div class="tabpane" data-pane="cat">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>单品盈利潜力气泡图</h3><span class="sub">X 单吨毛利 · Y 销量 · 泡=净利</span></div><div class="c-body tight"><div id="cat-bubble" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>品类利润贡献瀑布</h3></div><div class="c-body tight"><div id="cat-water" class="chart lg"></div></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><div class="c-head"><h3>12 个月品类需求趋势</h3></div><div class="c-body tight"><div id="cat-line" class="chart"></div></div></div>
+        <div class="card"><div class="c-head"><h3>同规格不同产地毛利对比</h3></div><div class="c-body tight"><div id="cat-origin" class="chart"></div></div></div>
+      </div>
+    </div>
+
+    <!-- 行业 -->
+    <div class="tabpane" data-pane="ind">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>分行业月度销量变化</h3><span class="sub">堆叠面积</span></div><div class="c-body tight"><div id="ind-area" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>下游行业综合评分雷达</h3></div><div class="c-body tight"><div id="ind-radar" class="chart lg"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI诊断 -->
+  <div class="section-title"><span class="n">AI</span><h2>市场板块智能诊断</h2><span class="sub">图表下方 AI 结论卡片，实时生成</span><span class="line"></span></div>
+  <div class="grid g2">
+    <div class="ai-card">
+      <div class="ai-h"><span class="ai-badge">🤖 蓝海机会</span><span class="ai-obj">山东济南 / 安徽合肥</span><span class="pill green" style="margin-left:auto">高机会</span></div>
+      <div class="ai-seg"><span class="lab">数据解读</span>济南增速31%、净利率12.8%，合肥增速36%、净利率13.2%，规模尚小但盈利质量高。</div>
+      <div class="ai-seg warn"><span class="lab">深层归因</span>区域高毛利型材/合金供给不足，本地制造终端需求旺盛，竞品供给缺口明显。</div>
+      <div class="ai-seg act"><span class="lab">落地动作</span>各增配2名销售专项攻坚，倾斜库存，投放阶梯优惠开发本地终端；季度目标销量翻倍。</div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-h"><span class="ai-badge">🤖 衰退预警</span><span class="ai-obj">河北廊坊区域</span><span class="pill red" style="margin-left:auto">高风险</span></div>
+      <div class="ai-seg"><span class="lab">数据解读</span>型材销量同比 -42%，中间商占比91%，平均账期75天，区域持续亏损（净利 -32万）。</div>
+      <div class="ai-seg warn"><span class="lab">深层归因</span>低毛利散单+长账期，资金占用高且无优质终端客户支撑，属结构性衰退。</div>
+      <div class="ai-seg act"><span class="lab">落地动作</span>收缩赊销授信，人员缩编，逐步清退低效中间商，仅保留少量稳定现款客户。</div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, R=DATA.regions, M=DATA.months, K=DATA.categories;
+  const levelColor={"明星市场":"#16a34a","潜力蓝海":"#2563eb","成熟存量":"#d99e00","衰退弱势":"#dc2626"};
+
+  // 地图 → 尝试加载中国地图，失败则用条形热力
+  const mapEl=document.getElementById("mkt-map");
+  const map=echarts.init(mapEl);
+  const provData=R.map(r=>({name:r.prov,value:r.netProfit,city:r.name,level:r.level}));
+  function fallbackHeat(){
+    map.setOption({
+      grid:{left:80,right:30,top:10,bottom:20},
+      tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.name}<br/>业务净利 ${p.value}万`}),
+      xAxis:C.val({}),
+      yAxis:C.cat({data:[...R].sort((a,b)=>a.netProfit-b.netProfit).map(r=>r.name)}),
+      visualMap:{show:false,min:-50,max:400,inRange:{color:["#dc2626","#f7c948","#16a34a"]}},
+      series:[{type:"bar",barWidth:14,data:[...R].sort((a,b)=>a.netProfit-b.netProfit).map(r=>r.netProfit),
+        itemStyle:{borderRadius:4},label:{show:true,position:"right",formatter:"{c}万",color:C.axisText,fontSize:11}}]
+    });
+  }
+  fetch("https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json")
+    .then(r=>r.ok?r.json():Promise.reject()).then(geo=>{
+      echarts.registerMap("china",geo);
+      map.setOption({
+        tooltip:Object.assign(C.tipItem(),{formatter:p=>p.data?`${p.data.city||p.name}<br/>净利 ${p.value}万 · ${p.data.level}`:p.name}),
+        visualMap:{left:16,bottom:16,min:-50,max:400,text:["高","低"],calculable:true,
+          inRange:{color:["#e6ecf7","#8fb6ff","#2563eb","#16a34a"]},textStyle:{color:C.axisText,fontSize:11}},
+        series:[{type:"map",map:"china",roam:false,zoom:1.25,
+          itemStyle:{borderColor:"#fff",areaColor:"#eef2f9"},
+          emphasis:{itemStyle:{areaColor:"#f97316"},label:{color:"#fff"}},
+          label:{show:false},data:provData}]
+      });
+    }).catch(fallbackHeat);
+
+  // 四象限
+  const quad=echarts.init(document.getElementById("mkt-quad"));
+  quad.setOption({
+    grid:{left:52,right:20,top:20,bottom:40},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>增速 ${(p.data[0]*100).toFixed(0)}% · 净利率 ${(p.data[1]*100).toFixed(1)}%<br/>净利 ${p.data[2]}万`}),
+    xAxis:C.val({name:"销量增速",axisLabel:{formatter:v=>(v*100)+"%"}}),
+    yAxis:C.val({name:"净利率",axisLabel:{formatter:v=>(v*100).toFixed(0)+"%"}}),
+    series:[{type:"scatter",symbolSize:d=>Math.max(14,Math.sqrt(Math.abs(d[2]))*2.8),
+      label:{show:true,formatter:p=>p.data[3].slice(-2),position:"top",color:C.axisText,fontSize:10},
+      data:R.map(r=>({value:[r.growth,r.netRate,r.netProfit,r.name],itemStyle:{color:levelColor[r.level],opacity:.85}})),
+      markLine:{silent:true,lineStyle:{color:"#c4ccdb",type:"dashed"},data:[{xAxis:0.2},{yAxis:0.09}]}}]
+  });
+
+  // 双轴趋势
+  const trend=echarts.init(document.getElementById("mkt-trend"));
+  const base=[2.1,1.9,2.4,2.8,3.1,2.9,3.3,3.6,3.2,3.8,4.0,4.2];
+  trend.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{data:["销量(万吨)","业务净利(万)"],right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:M}),
+    yAxis:[C.val({name:"万吨"}),C.val({name:"万元",splitLine:{show:false}})],
+    series:[
+      {name:"销量(万吨)",type:"bar",barWidth:16,data:base,itemStyle:{color:"#8fb6ff",borderRadius:[4,4,0,0]}},
+      {name:"业务净利(万)",type:"line",yAxisIndex:1,smooth:true,data:base.map(v=>Math.round(v*130+40)),
+       lineStyle:{width:3,color:"#16a34a"},itemStyle:{color:"#16a34a"},
+       markPoint:{data:[{type:"max",name:"旺季"}],itemStyle:{color:"#f97316"}}}]
+  });
+
+  // 客户结构堆叠
+  const struct=echarts.init(document.getElementById("mkt-struct"));
+  const regs=R.slice(0,6).map(r=>r.name);
+  struct.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{data:["制造终端","基建工程","二级贸易"],right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:regs,axisLabel:{interval:0,rotate:20,fontSize:10,color:C.axisText}}),yAxis:C.val({name:"客户数"}),
+    series:[
+      {name:"制造终端",type:"bar",stack:"s",data:[42,38,26,18,15,12],itemStyle:{color:"#2563eb"}},
+      {name:"基建工程",type:"bar",stack:"s",data:[18,22,16,14,10,20],itemStyle:{color:"#0ea5e9"}},
+      {name:"二级贸易",type:"bar",stack:"s",data:[12,15,28,10,8,36],itemStyle:{color:"#f97316"}}]
+  });
+
+  // 排名
+  const rank=echarts.init(document.getElementById("mkt-rank"));
+  const sorted=[...R].sort((a,b)=>a.netProfit-b.netProfit);
+  rank.setOption({
+    grid:{left:80,right:40,top:10,bottom:20},tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.name}<br/>净利 ${p.value}万`}),
+    xAxis:C.val({}),yAxis:C.cat({data:sorted.map(r=>r.name)}),
+    series:[{type:"bar",barWidth:13,data:sorted.map(r=>({value:r.netProfit,itemStyle:{color:r.netProfit<0?"#dc2626":r.netProfit>250?"#16a34a":"#2563eb",borderRadius:4}})),
+      label:{show:true,position:"right",formatter:"{c}",color:C.axisText,fontSize:10}}]
+  });
+
+  // 结算结构
+  const settle=echarts.init(document.getElementById("mkt-settle"));
+  settle.setOption({
+    tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
+    series:[{type:"pie",radius:["45%","72%"],center:["50%","46%"],avoidLabelOverlap:true,
+      itemStyle:{borderColor:"#fff",borderWidth:2},label:{formatter:"{b}\n{d}%",fontSize:11,color:C.axisText},
+      data:[{name:"现款现结",value:38,itemStyle:{color:"#16a34a"}},{name:"30天账期",value:34,itemStyle:{color:"#d99e00"}},{name:"60天+长账期",value:28,itemStyle:{color:"#dc2626"}}]}]
+  });
+
+  // 品类气泡
+  const bubble=echarts.init(document.getElementById("cat-bubble"));
+  const catColor={"普碳":"#2563eb","型材":"#0d9488","不锈钢":"#7c3aed","合金":"#f97316"};
+  bubble.setOption({
+    grid:{left:52,right:20,top:20,bottom:40},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>单吨毛利 ${p.data[0]}元 · 销量 ${p.data[1]}万吨<br/>净利 ${p.data[2]}万`}),
+    xAxis:C.val({name:"单吨毛利(元)"}),yAxis:C.val({name:"年度销量(万吨)"}),
+    series:[{type:"scatter",symbolSize:d=>Math.max(16,Math.sqrt(d[2])*2.2),
+      label:{show:true,formatter:p=>p.data[3],position:"top",color:C.axisText,fontSize:10},
+      data:K.map(k=>({value:[k.perTon,k.ton,k.net,k.name],itemStyle:{color:catColor[k.cat],opacity:.8}}))}]
+  });
+
+  // 瀑布
+  const water=echarts.init(document.getElementById("cat-water"));
+  const wd=[...K].sort((a,b)=>b.net-a.net);
+  let acc=0;const helper=[];const val=[];
+  wd.forEach(k=>{helper.push(acc);val.push(k.net);acc+=k.net;});
+  water.setOption({
+    grid:{left:50,right:16,top:20,bottom:56},tooltip:Object.assign(C.tip(),{formatter:p=>`${p[1].name}<br/>净利贡献 ${p[1].value}万`}),
+    xAxis:C.cat({data:wd.map(k=>k.name),axisLabel:{interval:0,rotate:30,fontSize:10,color:C.axisText}}),yAxis:C.val({name:"累计净利(万)"}),
+    series:[
+      {type:"bar",stack:"t",itemStyle:{borderColor:"transparent",color:"transparent"},data:helper},
+      {type:"bar",stack:"t",data:val,itemStyle:{color:"#16a34a",borderRadius:[3,3,0,0]},label:{show:true,position:"top",formatter:"{c}",fontSize:10,color:C.axisText}}]
+  });
+
+  // 品类趋势
+  const line=echarts.init(document.getElementById("cat-line"));
+  function series(name,base,amp,color){return {name,type:"line",smooth:true,data:M.map((_,i)=>Math.round(base+amp*Math.sin(i/2)+ (Math.random()*10-5))),lineStyle:{width:2.4,color},itemStyle:{color}};}
+  line.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:M}),yAxis:C.val({name:"销量(千吨)"}),
+    series:[series("热轧板",380,60,"#2563eb"),series("H型钢",290,90,"#0d9488"),series("不锈钢",90,20,"#7c3aed"),series("合金",70,15,"#f97316")]
+  });
+
+  // 产地对比
+  const origin=echarts.init(document.getElementById("cat-origin"));
+  origin.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:["沙钢","南钢","日照","永锋","中天"]}),yAxis:C.val({name:"单吨毛利(元)"}),
+    series:[
+      {name:"挂牌毛利",type:"bar",barGap:0,barWidth:16,data:[128,142,96,156,112],itemStyle:{color:"#8fb6ff",borderRadius:[3,3,0,0]}},
+      {name:"实际净利",type:"bar",barWidth:16,data:[112,138,72,148,98],itemStyle:{color:"#16a34a",borderRadius:[3,3,0,0]}}]
+  });
+
+  // 行业面积
+  const area=echarts.init(document.getElementById("ind-area"));
+  function areaS(name,base,color){return {name,type:"line",stack:"a",areaStyle:{opacity:.75},smooth:true,emphasis:{focus:"series"},lineStyle:{width:0},itemStyle:{color},data:M.map((_,i)=>Math.round(base+base*0.3*Math.sin(i/2.2)))};}
+  area.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:M,boundaryGap:false}),yAxis:C.val({name:"销量(千吨)"}),
+    series:[areaS("制造终端",120,"#2563eb"),areaS("基建工程",95,"#0ea5e9"),areaS("二级贸易",70,"#f97316")]
+  });
+
+  // 行业雷达
+  const radar=echarts.init(document.getElementById("ind-radar"));
+  radar.setOption({
+    tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
+    radar:{indicator:[{name:"销量规模",max:10},{name:"单吨毛利",max:10},{name:"购货频次",max:10},{name:"账期健康",max:10},{name:"逾期风险(低)",max:10}],
+      radius:"62%",center:["50%","46%"],axisName:{color:C.axisText,fontSize:11},splitLine:{lineStyle:{color:"#e5e9f2"}},splitArea:{areaStyle:{color:["#fafbfe","#fff"]}}},
+    series:[{type:"radar",data:[
+      {name:"制造终端",value:[7,9,8,9,9],itemStyle:{color:"#2563eb"},areaStyle:{opacity:.15}},
+      {name:"基建工程",value:[9,6,6,5,6],itemStyle:{color:"#0ea5e9"},areaStyle:{opacity:.15}},
+      {name:"二级贸易",value:[8,3,7,3,4],itemStyle:{color:"#f97316"},areaStyle:{opacity:.15}}]}]
+  });
+
+  const all=[map,quad,trend,struct,rank,settle,bubble,water,line,origin,area,radar];
+  window.addEventListener("resize",()=>all.forEach(c=>c.resize()));
+}
+Layout.render("market",{title:"市场潜力分析",crumb:"市场潜力分析"});
+</script>
+</body>
+</html>

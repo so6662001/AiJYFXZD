@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>员工能力画像 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>员工潜力挖掘 · 能力画像 · 客户资源分析</h1>
+    <p>依托字段：销售员、销售部门、客户级别、销售日期、金额、重量、业务净利、客户账期、购货频率。识别能力四象限、客户资源健康度与资源公平度，指导差异化管理。</p>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">标杆全能型</span><span class="k-ic bg-green">🏆</span></div><div class="k-val">1</div><div class="k-foot">张三 · 可攻坚蓝海</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">潜力攻坚型</span><span class="k-ic bg-blue">🚀</span></div><div class="k-val">2</div><div class="k-foot">重点培养</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">存量守成型</span><span class="k-ic bg-orange">🛡️</span></div><div class="k-val">2</div><div class="k-foot">倒逼拓新</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">低效弱势型</span><span class="k-ic bg-red">📉</span></div><div class="k-val" style="color:var(--red)">1</div><div class="k-foot">李四 · 限期整改</div></div>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs">
+      <button class="on" data-tab="perf">业绩产出</button>
+      <button data-tab="res">客户资源深度分析</button>
+      <button data-tab="risk">风控 & 运营能力</button>
+    </div>
+
+    <div class="tabpane on" data-pane="perf">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>全员业绩排名</h3><span class="sub">按业务净利</span></div><div class="c-body tight"><div id="emp-rank" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>员工潜力分层矩阵</h3><span class="sub">X 个人净利 · Y 客户复购增长</span></div><div class="c-body tight"><div id="emp-quad" class="chart lg"></div>
+          <div class="legend" style="padding:0 8px 6px"><span><i style="background:#16a34a"></i>标杆全能</span><span><i style="background:#2563eb"></i>潜力攻坚</span><span><i style="background:#d99e00"></i>存量守成</span><span><i style="background:#dc2626"></i>低效弱势</span></div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="res">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>各销售客户分级分布</h3></div><div class="c-body tight"><div id="emp-stack" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>客户资源公平度对比</h3><span class="sub">A/B级客户贡献毛利</span></div><div class="c-body tight"><div id="emp-fair" class="chart lg"></div></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><div class="c-head"><h3>运营能力四指标对比</h3></div><div class="c-body tight"><div id="emp-ops" class="chart"></div></div></div>
+        <div class="card"><div class="c-head"><h3>客户毛利集中度风险</h3><span class="sub">前两大客户占比 ≥70% 标红</span></div><div class="c-body tight"><div id="emp-conc" class="chart"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tabpane" data-pane="risk">
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>单人综合能力雷达</h3>
+          <div class="r"><select id="emp-sel" style="border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12.5px;color:var(--text)"></select></div></div>
+          <div class="c-body tight"><div id="emp-radar" class="chart lg"></div></div></div>
+        <div class="card"><div class="c-head"><h3>员工逾期客户数量预警</h3></div><div class="c-body tight"><div id="emp-overdue" class="chart lg"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="n">📋</span><h2>全员能力画像与资源统计表</h2><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl" id="emp-table"><thead><tr>
+      <th>销售</th><th>部门</th><th>类型</th><th class="num">净利(万)</th><th class="num">销量(万吨)</th><th class="num">单吨净利</th>
+      <th class="num">A级客户</th><th class="num">B级客户</th><th class="num">新增</th><th class="num">唤醒</th><th>流失率</th><th>集中度</th>
+    </tr></thead><tbody></tbody></table>
+  </div></div>
+
+  <div class="grid g2" style="margin-top:18px">
+    <div class="ai-card">
+      <div class="ai-h"><span class="ai-badge">🤖 标杆员工</span><span class="ai-obj">张三</span><span class="pill green" style="margin-left:auto">授权攻坚</span></div>
+      <div class="ai-seg"><span class="lab">画像</span>名下12家A级客户，客户复购率96%，拓新能力优秀，账期管控优秀。</div>
+      <div class="ai-seg act"><span class="lab">管理动作</span>授予山东蓝海市场专项开拓权，分配高潜力B级客户，给予增量提成政策，带教新人。</div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-h"><span class="ai-badge">🤖 低效诊断</span><span class="ai-obj">李四</span><span class="pill red" style="margin-left:auto">限期整改</span></div>
+      <div class="ai-seg"><span class="lab">深层归因</span>非销量差，而是名下80%客户为低毛利中间商，客户流失率34%、集中度78%、3个月零新增。</div>
+      <div class="ai-seg act"><span class="lab">管理动作</span>回收高潜客户重新分配；开展议价/风控/客户挖掘专项培训；设定3个月业绩目标，未达标调岗。</div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, E=DATA.employees;
+  const typeColor={"标杆全能型":"#16a34a","潜力攻坚型":"#2563eb","存量守成型":"#d99e00","低效弱势型":"#dc2626"};
+
+  const rank=echarts.init(document.getElementById("emp-rank"));
+  const rs=[...E].sort((a,b)=>a.net-b.net);
+  rank.setOption({
+    grid:{left:60,right:44,top:14,bottom:20},tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.name}<br/>净利 ${p.value}万`}),
+    xAxis:C.val({}),yAxis:C.cat({data:rs.map(e=>e.name)}),
+    series:[{type:"bar",barWidth:16,data:rs.map(e=>({value:e.net,itemStyle:{color:typeColor[e.type],borderRadius:4}})),
+      label:{show:true,position:"right",formatter:"{c}万",color:C.axisText,fontSize:11}}]
+  });
+
+  const quad=echarts.init(document.getElementById("emp-quad"));
+  quad.setOption({
+    grid:{left:52,right:18,top:20,bottom:40},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>净利 ${p.data[0]}万 · 复购增长 ${(p.data[1]*100).toFixed(0)}%`}),
+    xAxis:C.val({name:"个人净利(万)"}),yAxis:C.val({name:"客户复购增长",axisLabel:{formatter:v=>(v*100).toFixed(0)+"%"}}),
+    series:[{type:"scatter",symbolSize:22,
+      label:{show:true,formatter:p=>p.data[3],position:"top",color:C.axisText,fontSize:10},
+      data:E.map(e=>{const g=(0.4-e.churn)+e.revive*0.02;return {value:[e.net,Math.max(0.02,g),e.custA,e.name],itemStyle:{color:typeColor[e.type],opacity:.85}};}),
+      markLine:{silent:true,lineStyle:{color:"#c4ccdb",type:"dashed"},data:[{xAxis:250},{yAxis:0.3}]}}]
+  });
+
+  const stack=echarts.init(document.getElementById("emp-stack"));
+  stack.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:E.map(e=>e.name)}),yAxis:C.val({name:"客户数"}),
+    series:[
+      {name:"A黄金",type:"bar",stack:"s",data:E.map(e=>e.custA),itemStyle:{color:"#16a34a"}},
+      {name:"B成长",type:"bar",stack:"s",data:E.map(e=>e.custB),itemStyle:{color:"#2563eb"}},
+      {name:"C普通",type:"bar",stack:"s",data:E.map(e=>Math.round(e.custB*1.6)),itemStyle:{color:"#d99e00"}},
+      {name:"D沉睡",type:"bar",stack:"s",data:E.map(e=>Math.round(e.churn*30)),itemStyle:{color:"#9aa4bb",borderRadius:[3,3,0,0]}}]
+  });
+
+  const fair=echarts.init(document.getElementById("emp-fair"));
+  const fs=[...E].sort((a,b)=>b.net-a.net);
+  fair.setOption({
+    grid:C.grid,tooltip:C.tip(),xAxis:C.cat({data:fs.map(e=>e.name)}),yAxis:C.val({name:"A/B客户贡献毛利(万)"}),
+    series:[{type:"bar",barWidth:"50%",data:fs.map(e=>({value:Math.round(e.net*0.82),itemStyle:{color:e.net>300?"#16a34a":e.net<150?"#dc2626":"#2563eb",borderRadius:[4,4,0,0]}})),
+      markLine:{symbol:"none",lineStyle:{color:"#f97316",type:"dashed"},label:{formatter:"人均",color:"#f97316",fontSize:10},data:[{yAxis:Math.round(fs.reduce((s,e)=>s+e.net*0.82,0)/fs.length)}]}}]
+  });
+
+  const ops=echarts.init(document.getElementById("emp-ops"));
+  ops.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:E.map(e=>e.name)}),yAxis:C.val({}),
+    series:[
+      {name:"新增客户",type:"bar",barWidth:12,data:E.map(e=>e.newCust),itemStyle:{color:"#2563eb",borderRadius:[3,3,0,0]}},
+      {name:"沉睡唤醒",type:"bar",barWidth:12,data:E.map(e=>e.revive),itemStyle:{color:"#16a34a",borderRadius:[3,3,0,0]}},
+      {name:"流失率%",type:"line",smooth:true,data:E.map(e=>Math.round(e.churn*100)),lineStyle:{color:"#dc2626",width:2.5},itemStyle:{color:"#dc2626"}}]
+  });
+
+  const conc=echarts.init(document.getElementById("emp-conc"));
+  conc.setOption({
+    grid:C.grid,tooltip:Object.assign(C.tip(),{formatter:p=>`${p[0].name}<br/>集中度 ${(p[0].value*100).toFixed(0)}%`}),
+    xAxis:C.cat({data:E.map(e=>e.name)}),yAxis:C.val({name:"前两大客户毛利占比",axisLabel:{formatter:v=>(v*100).toFixed(0)+"%"},max:1}),
+    series:[{type:"bar",barWidth:"50%",data:E.map(e=>({value:e.conc,itemStyle:{color:e.conc>=0.7?"#dc2626":e.conc>=0.5?"#f97316":"#16a34a",borderRadius:[4,4,0,0]}})),
+      markLine:{symbol:"none",lineStyle:{color:"#dc2626",type:"dashed"},label:{formatter:"风险线70%",color:"#dc2626",fontSize:10},data:[{yAxis:0.7}]}}]
+  });
+
+  // 雷达 + selector
+  const radar=echarts.init(document.getElementById("emp-radar"));
+  const sel=document.getElementById("emp-sel");
+  sel.innerHTML=E.map((e,i)=>`<option value="${i}">${e.name} · ${e.type}</option>`).join("");
+  function drawRadar(i){
+    const e=E[i];
+    radar.setOption({
+      tooltip:C.tipItem(),
+      radar:{indicator:[{name:"业绩产出",max:10},{name:"客户盈利质量",max:10},{name:"客户盘活",max:10},{name:"拓新能力",max:10},{name:"账期风控",max:10},{name:"跟进达标",max:10}],
+        radius:"66%",center:["50%","50%"],axisName:{color:C.axisText,fontSize:11},splitLine:{lineStyle:{color:"#e5e9f2"}},splitArea:{areaStyle:{color:["#fafbfe","#fff"]}}},
+      series:[{type:"radar",data:[{value:e.radar,name:e.name,itemStyle:{color:typeColor[e.type]},areaStyle:{opacity:.22},lineStyle:{width:2.4}}]}]
+    },true);
+  }
+  drawRadar(0);
+  sel.addEventListener("change",()=>drawRadar(+sel.value));
+
+  const over=echarts.init(document.getElementById("emp-overdue"));
+  over.setOption({
+    grid:C.grid,tooltip:C.tip(),xAxis:C.cat({data:E.map(e=>e.name)}),yAxis:C.val({name:"逾期客户数"}),
+    series:[{type:"bar",barWidth:"46%",data:E.map(e=>({value:Math.round(e.churn*22),itemStyle:{color:e.churn>0.2?"#dc2626":e.churn>0.1?"#f97316":"#16a34a",borderRadius:[4,4,0,0]}})),
+      label:{show:true,position:"top",formatter:"{c}",color:C.axisText,fontSize:11}}]
+  });
+
+  const tb=document.querySelector("#emp-table tbody");
+  tb.innerHTML=E.map(e=>{
+    const tc={"标杆全能型":"green","潜力攻坚型":"blue","存量守成型":"yellow","低效弱势型":"red"}[e.type];
+    return `<tr>
+      <td><b>${e.name}</b></td><td>${e.dept}</td><td><span class="pill ${tc}">${e.type}</span></td>
+      <td class="num"><b>${e.net}</b></td><td class="num">${e.ton}</td><td class="num">${e.perTon}</td>
+      <td class="num">${e.custA}</td><td class="num">${e.custB}</td><td class="num">${e.newCust}</td><td class="num">${e.revive}</td>
+      <td class="num" style="color:${e.churn>0.2?'var(--red)':'var(--text)'}">${(e.churn*100).toFixed(0)}%</td>
+      <td><div class="dot-tag"><div class="bar-mini" style="width:60px"><i style="width:${e.conc*100}%;background:${e.conc>=0.7?'#dc2626':'#2563eb'}"></i></div>${(e.conc*100).toFixed(0)}%</div></td>
+    </tr>`;}).join("");
+
+  const all=[rank,quad,stack,fair,ops,conc,radar,over];
+  window.addEventListener("resize",()=>all.forEach(c=>c.resize()));
+}
+Layout.render("employee",{title:"员工能力画像",crumb:"员工能力画像"});
+</script>
+</body>
+</html>
