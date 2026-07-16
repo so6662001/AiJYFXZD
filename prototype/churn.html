@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>购货频率 · 流失预警 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>购货频率分析 & 客户流失预警</h1>
+    <p>核心逻辑纯算法 / SQL 规则实现，本地批量运算、零 Token 消耗、支持上万客户凌晨跑批；AI 仅做深度归因与个性化挽留方案（可选付费）。结果自动按销售拆分并每日推送。</p>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">极高流失风险</span><span class="k-ic bg-red">🔴</span></div><div class="k-val" style="color:var(--red)">9</div><div class="k-foot">3天内主管协同</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">高流失风险</span><span class="k-ic bg-orange">🟠</span></div><div class="k-val" style="color:var(--orange)">28</div><div class="k-foot">7天内上门挽留</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">沉睡客户</span><span class="k-ic bg-yellow">😴</span></div><div class="k-val">100</div><div class="k-foot">间隔&gt;180天</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">跑批耗时</span><span class="k-ic bg-teal">⚡</span></div><div class="k-val">2:00<small>AM</small></div><div class="k-foot">全客户 · 零算力成本</div></div>
+  </div>
+
+  <div class="grid g3" style="margin-bottom:2px">
+    <div class="card"><div class="c-head"><h3>流失风险等级分布</h3></div><div class="c-body tight"><div id="ch-level" class="chart sm"></div></div></div>
+    <div class="card"><div class="c-head"><h3>采购频率分层</h3></div><div class="c-body tight"><div id="ch-freq" class="chart sm"></div></div></div>
+    <div class="card"><div class="c-head"><h3>流失评分因子权重</h3></div><div class="c-body tight"><div id="ch-factor" class="chart sm"></div></div></div>
+  </div>
+
+  <!-- 评分模型说明 -->
+  <div class="card" style="margin:18px 0">
+    <div class="c-head"><h3>多因子加权流失风险评分模型</h3><span class="pill green">纯算法 · 0 Token</span><span class="sub" style="margin-left:8px">TotalScore = S1×0.4 + S2×0.3 + S3×0.2 + S4×0.1</span></div>
+    <div class="c-body">
+      <div class="grid g4">
+        <div class="arch-layer" style="border-left-color:#dc2626;margin:0"><h4>因子1 · 断单时长 <span class="lv">40%</span></h4><p>≤30天=0 · 30-90=30 · 90-180=70 · &gt;180=100</p></div>
+        <div class="arch-layer" style="border-left-color:#f97316;margin:0"><h4>因子2 · 采购下滑 <span class="lv">30%</span></h4><p>近3月 vs 上3月吨位降幅：≤0=0 · ≤30%=40 · ≤60%=70 · &gt;60%=100</p></div>
+        <div class="arch-layer" style="border-left-color:#d99e00;margin:0"><h4>因子3 · 节奏恶化 <span class="lv">20%</span></h4><p>RecentT/AvgT：≤1=0 · ≤1.3=30 · ≤1.8=60 · &gt;1.8=100</p></div>
+        <div class="arch-layer" style="border-left-color:#2563eb;margin:0"><h4>因子4 · 资金恶化 <span class="lv">10%</span></h4><p>新增逾期 / 现款转赊销 / 账期拉长30天+ → 100</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主表格 -->
+  <div class="section-title"><span class="n">📋</span><h2>全客户流失预警表</h2><span class="sub">颜色分级 · 强制跟进动作</span><span class="line"></span>
+    <button class="pill blue" style="cursor:pointer;border:0;padding:6px 12px">⬇ 导出 Excel</button></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl" id="ch-table"><thead><tr>
+      <th>客户名称</th><th>客户类型</th><th>归属销售</th><th class="num">末次下单</th><th class="num">近3月同比</th>
+      <th class="num">流失总分</th><th>风险等级</th><th>专项预警标签</th><th>强制动作</th>
+    </tr></thead><tbody></tbody></table>
+  </div></div>
+
+  <!-- 销售分发 -->
+  <div class="section-title"><span class="n">📤</span><h2>按销售自动分发</h2><span class="sub">每日 8:00 推送个人专属清单至企微/钉钉</span><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="card">
+      <div class="c-head"><h3>李四 · 我的流失预警</h3><span class="pill red">2 极高</span></div>
+      <div class="c-body ai-list">
+        <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>廊坊金属贸易</b><p>断单74天 · 现金流客户预警 · 7天内上门+专项报价</p></div></div>
+        <div class="alert-item"><div class="a-ic bg-orange">🟠</div><div class="a-b"><b>天津建工物资</b><p>断单88天 · 本月上门拜访1次</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-head"><h3>王五 · 我的流失预警</h3><span class="pill orange">1 高关注</span></div>
+      <div class="c-body ai-list">
+        <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>佛山五金城</b><p>断单145天 · 亏损客户 · 主管协同3天内对接</p></div></div>
+        <div class="alert-item"><div class="a-ic bg-yellow">🟡</div><div class="a-b"><b>宁波特钢加工</b><p>核心利润客户预警 · 频次由3降至1，本周走访</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-head"><h3>AI 增值挽留方案</h3><span class="pill purple">付费 · 可关闭</span></div>
+      <div class="c-body">
+        <div class="ai-card" style="margin-bottom:10px">
+          <div class="ai-h"><span class="ai-badge">🤖 挽留话术</span><span class="ai-obj">廊坊金属贸易</span></div>
+          <p style="font-size:12.5px">“王总，注意到近期贵司采购节奏放缓。我们针对现款采购推出每吨减15元阶梯优惠，同时可为贵司锁定Q3型材货源与价格，帮您降低资金占用……”</p>
+        </div>
+        <div class="note"><span class="n-ic">💡</span><div>仅橙/红高风险客户触发 AI，结果缓存7天；绿/黄客户仅展示规则自带基础建议，节省算力。</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, CH=DATA.churn;
+
+  const lvl=echarts.init(document.getElementById("ch-level"));
+  lvl.setOption({
+    tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
+    series:[{type:"pie",radius:["40%","68%"],center:["50%","44%"],itemStyle:{borderColor:"#fff",borderWidth:2},
+      label:{formatter:"{b}\n{c}",fontSize:11,color:C.axisText},
+      data:[{name:"极高(76-100)",value:9,itemStyle:{color:"#dc2626"}},{name:"高(51-75)",value:28,itemStyle:{color:"#f97316"}},
+        {name:"潜在(26-50)",value:186,itemStyle:{color:"#d99e00"}},{name:"低(0-25)",value:1063,itemStyle:{color:"#16a34a"}}]}]
+  });
+
+  const freq=echarts.init(document.getElementById("ch-freq"));
+  freq.setOption({
+    grid:{left:44,right:16,top:16,bottom:50},tooltip:C.tip(),
+    xAxis:C.cat({data:["高频\n≤30天","中频\n30-90","低频\n90-180","沉睡\n>180"],axisLabel:{fontSize:10,color:C.axisText,lineHeight:13}}),
+    yAxis:C.val({name:"客户数"}),
+    series:[{type:"bar",barWidth:"56%",data:[438,512,236,100].map((v,i)=>({value:v,itemStyle:{color:["#16a34a","#2563eb","#d99e00","#dc2626"][i],borderRadius:[4,4,0,0]}})),
+      label:{show:true,position:"top",color:C.axisText,fontSize:11}}]
+  });
+
+  const fac=echarts.init(document.getElementById("ch-factor"));
+  fac.setOption({
+    tooltip:Object.assign(C.tipItem(),{formatter:"{b}: {c}%"}),
+    series:[{type:"pie",radius:["0%","66%"],center:["50%","46%"],roseType:"radius",itemStyle:{borderColor:"#fff",borderWidth:2},
+      label:{formatter:"{b}\n{c}%",fontSize:10,color:C.axisText},
+      data:[{name:"断单时长",value:40,itemStyle:{color:"#dc2626"}},{name:"采购下滑",value:30,itemStyle:{color:"#f97316"}},
+        {name:"节奏恶化",value:20,itemStyle:{color:"#d99e00"}},{name:"资金恶化",value:10,itemStyle:{color:"#2563eb"}}]}]
+  });
+
+  const tb=document.querySelector("#ch-table tbody");
+  const lvlMap={"极高":["red","销售主管协同，3天内对接负责人"],"高":["orange","7天内上门+专项报价挽留"],"潜在":["yellow","本月上门拜访1次"],"低":["green","常规月度维护"]};
+  tb.innerHTML=CH.map(c=>{
+    const m=lvlMap[c.level];
+    const barColor=c.score>75?"#dc2626":c.score>50?"#f97316":c.score>25?"#d99e00":"#16a34a";
+    return `<tr>
+      <td><b>${c.name}</b></td><td>${c.type}</td><td>${c.sale}</td>
+      <td class="num">${c.lastDays}天</td>
+      <td class="num" style="color:${c.drop<0?'var(--red)':'var(--green)'}">${(c.drop*100).toFixed(0)}%</td>
+      <td class="num"><div class="dot-tag" style="justify-content:flex-end"><div class="bar-mini" style="width:56px"><i style="width:${c.score}%;background:${barColor}"></i></div><b>${c.score}</b></div></td>
+      <td><span class="pill ${m[0]}">${c.level}</span></td>
+      <td>${c.tag==="—"?'<span style="color:var(--muted)">—</span>':'<span class="pill red">'+c.tag+'</span>'}</td>
+      <td style="font-size:12px;color:var(--muted)">${m[1]}</td>
+    </tr>`;}).join("");
+
+  const all=[lvl,freq,fac];
+  window.addEventListener("resize",()=>all.forEach(c=>c.resize()));
+}
+Layout.render("churn",{title:"购货频率 · 流失预警",crumb:"购货频率 · 流失预警"});
+</script>
+</body>
+</html>
