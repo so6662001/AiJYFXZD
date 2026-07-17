@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>角色与权限设计 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>.mermaid{display:flex;justify-content:center;overflow:auto;padding:8px 4px;font-family:inherit}.mermaid svg{max-width:100%;height:auto}</style>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>角色与权限设计（RBAC + 组织数据域 + 监管关系）</h1>
+    <p>面向真实销售组织：总裁 / 运营经理 / 销售部经理 / 销售主管 / 小组组长 / 销售员 / 销售助理。权限由三层控制——① <b>功能权限</b>（能用哪些功能）；② <b>数据范围</b>（能看谁的数据，按组织上下级树）；③ <b>监管关系</b>（纵向上下级 + 横向运营监管 + 审批链）。</p>
+  </div>
+
+  <!-- 组织层级 -->
+  <div class="section-title"><span class="n">1</span><h2>组织层级与监管关系</h2><span class="sub">实线=上下级(数据继承)，虚线=横向监管</span><span class="line"></span></div>
+  <div class="card"><div class="c-body"><div class="mermaid">
+flowchart TD
+  P["营销总裁<br/>全局决策·终审"]
+  OM["运营经理<br/>横向监管·规则配置"]
+  M1["销售部经理<br/>部门经营·审批"]
+  S1["销售主管<br/>区域/多组管理"]
+  S2["销售主管<br/>区域/多组管理"]
+  L1["小组组长<br/>带组+自身业绩"]
+  L2["小组组长"]
+  R1["销售员"]
+  R2["销售员"]
+  AS["销售助理<br/>代操作·无业绩"]
+  P --> M1
+  P --> OM
+  M1 --> S1
+  M1 --> S2
+  S1 --> L1
+  S1 --> L2
+  L1 --> R1
+  L1 --> R2
+  L1 --> AS
+  OM -.横向监管.-> M1
+  OM -.规则/算力.-> P
+    </div></div></div>
+
+  <!-- 角色定义 -->
+  <div class="section-title"><span class="n">2</span><h2>角色定义</h2><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>角色</th><th>组织层级</th><th>核心职责</th><th>数据范围</th><th>占客户/业绩</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill red">营销总裁</span></td><td>最高层</td><td>全局经营决策、资源倾斜、规则终审</td><td><b>全公司</b></td><td>否</td></tr>
+        <tr><td><span class="pill purple">运营经理</span></td><td>横向职能</td><td>规则/阈值/算力监管与配置、数据治理</td><td><b>全公司</b>（业务只读 + 配置权）</td><td>否（无业绩考核）</td></tr>
+        <tr><td><span class="pill blue">销售部经理</span></td><td>部门</td><td>部门经营、分配/授信审批、绩效考核</td><td><b>本部门</b>（下辖多主管/组）</td><td>可挂战略大客户</td></tr>
+        <tr><td><span class="pill blue">销售主管</span></td><td>区域/中心</td><td>管理多组、组间资源调配、达标监控</td><td><b>本区域</b>（下辖多组）</td><td>可挂重点客户</td></tr>
+        <tr><td><span class="pill green">小组组长</span></td><td>小组</td><td>带组作战、组内分配、自身成交</td><td><b>本组</b>（组员 + 本人）</td><td>是</td></tr>
+        <tr><td><span class="pill green">销售员</span></td><td>执行</td><td>客户跟进、成交、录入跟进记录</td><td><b>本人客户</b></td><td>是</td></tr>
+        <tr><td><span class="pill gray">销售助理</span></td><td>辅助</td><td>代录入/代查询/协助跟进、报表整理</td><td>随所辅助对象（<b>继承其范围</b>，只读 + 代操作）</td><td>否</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+  <!-- 数据范围模型 -->
+  <div class="section-title"><span class="n">3</span><h2>数据范围模型（行级数据权限）</h2><span class="sub">基于组织树的下属集合自动计算可见数据</span><span class="line"></span></div>
+  <div class="grid g4" style="margin-bottom:8px">
+    <div class="opt-card"><div class="o-ic bg-green">👤</div><h3>本人域</h3><p>仅本人名下客户与业绩（销售员、销售助理默认）。</p></div>
+    <div class="opt-card"><div class="o-ic bg-blue">👥</div><h3>本组域</h3><p>组长可见全组组员数据（含本人）。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">🏢</div><h3>本部门域</h3><p>主管/经理可见下辖所有组、销售的数据。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">🌐</div><h3>全公司域</h3><p>总裁全权；运营经理只读监管 + 配置。</p></div>
+  </div>
+  <div class="note"><span class="n-ic">🔎</span><div><b>行级权限规则：</b>可见客户集合 = 客户.归属销售 ∈ <b>当前用户的下属销售集合</b>（含自身，按组织树递归）。上级自动可见下级全部数据（数据继承）；同级之间默认不可见。<b>字段级</b>：成本价、挂牌价、供应商货源等敏感字段仅经理及以上可见/导出。</div></div>
+
+  <!-- 功能权限矩阵 -->
+  <div class="section-title"><span class="n">4</span><h2>功能权限矩阵（RBAC）</h2><span class="sub">配置 / 审批 / 操作 / 查看 / 无</span><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>功能模块</th><th>总裁</th><th>运营经理</th><th>部门经理</th><th>销售主管</th><th>组长</th><th>销售员</th><th>助理</th></tr></thead>
+      <tbody>
+        <tr><td>经营驾驶舱 / 看板</td><td><span class="pill blue">操作</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td></tr>
+        <tr><td>市场潜力 / 资源倾斜</td><td><span class="pill blue">操作</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td></tr>
+        <tr><td>客户分析 / 查询工作台</td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td></tr>
+        <tr><td>我的客户 / 跟进执行</td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">查看</span></td><td><span class="pill orange">下派/验收</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">代操作</span></td></tr>
+        <tr><td>智能分配 / 客户回收</td><td><span class="pill orange">终审</span></td><td><span class="pill green">监管</span></td><td><span class="pill orange">审批</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">组内</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td></tr>
+        <tr><td>规则配置(流失/回收/阈值)</td><td><span class="pill orange">审批</span></td><td><span class="pill purple">配置</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td></tr>
+        <tr><td>AI 诊断 / 问答</td><td><span class="pill blue">操作</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">操作</span></td><td><span class="pill green">查看</span></td><td><span class="pill green">本人客户</span></td><td><span class="pill green">查看</span></td></tr>
+        <tr><td>Token 计费中心</td><td><span class="pill orange">审批</span></td><td><span class="pill purple">配置/管理</span></td><td><span class="pill green">部门用量</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td></tr>
+        <tr><td>数据导出（含敏感字段控制）</td><td><span class="pill blue">操作</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">操作</span></td><td><span class="pill blue">本域</span></td><td><span class="pill blue">本组</span></td><td><span class="pill blue">本人</span></td><td><span class="pill blue">随辅助</span></td></tr>
+        <tr><td>审批中心(分配/授信/套餐)</td><td><span class="pill orange">终审</span></td><td><span class="pill green">查看</span></td><td><span class="pill orange">部门审批</span></td><td><span class="pill orange">组审批</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td><td><span class="pill gray">无</span></td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+  <!-- 监管关系 -->
+  <div class="section-title"><span class="n">5</span><h2>监管与被监管关系</h2><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="card"><div class="c-head"><h3>纵向监管（上下级）</h3><span class="pill blue">数据继承</span></div><div class="c-body doc"><ul>
+      <li>上级自动可见下级全部客户、业绩、跟进达标率</li>
+      <li>组长监管组员、主管监管组、经理监管部门、总裁监管全局</li>
+      <li>下派任务、审批分配/回收、验收跟进结果</li>
+      <li>下属操作全程留痕，对上级透明</li>
+    </ul></div></div>
+    <div class="card"><div class="c-head"><h3>横向监管（运营经理）</h3><span class="pill purple">不占业务</span></div><div class="c-body doc"><ul>
+      <li>不在业务上下级链，独立监管职能</li>
+      <li>全公司业务数据<b>只读</b>，不可抢客户、不改业绩</li>
+      <li>负责规则/阈值配置、算力成本与用量监管</li>
+      <li>数据异常、违规操作预警上报总裁</li>
+    </ul></div></div>
+    <div class="card"><div class="c-head"><h3>销售助理（代理权限）</h3><span class="pill gray">继承范围</span></div><div class="c-body doc"><ul>
+      <li>无独立数据域，<b>继承所辅助对象</b>的可见范围</li>
+      <li>可代录入跟进记录、代查询、整理报表</li>
+      <li>不可审批、不可配置、无业绩归属</li>
+      <li>代操作同样留痕（标注"代 XX 操作"）</li>
+    </ul></div></div>
+  </div>
+
+  <!-- 审批流 -->
+  <div class="section-title"><span class="n">6</span><h2>审批链（分级审批）</h2><span class="sub">分配 / 回收 / 授信 / 套餐变更</span><span class="line"></span></div>
+  <div class="card"><div class="c-body"><div class="mermaid">
+flowchart LR
+  A["发起: 组长/主管<br/>客户分配·回收·授信调整"] --> B{范围/金额}
+  B -->|组内小额| C[销售主管审批]
+  B -->|部门内| D[销售部经理审批]
+  B -->|跨部门/大额授信| E[营销总裁终审]
+  C --> F[生效 + 审计留痕]
+  D --> F
+  E --> F
+  G["运营经理"] -.旁路监管.-> F
+    </div></div></div>
+
+  <!-- 技术实现 -->
+  <div class="section-title"><span class="n">7</span><h2>权限模型技术实现</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="opt-card"><div class="o-ic bg-blue">🧩</div><h3>RBAC 角色-权限</h3><p>角色绑定功能权限点(菜单/按钮/接口)，用户绑定角色，支持一人多角色。</p></div>
+    <div class="opt-card"><div class="o-ic bg-green">🌳</div><h3>组织树数据域</h3><p>行级权限=归属销售∈下属集合(递归)；每次查询自动注入数据域过滤条件。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">🔒</div><h3>字段级权限</h3><p>成本价/挂牌价/货源等敏感字段按角色脱敏或隐藏，导出同步受控。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">📝</div><h3>操作审计</h3><p>分配/回收/授信/配置/导出/AI调用全程留痕，可追溯，满足集团审计。</p></div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">🔐</span><div><b>落地要点：</b>① 数据范围随组织架构调整自动生效，无需逐人配置；② 客户"我的客户""跟进分配""员工画像"等页面均按登录角色的数据域过滤展示；③ 敏感操作走分级审批 + 审计；④ 运营经理与业务链解耦，实现"监管而不干预业务、不抢客户业绩"。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  if(window.mermaid){
+    try{
+      mermaid.initialize({startOnLoad:false,theme:"base",securityLevel:"loose",
+        themeVariables:{primaryColor:"#e6efff",primaryBorderColor:"#2563eb",primaryTextColor:"#16233d",lineColor:"#8592ac",fontFamily:"inherit",fontSize:"13px"},
+        flowchart:{curve:"basis",useMaxWidth:true}});
+      mermaid.run({querySelector:".content .mermaid"});
+    }catch(e){console.warn("mermaid failed",e);}
+  }
+}
+Layout.render("roles",{title:"角色与权限设计",crumb:"角色与权限设计"});
+</script>
+</body>
+</html>

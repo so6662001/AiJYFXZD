@@ -20,6 +20,9 @@
       { id: "churn",  t: "购货频率 · 流失预警", ic: "⚠️", href: "churn.html", tag: "37" },
       { id: "billing", t: "Token 计费中心", ic: "💰", href: "billing.html" },
     ]},
+    { g: "系统与权限", items: [
+      { id: "roles", t: "角色与权限设计", ic: "🔐", href: "roles.html" },
+    ]},
   ];
 
   function buildSidebar(active) {
