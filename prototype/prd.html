@@ -82,6 +82,14 @@
         <div class="rboxes" style="grid-template-columns:1fr">
           <div class="pbox accent" style="border-top-color:#0d9488"><b>🗂️ 销售明细宽表（36 字段）</b><span>ERP 原生数据每日同步 · 清洗/周期切片/维度聚合 · 指标预计算落库(建索引/分库分表) → 6 张模型表</span></div>
         </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#334155">系统与平台层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
+          <div class="pbox"><b>🔐 角色与权限</b><span>RBAC + 组织数据域 + 监管审批</span></div>
+          <div class="pbox"><b>🔌 数据源管理</b><span>SQL Server / MySQL / API 多源</span></div>
+          <div class="pbox"><b>⏰ 定时任务调度</b><span>每日跑批 DAG + 重试/补数</span></div>
+          <div class="pbox"><b>🧩 平台接入</b><span>SSO 鉴权 + 租户隔离 + 挂载</span></div>
+        </div></div>
     </div>
   </div></div>
 
@@ -297,10 +305,75 @@ sequenceDiagram
     </div></div></div>
   </div>
 
+  <!-- 8 角色与权限 -->
+  <div class="section-title"><span class="n">8</span><h2>角色与权限体系（RBAC + 数据域 + 监管）</h2><span class="sub">详见「角色与权限设计」</span><span class="line"></span>
+    <a href="roles.html" class="pill blue" style="text-decoration:none">查看详情 →</a></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>角色</th><th>数据范围</th><th>核心权限</th><th>占客户/业绩</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill red">营销总裁</span></td><td>全公司</td><td>全权 + 规则终审 + 分配终审</td><td>否</td></tr>
+        <tr><td><span class="pill purple">运营经理</span></td><td>全公司(只读+配置)</td><td>规则/阈值/算力配置与监管</td><td>否</td></tr>
+        <tr><td><span class="pill blue">销售部经理</span></td><td>本部门</td><td>部门审批、绩效考核</td><td>可挂大客户</td></tr>
+        <tr><td><span class="pill blue">销售主管</span></td><td>本区域(多组)</td><td>组间调配、达标监控、组审批</td><td>可挂重点客户</td></tr>
+        <tr><td><span class="pill green">小组组长</span></td><td>本组</td><td>组内分配、带组作战</td><td>是</td></tr>
+        <tr><td><span class="pill green">销售员</span></td><td>本人客户</td><td>跟进执行、录入</td><td>是</td></tr>
+        <tr><td><span class="pill gray">销售助理</span></td><td>继承所辅助对象</td><td>代录入/代查(只读+代操作)</td><td>否</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <div class="note" style="margin-top:12px"><span class="n-ic">🔐</span><div>三层控制：功能权限(RBAC) × 数据范围(组织树行级权限,上级继承下级) × 监管关系(纵向上下级 + 运营经理横向监管 + 分级审批 + 全量审计)。字段级：成本价/货源等敏感字段按角色脱敏。</div></div>
+
+  <!-- 9 数据源与平台接入 -->
+  <div class="section-title"><span class="n">9</span><h2>数据源与平台接入</h2><span class="sub">多 ERP 接入 + SSO/租户，详见「数据源 & 平台接入」</span><span class="line"></span>
+    <a href="datasource.html" class="pill blue" style="text-decoration:none">查看详情 →</a></div>
+  <div class="card"><div class="c-head"><h3>平台接入架构（本系统作为平台业务模块）</h3></div><div class="c-body"><div class="mermaid">
+flowchart TB
+  subgraph PLAT["公司统一平台"]
+    SSO["统一鉴权 SSO"]
+    TEN["租户管理"]
+    ORG["组织/角色"]
+  end
+  subgraph MOD["本模块 · 经营分析"]
+    UI["前端(微前端挂载)"]
+    SVC["分析服务"]
+    DL["数据接入层"]
+  end
+  subgraph SRC["多 ERP 数据源"]
+    DB1["SQL Server"]
+    DB2["MySQL"]
+    API1["API 接口"]
+  end
+  SSO --> UI
+  TEN --> SVC
+  ORG --> SVC
+  UI --> SVC
+  DB1 --> DL
+  DB2 --> DL
+  API1 --> DL
+  DL --> SVC
+    </div></div></div>
+  <div class="note" style="margin-top:12px"><span class="n-ic">🔌</span><div>数据侧支持 SQL Server / MySQL / API 三类数据源 + 字段映射到 36 项标准字段;鉴权与租户复用平台统一基础接口(SSO + 租户上下文),按租户隔离数据/指标/权限,一租户可绑定多数据源。</div></div>
+
+  <!-- 10 定时任务与自动化 -->
+  <div class="section-title"><span class="n">10</span><h2>定时任务与自动化服务</h2><span class="sub">每日跑批数据管道，详见「定时任务 · 自动化服务」</span><span class="line"></span>
+    <a href="jobs.html" class="pill blue" style="text-decoration:none">查看详情 →</a></div>
+  <div class="card"><div class="c-head"><h3>每日数据管道（DAG 依赖编排）</h3></div><div class="c-body"><div class="mermaid">
+flowchart LR
+  A["①多源同步<br/>02:00"] --> B["②清洗聚合<br/>落宽表"]
+  B --> C["③指标/分层/复购/流失"]
+  C --> D["④规则打标签+动态升降级"]
+  D --> E["⑤AI批量诊断<br/>04:00"]
+  D --> F["⑥分配/回收+生成任务<br/>07:30"]
+  E --> G["⑦报表/预警推送<br/>08:00"]
+  F --> G
+    </div></div></div>
+  <div class="note" style="margin-top:12px"><span class="n-ic">⏰</span><div>Cron 调度 + DAG 依赖编排;失败自动重试(退避3次)+告警;幂等写入 + 可补数重跑;分租户并行 + 增量(CDC)。前端只读预计算结果,打开秒开。</div></div>
+
   <!-- 信息架构 + 流程 -->
   <div class="split">
     <div>
-      <div class="section-title"><span class="n">8</span><h2>信息架构（页面地图）</h2><span class="line"></span></div>
+      <div class="section-title"><span class="n">11</span><h2>信息架构（页面地图）</h2><span class="line"></span></div>
       <div class="card"><div class="c-body">
         <ul class="pmap">
           <li><span>经营总览</span><ul>
@@ -320,12 +393,18 @@ sequenceDiagram
           <li><span>智能诊断</span><ul>
             <li><a href="ai-diagnosis.html">AI 经营诊断</a></li>
             <li><a href="churn.html">购货频率·流失预警</a></li>
+            <li><a href="billing.html">Token 计费中心</a></li>
+          </ul></li>
+          <li><span>系统与权限</span><ul>
+            <li><a href="roles.html">角色与权限设计</a></li>
+            <li><a href="datasource.html">数据源 & 平台接入</a></li>
+            <li><a href="jobs.html">定时任务 · 自动化服务</a></li>
           </ul></li>
         </ul>
       </div></div>
     </div>
     <div>
-      <div class="section-title"><span class="n">9</span><h2>核心业务流程</h2><span class="sub">月度经营闭环</span><span class="line"></span></div>
+      <div class="section-title"><span class="n">12</span><h2>核心业务流程</h2><span class="sub">月度经营闭环</span><span class="line"></span></div>
       <div class="card"><div class="c-body">
         <div class="flow" style="flex-direction:column">
           <div class="step" style="margin-right:0"><span class="s-n">月初</span><b>市场找机会</b><p>输出区域/品类潜力，定重点开拓方向，产出资源倾斜方案</p></div>
@@ -339,7 +418,7 @@ sequenceDiagram
   </div>
 
   <!-- 功能需求清单 -->
-  <div class="section-title"><span class="n">10</span><h2>功能需求清单</h2><span class="sub">P0 核心 · P1 重要 · P2 增值</span><span class="line"></span></div>
+  <div class="section-title"><span class="n">13</span><h2>功能需求清单</h2><span class="sub">P0 核心 · P1 重要 · P2 增值</span><span class="line"></span></div>
   <div class="card"><div class="c-body" style="padding:0;overflow:auto">
     <table class="tbl">
       <thead><tr><th>模块</th><th>功能点</th><th>说明</th><th>优先级</th><th>原型</th></tr></thead>
@@ -356,6 +435,11 @@ sequenceDiagram
         <tr><td rowspan="2"><span class="pill orange">诊断</span></td><td>常规报表(字节计Token) + AI 深诊(大模型Token)</td><td>统一 Token 计费 + 缓存节流</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td>流失评分模型 + 总裁问答</td><td>四因子加权 + 交互问答</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td><span class="pill gray">配置</span></td><td>阈值/权重/规则可视化配置</td><td>流失模型、回收规则、全局阈值</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="4"><span class="pill gray">系统</span></td><td>角色与权限(RBAC+数据域+监管)</td><td>组织树数据域、功能矩阵、分级审批、审计</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>数据源管理(多 ERP)</td><td>SQL Server/MySQL/API 接入 + 字段映射 + 同步</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>平台接入(SSO/租户)</td><td>统一鉴权 + 租户隔离 + 模块化挂载</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>定时任务/自动化(作业调度)</td><td>每日跑批 DAG + 重试/告警/补数 + 监控</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td><span class="pill gray">计费</span></td><td>Token 计费中心</td><td>用量总览/多维排行/账单导出/余额预警/套餐</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td><span class="pill gray">智能</span></td><td>复购预测 + 到期催单闭环</td><td>复购预测(上次下单+平均间隔) + 复购概率 + 工作台查询 + 催单队列一键生成任务派发销售</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓ 规则版</span></td></tr>
         <tr><td><span class="pill gray">智能</span></td><td>ML 预测式挖掘</td><td>流失/复购/增购机器学习预测</td><td><span class="pill gray">P2</span></td><td><span class="pill yellow">规划</span></td></tr>
       </tbody>
@@ -363,7 +447,7 @@ sequenceDiagram
   </div></div>
 
   <!-- 非功能需求 -->
-  <div class="section-title"><span class="n">11</span><h2>非功能需求</h2><span class="line"></span></div>
+  <div class="section-title"><span class="n">14</span><h2>非功能需求</h2><span class="line"></span></div>
   <div class="grid g4">
     <div class="opt-card"><div class="o-ic bg-teal">⚡</div><h3>性能</h3><p>指标预计算落宽表建索引，凌晨跑批；分页/虚拟滚动，客户超5万自动分库分表，秒开。</p></div>
     <div class="opt-card"><div class="o-ic bg-blue">🔐</div><h3>权限与数据</h3><p>销售仅见自己客户；计算列锁定；诊断日志可审计，满足集团数据审计。</p></div>
@@ -372,7 +456,7 @@ sequenceDiagram
   </div>
 
   <!-- 迭代规划 -->
-  <div class="section-title"><span class="n">12</span><h2>迭代规划</h2><span class="line"></span></div>
+  <div class="section-title"><span class="n">15</span><h2>迭代规划</h2><span class="line"></span></div>
   <div class="grid g3">
     <div class="opt-card"><div class="o-ic bg-green">①</div><h3>一期 · 快速见效（1-3周）</h3><p>BI + 规则引擎跑通分层/频率/流失，按销售分发。<a href="rollout.html" style="color:var(--primary)">详见落地方案 →</a></p></div>
     <div class="opt-card"><div class="o-ic bg-blue">②</div><h3>二期 · ERP 内嵌（4-10周）</h3><p>宽表预计算 + 工作台 + 智能分配 + 任务闭环 + 可视化配置。</p></div>
