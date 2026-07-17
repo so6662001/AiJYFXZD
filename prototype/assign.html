@@ -80,6 +80,16 @@
           <tbody></tbody>
         </table>
       </div></div>
+
+      <div class="section-title"><span class="n">🛒</span><h2>到期复购催单队列</h2><span class="sub">预测=上次下单+平均采购间隔，高复购概率优先</span><span class="line"></span>
+        <span id="reorder-cnt" class="pill green">—</span></div>
+      <div class="card">
+        <div class="c-head"><h3>即将采购 / 已到期客户</h3><span class="sub">一键生成催单任务，派发至归属销售的「我的客户」</span>
+          <div class="r"><button class="btn primary" id="reorder-all" style="padding:6px 14px">批量生成催单任务</button></div></div>
+        <div class="c-body" style="padding:0;overflow:auto">
+          <table class="tbl" id="reorder-table"><thead><tr><th>客户</th><th>复购信号</th><th>复购概率</th><th>预计</th><th>归属销售</th><th>建议动作</th><th>操作</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
     </div>
 
     <!-- 我的客户 -->
@@ -152,7 +162,25 @@ function initCharts(){
     {sale:"李四",cust:"天津建工物资",kind:"唤醒",freq:"月度",action:"调研需求停滞原因，评估授信收缩",due:"本周",urg:"本周"},
     {sale:"陈刚",cust:"成都装备制造",kind:"增购推新",freq:"每2周",action:"推送高毛利品类，提升年度净利",due:"本周",urg:"本周"},
   ];
-  const kindColor={"经营复盘":"blue","增购推新":"green","新客转化":"purple","账期优化":"orange","稳量维护":"gray","升级冲刺":"green","挽留":"red","唤醒":"yellow"};
+  const kindColor={"经营复盘":"blue","增购推新":"green","新客转化":"purple","账期优化":"orange","稳量维护":"gray","升级冲刺":"green","挽留":"red","唤醒":"yellow","复购催单":"orange","复购推单":"green","复购预热":"blue"};
+
+  // 到期复购 → 自动生成催单任务，并汇入"我的客户"
+  const rpop=DATA.generateCustomers(1860);
+  const reorderList=rpop.filter(c=>c.reorder==="已到期"||c.reorder==="即将采购"||c.reorder==="临近采购")
+    .sort((a,b)=>b.reorderProb-a.reorderProb);
+  const dueCnt=rpop.filter(c=>c.reorder==="已到期"||c.reorder==="即将采购").length;
+  function reorderAction(c){
+    const push=(c.type.indexOf("盈利")>=0||c.type.indexOf("双优")>=0)?"同步推送高毛利品类/合金型材":"确认库存并锁量报价";
+    return (c.reorder==="已到期"?("已到期"+(-c.dueIn)+"天未下单，立即催单"):("预计约"+c.dueIn+"天后采购，提前触达"))+" · "+push;
+  }
+  reorderList.slice(0,60).forEach(c=>{
+    tasks.push({sale:c.sale,cust:c.name,
+      kind:c.reorder==="已到期"?"复购催单":c.reorder==="即将采购"?"复购推单":"复购预热",
+      freq:"到期触发",action:reorderAction(c),
+      due:c.reorder==="已到期"?("已逾期"+(-c.dueIn)+"天"):(c.dueIn+"天内"),
+      urg:c.reorder==="临近采购"?"本周":"今日",reorder:true});
+  });
+
   const sales=[...new Set(tasks.map(t=>t.sale))];
   const sel=document.getElementById("sale-sel");
   sel.innerHTML=sales.map(s=>`<option>${s}</option>`).join("");
@@ -190,8 +218,26 @@ function initCharts(){
   sel.addEventListener("change",renderMine);
   renderMine();
 
+  // 到期复购催单队列（总裁/销管视角）
+  document.getElementById("reorder-cnt").textContent="即将/到期采购 "+dueCnt+" 家 · 待催单";
+  const rsigColor={"已到期":"orange","即将采购":"green","临近采购":"blue"};
+  document.querySelector("#reorder-table tbody").innerHTML=reorderList.slice(0,10).map((c,i)=>`<tr>
+    <td><b>${c.name}</b></td>
+    <td><span class="pill ${rsigColor[c.reorder]}">${c.reorder}</span></td>
+    <td class="num"><b>${c.reorderProb}%</b></td>
+    <td class="num">${c.dueIn>0?c.dueIn+"天内":"逾期"+(-c.dueIn)+"天"}</td>
+    <td>${c.sale}</td>
+    <td style="font-size:12px;color:var(--muted)">${reorderAction(c)}</td>
+    <td><button class="rowbtn" data-r="${i}">生成催单任务</button></td>
+  </tr>`).join("");
+  document.querySelectorAll("#reorder-table [data-r]").forEach(b=>b.addEventListener("click",()=>{
+    const c=reorderList[b.dataset.r];toast(`已生成${c.reorder==="已到期"?"复购催单":"复购推单"}任务：${c.name} → 派发至 ${c.sale} 的「我的客户」`);
+    b.textContent="✓ 已派发";b.style.color="var(--green)";
+  }));
+  document.getElementById("reorder-all").addEventListener("click",()=>{toast(`已批量生成 ${Math.min(10,reorderList.length)} 条到期复购催单任务，按归属销售派发`);});
+
   // 回收 & 分配规则配置（可设置，实时重算命中）
-  const pop=DATA.generateCustomers(1860);
+  const pop=rpop;
   const defaults={"r-nofollow":90,"r-minscore":6.0,"r-drop":50,"r-overload":10,"r-topn":3};
   function applyRules(){
     const g=id=>+document.getElementById(id).value;
