@@ -18,6 +18,7 @@
     { g: "智能诊断", items: [
       { id: "ai",     t: "AI 经营诊断", ic: "🤖", href: "ai-diagnosis.html" },
       { id: "churn",  t: "购货频率 · 流失预警", ic: "⚠️", href: "churn.html", tag: "37" },
+      { id: "billing", t: "Token 计费中心", ic: "💰", href: "billing.html" },
     ]},
   ];
 
