@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>运营落地方案 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>海量客户运营优化方案 · 落地实施蓝图</h1>
+    <p>把"分析能力"真正变成一线可用的日常动作。核心思路：<b>数据不新增单据 → 规则引擎先跑起来 → 例外管理压缩工作量 → 分析结论自动转任务派发到销售 → AI 做深度增值</b>。分三期落地，每期均可独立见效。</p>
+  </div>
+
+  <!-- 落地总原则 -->
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="opt-card"><div class="o-ic bg-blue">🗂️</div><h3>数据零改造</h3><p>100% 复用现有销售明细 36 项字段，凌晨跑批预计算落宽表，不动业务流程。</p></div>
+    <div class="opt-card"><div class="o-ic bg-green">⚙️</div><h3>规则先行</h3><p>分层/频率/流失/分配全部用 SQL+规则实现，零 Token、可批量；AI 只做增值。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">🎯</div><h3>例外管理</h3><p>3000+ 客户压缩成几十条预警/机会待办，人只处理异常，其余自动化。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">🔁</div><h3>闭环到任务</h3><p>分析结论自动转成带频次/话术/期限的跟进任务，派发到销售"我的客户"。</p></div>
+  </div>
+
+  <!-- 甘特图 -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="c-head"><h3>分期实施路线图</h3><span class="sub">以"周"为单位，三期递进，每期可独立上线</span>
+      <div class="r"><span class="pill green">一期 见效</span><span class="pill blue">二期 内嵌</span><span class="pill purple">三期 智能</span></div></div>
+    <div class="c-body tight"><div id="gantt" class="chart lg"></div></div>
+  </div>
+
+  <!-- 三期卡片 -->
+  <div class="grid g3">
+    <div class="card">
+      <div class="c-head"><h3>一期 · 快速见效</h3><span class="pill green">约 1-3 周 · 零开发</span></div>
+      <div class="c-body doc">
+        <p style="color:var(--muted);font-size:12.5px">工具：Excel PowerBI / 帆软 + 本地 AI 插件</p>
+        <ul>
+          <li>销售明细导入 BI，Power Query 每日刷新</li>
+          <li>跑通 6 张模型表：市场汇总 / 客户分层 / 四象限 / 员工 / 诊断</li>
+          <li>自动生成：客户分级清单、购货频率清单、流失预警表</li>
+          <li>按销售拆分表格，每日 8:00 推送企微/钉钉</li>
+        </ul>
+        <div class="note"><span class="n-ic">✅</span><div>产出：总裁看板 + 销售个人预警清单，先解决"发现滞后"。</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-head"><h3>二期 · ERP 内嵌</h3><span class="pill blue">约 4-10 周</span></div>
+      <div class="c-body doc">
+        <p style="color:var(--muted);font-size:12.5px">工具：ERP 模块 + 数据库存储过程 + 定时调度</p>
+        <ul>
+          <li>指标预计算落宽表、建索引，客户查询工作台秒开</li>
+          <li>规则引擎库上线：客户类型/风险/机会三元标签</li>
+          <li>动态升降级：每月自动重算 A/B/C/D 与客户类型</li>
+          <li>自动分配 + 负载均衡；分析结论转跟进任务并派发</li>
+          <li>保存视图 + 订阅推送；阈值可视化配置面板</li>
+        </ul>
+        <div class="note"><span class="n-ic">✅</span><div>产出：查询工作台 + 任务闭环 + 自动分配，形成运营闭环。</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-head"><h3>三期 · 智能增值</h3><span class="pill purple">约 11-16 周</span></div>
+      <div class="c-body doc">
+        <p style="color:var(--muted);font-size:12.5px">工具：私有化/云大模型 + 预测算法</p>
+        <ul>
+          <li>AI 深度归因：仅高风险/机会客户触发，缓存 7 天节流</li>
+          <li>预测式挖掘：流失预测、复购预测、增购品类推荐</li>
+          <li>客户健康分(0-100) + 生命周期阶段统一刻画</li>
+          <li>总裁交互问答；月度经营诊断白皮书自动生成</li>
+          <li>Token 计费 & 账单后台，包月/预存双模式</li>
+        </ul>
+        <div class="note"><span class="n-ic">✅</span><div>产出：从"看现状"升级到"预测 + 推荐下一步动作"。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 能力栈映射 -->
+  <div class="section-title"><span class="n">🧱</span><h2>优化项 → 四层能力栈落点</h2><span class="sub">每个优化点对应的技术承载层</span><span class="line"></span></div>
+  <div class="arch-layer" style="border-left-color:#0d9488">
+    <h4><span class="lv">L1</span>数据底座层</h4>
+    <p>ERP 原生表 → 清洗/周期切片/维度聚合 → 预制指标宽表（凌晨跑批、建索引、客户超5万分库分表）。</p>
+    <div class="chips"><b>性能：预计算+分页/虚拟滚动</b><b>零新增单据</b></div>
+  </div>
+  <div class="arch-layer" style="border-left-color:#2563eb">
+    <h4><span class="lv">L2</span>指标 & 规则引擎层</h4>
+    <p>SQL/存储过程计算全部指标，规则库输出三元标签（类型/风险/机会），每月自动升降级。</p>
+    <div class="chips"><b>自动分群+动态升降级</b><b>客户健康分</b><b>例外队列生成</b></div>
+  </div>
+  <div class="arch-layer" style="border-left-color:#f97316">
+    <h4><span class="lv">L3</span>应用 & 任务闭环层</h4>
+    <p>查询工作台、批量运营、智能分配与负载均衡、分析结论转任务派发、保存视图与订阅推送。</p>
+    <div class="chips"><b>例外管理</b><b>智能分配+负载均衡</b><b>分析即任务</b><b>保存视图+订阅</b><b>长尾自动触达</b></div>
+  </div>
+  <div class="arch-layer" style="border-left-color:#7c3aed">
+    <h4><span class="lv">L4</span>智能 & 预测层</h4>
+    <p>大模型深度归因（节流+缓存）、流失/复购预测、增购品类推荐、总裁问答与白皮书。</p>
+    <div class="chips"><b>预测式挖掘</b><b>AI 深诊</b><b>Token 计费可控</b></div>
+  </div>
+
+  <!-- 落地动作清单 -->
+  <div class="section-title"><span class="n">📋</span><h2>关键落地动作清单</h2><span class="sub">优化项 → 数据准备 → 计算/规则 → ERP 形态 → 责任方</span><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>优化项</th><th>数据准备</th><th>计算 / 规则</th><th>ERP 落地形态</th><th>期次</th><th>责任方</th></tr></thead>
+      <tbody>
+        <tr><td><b>例外管理</b></td><td>预警/机会阈值宽表</td><td>规则引擎标记异常，生成待办队列</td><td>总裁驾驶舱"今日重点动作"+ 预警推送</td><td><span class="pill green">一/二期</span></td><td>数据+产品</td></tr>
+        <tr><td><b>自动分群+升降级</b></td><td>客户吨/毛利/频率/资金指标</td><td>四象限+RFM 打标，每月定时重算等级</td><td>客户工作台自动标签、分级动态更新</td><td><span class="pill blue">二期</span></td><td>数据</td></tr>
+        <tr><td><b>智能分配+负载均衡</b></td><td>销售名下 A/B 客户负载、能力分</td><td>分配算法：能力×负载×客户潜力</td><td>批量分配 + 客户回收机制</td><td><span class="pill blue">二期</span></td><td>数据+销管</td></tr>
+        <tr><td><b>分析即任务</b></td><td>诊断结论、跟进频次规则</td><td>结论→任务模板(频次/话术/期限)</td><td>销售"我的客户"任务清单 + 达标率</td><td><span class="pill blue">二期</span></td><td>产品+销管</td></tr>
+        <tr><td><b>长尾自动化维护</b></td><td>低价值/沉睡客户名单</td><td>规则触发短信/企微自动触达</td><td>营销自动化(SOP)编排</td><td><span class="pill blue">二期</span></td><td>运营</td></tr>
+        <tr><td><b>客户健康分+生命周期</b></td><td>多维指标标准化</td><td>加权健康分 + 阶段判定</td><td>客户档案健康分标签、阶段漏斗</td><td><span class="pill purple">三期</span></td><td>数据</td></tr>
+        <tr><td><b>保存视图+订阅</b></td><td>查询条件持久化</td><td>视图存储 + 定时任务</td><td>工作台保存视图、订阅推送</td><td><span class="pill blue">二期</span></td><td>产品</td></tr>
+        <tr><td><b>性能优化</b></td><td>预计算宽表、索引</td><td>凌晨跑批、服务端分页、分库分表</td><td>全模块秒开</td><td><span class="pill green">一/二期</span></td><td>研发</td></tr>
+        <tr><td><b>预测式挖掘</b></td><td>历史交易序列</td><td>流失/复购预测、关联规则推荐</td><td>客户详情"下一步动作"建议</td><td><span class="pill purple">三期</span></td><td>算法</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+  <!-- 成效度量 -->
+  <div class="section-title"><span class="n">📈</span><h2>落地成效度量（上线前后对比）</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="kpi"><div class="k-top"><span class="k-label">人均可维护客户</span><span class="k-ic bg-blue">👥</span></div><div class="k-val">×3<small>倍</small></div><div class="k-foot">自动化替代人工统计</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">流失发现时效</span><span class="k-ic bg-green">⏱</span></div><div class="k-val">T+1<small>天</small></div><div class="k-foot">由月度复盘→每日自动</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">跟进达标率</span><span class="k-ic bg-orange">✅</span></div><div class="k-val">↑ 40<small>%+</small></div><div class="k-foot">任务派发+达标监控</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">AI 算力成本</span><span class="k-ic bg-purple">💰</span></div><div class="k-val">可控</div><div class="k-foot">规则过滤+缓存节流</div></div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">🚀</span><div><b>最小可行落地（MVP）建议：</b>先做一期——用现有 BI 跑通"客户分层 + 流失预警 + 按销售分发"，2-3 周即可让销售用起来、验证价值；再逐步内嵌 ERP、接入 AI 与预测。避免一次性大而全，按期滚动交付。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART;
+  const gantt=echarts.init(document.getElementById("gantt"));
+  const lanes=["数据底座","指标&规则引擎","客户查询工作台","任务闭环 & 分配","AI 深诊 & 预测","订阅 & 推送"];
+  const P={one:"#16a34a",two:"#2563eb",three:"#7c3aed"};
+  // [laneIndex, startWeek, endWeek, name, color]
+  const tasks=[
+    [0,0,3,"宽表建模 & 每日跑批",P.one],
+    [1,2,6,"分层/频率/流失规则库",P.one],
+    [1,6,9,"动态升降级 & 健康分",P.two],
+    [2,5,9,"查询/筛选/分群工作台",P.two],
+    [3,8,12,"自动分配 + 任务派发",P.two],
+    [4,11,16,"AI 归因 + 流失/复购预测",P.three],
+    [5,13,16,"保存视图 + 企微/钉钉订阅",P.three],
+  ];
+  gantt.setOption({
+    grid:{left:118,right:24,top:16,bottom:34},
+    tooltip:{trigger:"item",backgroundColor:"rgba(13,27,51,.92)",borderWidth:0,textStyle:{color:"#e8eefb",fontSize:12},
+      formatter:p=>`${p.value[3]}<br/>第 ${p.value[1]}–${p.value[2]} 周`},
+    xAxis:{type:"value",min:0,max:16,interval:2,name:"周",nameTextStyle:{color:C.axisText,fontSize:11},
+      axisLabel:{formatter:"{value}周",color:C.axisText,fontSize:11},axisLine:{show:false},axisTick:{show:false},
+      splitLine:{lineStyle:{color:"#eef1f7"}}},
+    yAxis:{type:"category",data:lanes,axisLine:{lineStyle:{color:"#dbe1ee"}},axisTick:{show:false},
+      axisLabel:{color:"#2c3a52",fontSize:12}},
+    series:[{type:"custom",renderItem:function(params,api){
+      const lane=api.value(0);
+      const s=api.coord([api.value(1),lane]);
+      const e=api.coord([api.value(2),lane]);
+      const h=api.size([0,1])[1]*0.52;
+      const w=e[0]-s[0];
+      if(w<=0)return;
+      const color=api.value(4);
+      return {type:"group",children:[
+        {type:"rect",shape:{x:s[0],y:s[1]-h/2,width:w,height:h,r:6},style:{fill:color,opacity:.9}},
+        {type:"text",style:{text:api.value(3),x:s[0]+10,y:s[1],textVerticalAlign:"middle",textAlign:"left",fill:"#fff",font:"600 11px sans-serif"}}
+      ]};
+    },
+    encode:{x:[1,2],y:0},data:tasks}]
+  });
+  window.addEventListener("resize",()=>gantt.resize());
+}
+Layout.render("rollout",{title:"运营落地方案",crumb:"运营落地方案"});
+</script>
+</body>
+</html>
