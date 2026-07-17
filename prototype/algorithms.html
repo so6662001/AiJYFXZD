@@ -193,7 +193,25 @@ S4 资金恶化(10%) : 存在逾期 或 现款转赊销 或 账期拉长≥30天
       <p style="font-size:12px;color:var(--muted);margin-top:8px">※ 权重与各档阈值均在「购货频率·流失预警」页面可视化配置，实时重算。</p>
     </div></div>
 
-    <h3>2.7 采购趋势 & 跟进优先级</h3>
+    <h3>2.7 复购预测（即将采购客户识别）</h3>
+    <div class="card"><div class="c-body"><div class="mono"><span class="c">// 基于购货频率的到期复购预测</span>
+预测下次采购日 = 最后一次下单日 + 平均采购间隔 AvgT
+dueIn(距下次采购天数) = AvgT − 距今未下单天数(lastDays)
+
+<span class="c">// 复购信号分层</span>
+IF 沉睡 或 lastDays &gt; AvgT×2.5      → <span class="s">"流失沉睡"</span>（转流失预警，不计即将采购）
+ELIF dueIn ≤ 0                        → <span class="s">"已到期"</span>（应下单未下单 → 催单）
+ELIF dueIn ≤ 7                        → <span class="s">"即将采购"</span>（7天内到期）
+ELIF dueIn ≤ 15                       → <span class="s">"临近采购"</span>
+ELSE                                  → <span class="s">"常规"</span>
+
+<span class="c">// 复购概率（0-100，经验加权，可升级为模型）</span>
+prob = 50 + 频率分(高频+25/中频+10/低频−10/沉睡−30)
+          + 趋势分(上升+12/下滑−12) + 信号分(即将+15/已到期+5/临近+8) − 逾期(−10)</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px">※ 规则版预测；三期可升级为基于交易序列的机器学习复购预测模型。在「客户查询工作台」按"复购信号"筛选即可查即将采购客户。</p>
+    </div></div>
+
+    <h3>2.8 采购趋势 & 跟进优先级</h3>
     <div class="grid g2">
       <div class="card"><div class="c-body"><div class="mono"><span class="c">// 近3月采购同比</span>
 同比 = IF(同期=0, "新增客户", (本期−同期)÷同期)

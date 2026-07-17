@@ -153,6 +153,20 @@ window.DATA = {
       const churnScore = Math.round(s1 * 0.4 + s2 * 0.3 + s3 * 0.2 + s4 * 0.1);
       const churnLevel = churnScore <= 25 ? "低" : churnScore <= 50 ? "潜在" : churnScore <= 75 ? "高" : "极高";
       const trend = net < 0 ? "down" : trends[Math.floor(rnd() * 3)];
+      // 复购预测：预测下次采购 = 最后下单日 + 平均采购间隔；dueIn = 距今还有多少天到下次采购
+      const dueIn = interval - lastDays;
+      let reorder;
+      if (freq === "沉睡" || lastDays > interval * 2.5) reorder = "流失沉睡";
+      else if (dueIn <= 0) reorder = "已到期";
+      else if (dueIn <= 7) reorder = "即将采购";
+      else if (dueIn <= 15) reorder = "临近采购";
+      else reorder = "常规";
+      let prob = 50;
+      prob += freq === "高频" ? 25 : freq === "中频" ? 10 : freq === "低频" ? -10 : -30;
+      prob += trend === "up" ? 12 : trend === "down" ? -12 : 0;
+      prob += reorder === "即将采购" ? 15 : reorder === "已到期" ? 5 : reorder === "临近采购" ? 8 : 0;
+      prob += overdue > 0 ? -10 : 0;
+      const reorderProb = Math.max(3, Math.min(98, Math.round(prob)));
       const city = cities[Math.floor(rnd() * cities.length)];
       const cat = cats[Math.floor(rnd() * cats.length)];
       const name = city + words[Math.floor(rnd() * words.length)] + sufs[Math.floor(rnd() * sufs.length)];
@@ -161,6 +175,7 @@ window.DATA = {
         sale: sales[Math.floor(rnd() * sales.length)],
         ton, net, perTon, interval, freq, account, overdue,
         score, trend, lastDays, churnScore, churnLevel, priority,
+        dueIn, reorder, reorderProb,
         assigned: rnd() > 0.12,
       });
     }

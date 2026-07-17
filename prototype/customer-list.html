@@ -30,12 +30,15 @@
         <div class="fld"><label>流失风险</label><select class="inp" id="f-churn"><option>全部</option><option>低</option><option>潜在</option><option>高</option><option>极高</option></select></div>
         <div class="fld"><label>采购趋势</label><select class="inp" id="f-trend"><option value="全部">全部</option><option value="up">上升</option><option value="flat">平稳</option><option value="down">下滑</option></select></div>
         <div class="fld"><label>跟进优先级</label><select class="inp" id="f-priority"><option>全部</option><option>一级</option><option>二级</option><option>三级</option><option>休眠</option></select></div>
+        <div class="fld"><label>复购信号（预测）</label><select class="inp" id="f-reorder"><option>全部</option><option>即将采购</option><option>已到期</option><option>临近采购</option><option>常规</option><option>流失沉睡</option></select></div>
       </div>
       <div class="chips-row" id="chips">
         <button class="chip" data-dim="grade" data-val="A">⭐ A级黄金客户</button>
         <button class="chip" data-dim="type" data-val="②高盈利获利">💎 高盈利待挖掘</button>
         <button class="chip" data-dim="type" data-val="③高走量流水">🌊 高走量优化账期</button>
         <button class="chip" data-dim="freq" data-val="沉睡">😴 沉睡待唤醒</button>
+        <button class="chip" data-dim="reorder" data-val="即将采购">🛒 即将采购(7天内)</button>
+        <button class="chip" data-dim="reorder" data-val="已到期">⏰ 已到期待催单</button>
         <button class="chip" data-dim="churnHigh" data-val="1">⚠ 流失预警(高/极高)</button>
         <button class="chip" data-dim="loss" data-val="1">📉 亏损客户</button>
         <button class="chip" data-dim="unassigned" data-val="1">📥 未分配客户</button>
@@ -114,7 +117,7 @@ function initCharts(){
   fill("f-sale",DATA.salesList,true);
   document.getElementById("bulk-sale").innerHTML=DATA.salesList.map(v=>`<option>${v}</option>`).join("");
 
-  const f={q:"",grade:"全部",type:"全部",cat:"全部",region:"全部",sale:"全部",freq:"全部",churn:"全部",trend:"全部",priority:"全部",churnHigh:false,loss:false,unassigned:false};
+  const f={q:"",grade:"全部",type:"全部",cat:"全部",region:"全部",sale:"全部",freq:"全部",churn:"全部",trend:"全部",priority:"全部",reorder:"全部",churnHigh:false,loss:false,unassigned:false};
   const state={page:1,pageSize:20,sortKey:"net",sortDir:-1,sel:new Set()};
 
   const cols=[
@@ -134,6 +137,8 @@ function initCharts(){
     {k:"account",t:"账期",sort:true,num:true},
     {k:"score",t:"潜力分",sort:true,num:true},
     {k:"churnScore",t:"流失分",sort:true,num:true},
+    {k:"reorder",t:"复购信号",sort:true},
+    {k:"reorderProb",t:"复购概率",sort:true,num:true},
     {k:"priority",t:"优先级",sort:true},
     {k:"_op",t:"操作",sort:false},
   ];
@@ -151,6 +156,7 @@ function initCharts(){
       if(f.churn!=="全部"&&c.churnLevel!==f.churn)return false;
       if(f.trend!=="全部"&&c.trend!==f.trend)return false;
       if(f.priority!=="全部"&&c.priority!==f.priority)return false;
+      if(f.reorder!=="全部"&&c.reorder!==f.reorder)return false;
       if(f.churnHigh&&!(c.churnLevel==="高"||c.churnLevel==="极高"))return false;
       if(f.loss&&c.net>=0)return false;
       if(f.unassigned&&c.assigned)return false;
@@ -189,9 +195,10 @@ function initCharts(){
     const avgPT=sumTon?Math.round(sumNet*10000/sumTon):0;
     const aCnt=filtered.filter(c=>c.grade==="A").length;
     const churnCnt=filtered.filter(c=>c.churnLevel==="高"||c.churnLevel==="极高").length;
+    const reorderCnt=filtered.filter(c=>c.reorder==="即将采购"||c.reorder==="已到期").length;
     document.getElementById("metrics").innerHTML=[
       ["客户数",fmt(n)],["总业务净利",fmt(Math.round(sumNet))+" 万"],["总采购量",fmt(Math.round(sumTon))+" 吨"],
-      ["平均单吨净利",avgPT+" 元"],["A级占比",n?Math.round(aCnt/n*100)+"%":"0%"],["流失预警",churnCnt+" 家"]
+      ["平均单吨净利",avgPT+" 元"],["A级占比",n?Math.round(aCnt/n*100)+"%":"0%"],["即将/到期采购",reorderCnt+" 家"],["流失预警",churnCnt+" 家"]
     ].map(m=>`<div class="m"><span class="v">${m[1]}</span><span class="l">${m[0]}</span></div>`).join("");
     document.getElementById("hit").textContent=`命中 ${fmt(n)} / ${fmt(ALL.length)} 位客户`;
 
@@ -226,6 +233,8 @@ function initCharts(){
     tb.innerHTML=pageRows.map(c=>{
       const cl={"低":"green","潜在":"yellow","高":"orange","极高":"red"}[c.churnLevel];
       const pc={"一级":"green","二级":"blue","三级":"yellow","休眠":"gray"}[c.priority];
+      const rs={"即将采购":"green","已到期":"orange","临近采购":"blue","常规":"gray","流失沉睡":"red"}[c.reorder];
+      const rlabel=c.dueIn>0?("预计约"+c.dueIn+"天后采购"):("已到期"+(-c.dueIn)+"天未下单");
       const checked=state.sel.has(c.id)?"checked":"";
       return `<tr>
         <td><input type="checkbox" class="ck rk" data-id="${c.id}" ${checked}></td>
@@ -241,6 +250,8 @@ function initCharts(){
         <td class="num">${c.account}天</td>
         <td class="num"><b>${c.score}</b></td>
         <td class="num"><span class="pill ${cl}">${c.churnScore}</span></td>
+        <td><span class="pill ${rs}" title="${rlabel}">${c.reorder}</span></td>
+        <td class="num">${c.reorder==='流失沉睡'?'<span style="color:var(--muted)">—</span>':'<b>'+c.reorderProb+'%</b>'}</td>
         <td><span class="pill ${pc}">${c.priority}</span></td>
         <td><button class="rowbtn" data-view="${c.id}">详情</button></td>
       </tr>`;}).join("");
@@ -294,7 +305,7 @@ function initCharts(){
   // filter bindings
   const bind=(id,key,isVal)=>document.getElementById(id).addEventListener("change",e=>{f[key]=e.target.value;state.page=1;render();});
   document.getElementById("f-q").addEventListener("input",e=>{f.q=e.target.value.trim();state.page=1;render();});
-  ["f-grade|grade","f-type|type","f-cat|cat","f-region|region","f-sale|sale","f-freq|freq","f-churn|churn","f-trend|trend","f-priority|priority"].forEach(x=>{const[id,key]=x.split("|");bind(id,key);});
+  ["f-grade|grade","f-type|type","f-cat|cat","f-region|region","f-sale|sale","f-freq|freq","f-churn|churn","f-trend|trend","f-priority|priority","f-reorder|reorder"].forEach(x=>{const[id,key]=x.split("|");bind(id,key);});
 
   // chips
   document.querySelectorAll("#chips .chip").forEach(ch=>ch.addEventListener("click",()=>{
@@ -306,9 +317,9 @@ function initCharts(){
 
   // reset
   document.getElementById("btn-reset").addEventListener("click",()=>{
-    Object.assign(f,{q:"",grade:"全部",type:"全部",cat:"全部",region:"全部",sale:"全部",freq:"全部",churn:"全部",trend:"全部",priority:"全部",churnHigh:false,loss:false,unassigned:false});
+    Object.assign(f,{q:"",grade:"全部",type:"全部",cat:"全部",region:"全部",sale:"全部",freq:"全部",churn:"全部",trend:"全部",priority:"全部",reorder:"全部",churnHigh:false,loss:false,unassigned:false});
     document.getElementById("f-q").value="";
-    ["f-grade","f-type","f-cat","f-region","f-sale","f-freq","f-churn","f-trend","f-priority"].forEach(id=>{document.getElementById(id).value=id==="f-trend"?"全部":"全部";});
+    ["f-grade","f-type","f-cat","f-region","f-sale","f-freq","f-churn","f-trend","f-priority","f-reorder"].forEach(id=>{document.getElementById(id).value="全部";});
     state.page=1;state.sel.clear();render();
   });
 
@@ -321,7 +332,7 @@ function initCharts(){
   // export
   document.getElementById("btn-export").addEventListener("click",()=>{
     const rows=sortRows(applyFilters());
-    const map=[["客户编码","id"],["客户名称","name"],["分级","grade"],["客户类型","type"],["行业","cat"],["区域","region"],["归属销售","sale"],["采购吨","ton"],["净利(万)","net"],["单吨净利","perTon"],["采购间隔","interval"],["频率","freq"],["账期","account"],["潜力分","score"],["流失分","churnScore"],["优先级","priority"]];
+    const map=[["客户编码","id"],["客户名称","name"],["分级","grade"],["客户类型","type"],["行业","cat"],["区域","region"],["归属销售","sale"],["采购吨","ton"],["净利(万)","net"],["单吨净利","perTon"],["采购间隔","interval"],["频率","freq"],["账期","account"],["潜力分","score"],["流失分","churnScore"],["复购信号","reorder"],["复购概率","reorderProb"],["距下次采购天数","dueIn"],["优先级","priority"]];
     const head=map.map(m=>m[0]).join(",");
     const body=rows.map(r=>map.map(m=>`"${String(r[m[1]]).replace(/"/g,'""')}"`).join(",")).join("\n");
     const csv="\ufeff"+head+"\n"+body;

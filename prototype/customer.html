@@ -45,6 +45,15 @@
         <div class="card"><div class="c-head"><h3>全客户采购间隔天数分布</h3></div><div class="c-body tight"><div id="freq-hist" class="chart lg"></div></div></div>
       </div>
       <div class="card" style="margin-top:16px"><div class="c-head"><h3>单客户 12 月购货频次 & 采购金额趋势</h3><span class="sub">无锡精机制造</span></div><div class="c-body tight"><div id="freq-single" class="chart"></div></div></div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="c-head"><h3>🛒 到期复购预测（即将采购客户）</h3><span class="sub">预测下次采购 = 上次下单 + 平均采购间隔</span>
+          <div class="r"><a href="customer-list.html" class="pill blue" style="text-decoration:none">按"复购信号"查询 →</a></div></div>
+        <div class="c-body tight" style="display:flex;gap:10px;flex-wrap:wrap">
+          <div id="reorder-dist" class="chart" style="flex:2;min-width:320px"></div>
+          <div style="flex:1;min-width:240px;padding:6px 4px" id="reorder-list"></div>
+        </div>
+      </div>
     </div>
 
     <div class="tabpane" data-pane="risk">
@@ -222,7 +231,29 @@ function initCharts(){
       <td style="color:var(--muted);font-size:12px">${ai[c.type]}</td>
     </tr>`;}).join("");
 
-  const all=[funnel,quad,pie,fbar,hist,single,rline,rsc,abar,heat];
+  // 到期复购预测
+  const pop=DATA.generateCustomers(1200);
+  const sigOrder=["即将采购","已到期","临近采购","常规","流失沉睡"];
+  const sigColor={"即将采购":"#16a34a","已到期":"#f97316","临近采购":"#2563eb","常规":"#9aa4bb","流失沉睡":"#dc2626"};
+  const sigCnt={}; sigOrder.forEach(s=>sigCnt[s]=0); pop.forEach(c=>sigCnt[c.reorder]++);
+  const rdist=echarts.init(document.getElementById("reorder-dist"));
+  rdist.setOption({
+    grid:{left:70,right:30,top:14,bottom:24},tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.name}<br/>${p.value} 家`}),
+    xAxis:C.val({}),yAxis:C.cat({data:[...sigOrder].reverse()}),
+    series:[{type:"bar",barWidth:16,data:[...sigOrder].reverse().map(s=>({value:sigCnt[s],itemStyle:{color:sigColor[s],borderRadius:4}})),
+      label:{show:true,position:"right",formatter:"{c}家",color:C.axisText,fontSize:11}}]
+  });
+  // 即将采购/已到期 TOP 名单(高复购概率优先)
+  const upcoming=pop.filter(c=>c.reorder==="即将采购"||c.reorder==="已到期").sort((a,b)=>b.reorderProb-a.reorderProb).slice(0,6);
+  document.getElementById("reorder-list").innerHTML=
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">高复购概率 · 优先跟进 TOP6</div>'+
+    upcoming.map(c=>`<div class="alert-item" style="padding:8px 10px;margin-bottom:6px">
+      <div class="a-ic bg-${c.reorder==='即将采购'?'green':'orange'}">🛒</div>
+      <div class="a-b"><b>${c.name}</b> <span class="pill ${c.reorder==='即将采购'?'green':'orange'}">${c.reorder}</span>
+        <p>${c.dueIn>0?'预计约'+c.dueIn+'天后采购':'已到期'+(-c.dueIn)+'天'} · 复购概率 ${c.reorderProb}% · ${c.sale}</p></div>
+    </div>`).join("");
+
+  const all=[funnel,quad,pie,fbar,hist,single,rline,rsc,abar,heat,rdist];
   window.addEventListener("resize",()=>all.forEach(c=>c.resize()));
 }
 Layout.render("customer",{title:"客户价值分层",crumb:"客户价值分层"});
