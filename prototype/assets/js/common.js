@@ -11,6 +11,7 @@
       { id: "market",   t: "市场潜力分析", ic: "🗺️", href: "market.html" },
       { id: "customer", t: "客户价值分层", ic: "👥", href: "customer.html" },
       { id: "customer-list", t: "客户查询工作台", ic: "🔎", href: "customer-list.html" },
+      { id: "assign", t: "跟进分配·我的客户", ic: "📌", href: "assign.html" },
       { id: "employee", t: "员工能力画像", ic: "🧑‍💼", href: "employee.html" },
     ]},
     { g: "智能诊断", items: [
