@@ -11,41 +11,90 @@
 <div id="view" style="display:none">
   <div class="page-lead">
     <h1>购货频率分析 & 客户流失预警</h1>
-    <p>核心逻辑纯算法 / SQL 规则实现，本地批量运算、零 Token 消耗、支持上万客户凌晨跑批；AI 仅做深度归因与个性化挽留方案（可选付费）。结果自动按销售拆分并每日推送。</p>
+    <p>核心逻辑纯算法 / SQL 规则实现，本地批量运算、零 Token 消耗、支持上万客户凌晨跑批；AI 仅做深度归因与个性化挽留方案（可选付费）。评分模型四大因子的阈值与权重全部支持后台可视化配置。</p>
   </div>
 
   <div class="grid g4" style="margin-bottom:18px">
-    <div class="kpi"><div class="k-top"><span class="k-label">极高流失风险</span><span class="k-ic bg-red">🔴</span></div><div class="k-val" style="color:var(--red)">9</div><div class="k-foot">3天内主管协同</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">高流失风险</span><span class="k-ic bg-orange">🟠</span></div><div class="k-val" style="color:var(--orange)">28</div><div class="k-foot">7天内上门挽留</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">沉睡客户</span><span class="k-ic bg-yellow">😴</span></div><div class="k-val">100</div><div class="k-foot">间隔&gt;180天</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">极高流失风险</span><span class="k-ic bg-red">🔴</span></div><div class="k-val" style="color:var(--red)" id="kpi-vh">—</div><div class="k-foot">3天内主管协同</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">高流失风险</span><span class="k-ic bg-orange">🟠</span></div><div class="k-val" style="color:var(--orange)" id="kpi-h">—</div><div class="k-foot">7天内上门挽留</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">潜在流失</span><span class="k-ic bg-yellow">🟡</span></div><div class="k-val" id="kpi-m">—</div><div class="k-foot">本月拜访1次</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">跑批耗时</span><span class="k-ic bg-teal">⚡</span></div><div class="k-val">2:00<small>AM</small></div><div class="k-foot">全客户 · 零算力成本</div></div>
   </div>
 
-  <div class="grid g3" style="margin-bottom:2px">
-    <div class="card"><div class="c-head"><h3>流失风险等级分布</h3></div><div class="c-body tight"><div id="ch-level" class="chart sm"></div></div></div>
-    <div class="card"><div class="c-head"><h3>采购频率分层</h3></div><div class="c-body tight"><div id="ch-freq" class="chart sm"></div></div></div>
-    <div class="card"><div class="c-head"><h3>流失评分因子权重</h3></div><div class="c-body tight"><div id="ch-factor" class="chart sm"></div></div></div>
-  </div>
-
-  <!-- 评分模型说明 -->
-  <div class="card" style="margin:18px 0">
-    <div class="c-head"><h3>多因子加权流失风险评分模型</h3><span class="pill green">纯算法 · 0 Token</span><span class="sub" style="margin-left:8px">TotalScore = S1×0.4 + S2×0.3 + S3×0.2 + S4×0.1</span></div>
+  <!-- 可配置评分模型 -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="c-head"><h3>多因子加权流失风险评分模型（可配置）</h3><span class="pill green">纯算法 · 0 Token</span>
+      <div class="r"><span class="pill gray" id="formula">Total = S1×0.40 + S2×0.30 + S3×0.20 + S4×0.10</span></div></div>
     <div class="c-body">
       <div class="grid g4">
-        <div class="arch-layer" style="border-left-color:#dc2626;margin:0"><h4>因子1 · 断单时长 <span class="lv">40%</span></h4><p>≤30天=0 · 30-90=30 · 90-180=70 · &gt;180=100</p></div>
-        <div class="arch-layer" style="border-left-color:#f97316;margin:0"><h4>因子2 · 采购下滑 <span class="lv">30%</span></h4><p>近3月 vs 上3月吨位降幅：≤0=0 · ≤30%=40 · ≤60%=70 · &gt;60%=100</p></div>
-        <div class="arch-layer" style="border-left-color:#d99e00;margin:0"><h4>因子3 · 节奏恶化 <span class="lv">20%</span></h4><p>RecentT/AvgT：≤1=0 · ≤1.3=30 · ≤1.8=60 · &gt;1.8=100</p></div>
-        <div class="arch-layer" style="border-left-color:#2563eb;margin:0"><h4>因子4 · 资金恶化 <span class="lv">10%</span></h4><p>新增逾期 / 现款转赊销 / 账期拉长30天+ → 100</p></div>
+        <!-- 因子1 -->
+        <div class="cfg-factor">
+          <div class="cf-h"><span class="dotc" style="background:#dc2626"></span><b>因子1 · 断单时长</b>
+            <span class="cf-w">权重<input class="cfg w" id="w1" value="40"/>%</span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="1-0" value="30"/> 天</span><span class="sc">得分<input class="cfg" data-s="1-0" value="0"/></span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="1-1" value="90"/> 天</span><span class="sc">得分<input class="cfg" data-s="1-1" value="30"/></span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="1-2" value="180"/> 天</span><span class="sc">得分<input class="cfg" data-s="1-2" value="70"/></span></div>
+          <div class="cfg-band"><span class="cond">＞ 上一档</span><span class="sc">得分<input class="cfg" data-s="1-3" value="100"/></span></div>
+        </div>
+        <!-- 因子2 -->
+        <div class="cfg-factor">
+          <div class="cf-h"><span class="dotc" style="background:#f97316"></span><b>因子2 · 采购下滑</b>
+            <span class="cf-w">权重<input class="cfg w" id="w2" value="30"/>%</span></div>
+          <div class="cfg-band"><span class="cond">下滑 ≤ <input class="cfg" data-t="2-0" value="0"/>%</span><span class="sc">得分<input class="cfg" data-s="2-0" value="0"/></span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="2-1" value="30"/>%</span><span class="sc">得分<input class="cfg" data-s="2-1" value="40"/></span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="2-2" value="60"/>%</span><span class="sc">得分<input class="cfg" data-s="2-2" value="70"/></span></div>
+          <div class="cfg-band"><span class="cond">＞ 上一档</span><span class="sc">得分<input class="cfg" data-s="2-3" value="100"/></span></div>
+        </div>
+        <!-- 因子3 -->
+        <div class="cfg-factor">
+          <div class="cf-h"><span class="dotc" style="background:#d99e00"></span><b>因子3 · 节奏恶化</b>
+            <span class="cf-w">权重<input class="cfg w" id="w3" value="20"/>%</span></div>
+          <div class="cfg-band"><span class="cond">近/历 ≤ <input class="cfg" data-t="3-0" value="1.0"/></span><span class="sc">得分<input class="cfg" data-s="3-0" value="0"/></span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="3-1" value="1.3"/></span><span class="sc">得分<input class="cfg" data-s="3-1" value="30"/></span></div>
+          <div class="cfg-band"><span class="cond">≤ <input class="cfg" data-t="3-2" value="1.8"/></span><span class="sc">得分<input class="cfg" data-s="3-2" value="60"/></span></div>
+          <div class="cfg-band"><span class="cond">＞ 上一档</span><span class="sc">得分<input class="cfg" data-s="3-3" value="100"/></span></div>
+        </div>
+        <!-- 因子4 -->
+        <div class="cfg-factor">
+          <div class="cf-h"><span class="dotc" style="background:#2563eb"></span><b>因子4 · 资金恶化</b>
+            <span class="cf-w">权重<input class="cfg w" id="w4" value="10"/>%</span></div>
+          <div class="cfg-band"><span class="cond">存在逾期 / 现款转赊销</span><span class="sc">得分<input class="cfg" data-s="4-1" value="100"/></span></div>
+          <div class="cfg-band"><span class="cond">账期拉长 ≥ <input class="cfg" data-t="4-0" value="30"/> 天</span><span class="sc">得分<input class="cfg" data-s="4-1b" value="100"/></span></div>
+          <div class="cfg-band"><span class="cond">无资金异常</span><span class="sc">得分<input class="cfg" data-s="4-0" value="0"/></span></div>
+          <div class="cfg-band" style="color:var(--muted);font-size:11px">满足任一条件即取对应最高分</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+        <div class="cfg-levels">
+          <span style="font-size:12px;color:var(--muted);font-weight:600">风险等级阈值：</span>
+          <span class="lvl"><i style="background:#16a34a"></i>低 ≤ <input class="cfg" id="L1" value="25"/></span>
+          <span class="lvl"><i style="background:#d99e00"></i>潜在 ≤ <input class="cfg" id="L2" value="50"/></span>
+          <span class="lvl"><i style="background:#f97316"></i>高 ≤ <input class="cfg" id="L3" value="75"/></span>
+          <span class="lvl"><i style="background:#dc2626"></i>极高 ≤ 100</span>
+        </div>
+        <div class="cfg-actions" style="margin-left:auto">
+          <span id="sum-tip" style="font-size:12px"></span>
+          <button class="btn ghost" id="btn-reset">恢复默认</button>
+          <button class="btn primary" id="btn-apply">应用配置并重新计算</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <div class="grid g3" style="margin-bottom:2px">
+    <div class="card"><div class="c-head"><h3>流失风险等级分布</h3><span class="sub">全客户实时计算</span></div><div class="c-body tight"><div id="ch-level" class="chart sm"></div></div></div>
+    <div class="card"><div class="c-head"><h3>采购频率分层</h3></div><div class="c-body tight"><div id="ch-freq" class="chart sm"></div></div></div>
+    <div class="card"><div class="c-head"><h3>流失评分因子权重</h3></div><div class="c-body tight"><div id="ch-factor" class="chart sm"></div></div></div>
+  </div>
+
   <!-- 主表格 -->
-  <div class="section-title"><span class="n">📋</span><h2>全客户流失预警表</h2><span class="sub">颜色分级 · 强制跟进动作</span><span class="line"></span>
+  <div class="section-title"><span class="n">📋</span><h2>重点客户流失预警表</h2><span class="sub">评分随配置实时联动 · 颜色分级 · 强制跟进动作</span><span class="line"></span>
     <button class="pill blue" style="cursor:pointer;border:0;padding:6px 12px">⬇ 导出 Excel</button></div>
   <div class="card"><div class="c-body" style="padding:0;overflow:auto">
     <table class="tbl" id="ch-table"><thead><tr>
       <th>客户名称</th><th>客户类型</th><th>归属销售</th><th class="num">末次下单</th><th class="num">近3月同比</th>
+      <th class="num">S1</th><th class="num">S2</th><th class="num">S3</th><th class="num">S4</th>
       <th class="num">流失总分</th><th>风险等级</th><th>专项预警标签</th><th>强制动作</th>
     </tr></thead><tbody></tbody></table>
   </div></div>
@@ -54,17 +103,17 @@
   <div class="section-title"><span class="n">📤</span><h2>按销售自动分发</h2><span class="sub">每日 8:00 推送个人专属清单至企微/钉钉</span><span class="line"></span></div>
   <div class="grid g3">
     <div class="card">
-      <div class="c-head"><h3>李四 · 我的流失预警</h3><span class="pill red">2 极高</span></div>
+      <div class="c-head"><h3>李四 · 我的流失预警</h3><span class="pill red">1 极高 · 2 高</span></div>
       <div class="c-body ai-list">
-        <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>廊坊金属贸易</b><p>断单74天 · 现金流客户预警 · 7天内上门+专项报价</p></div></div>
-        <div class="alert-item"><div class="a-ic bg-orange">🟠</div><div class="a-b"><b>天津建工物资</b><p>断单88天 · 本月上门拜访1次</p></div></div>
+        <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>常州建材集散</b><p>断单210天 · 亏损客户 · 主管协同3天内对接</p></div></div>
+        <div class="alert-item"><div class="a-ic bg-orange">🟠</div><div class="a-b"><b>廊坊金属贸易</b><p>断单74天 · 现金流客户预警 · 7天内上门+专项报价</p></div></div>
       </div>
     </div>
     <div class="card">
-      <div class="c-head"><h3>王五 · 我的流失预警</h3><span class="pill orange">1 高关注</span></div>
+      <div class="c-head"><h3>王五 · 我的流失预警</h3><span class="pill orange">1 极高</span></div>
       <div class="c-body ai-list">
         <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>佛山五金城</b><p>断单145天 · 亏损客户 · 主管协同3天内对接</p></div></div>
-        <div class="alert-item"><div class="a-ic bg-yellow">🟡</div><div class="a-b"><b>宁波特钢加工</b><p>核心利润客户预警 · 频次由3降至1，本周走访</p></div></div>
+        <div class="alert-item"><div class="a-ic bg-yellow">🟡</div><div class="a-b"><b>宁波特钢加工</b><p>核心利润客户 · 频次由3降至1，本周走访</p></div></div>
       </div>
     </div>
     <div class="card">
@@ -85,17 +134,11 @@
 <script>
 function initCharts(){
   const C=window.CHART, CH=DATA.churn;
-
   const lvl=echarts.init(document.getElementById("ch-level"));
-  lvl.setOption({
-    tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
-    series:[{type:"pie",radius:["40%","68%"],center:["50%","44%"],itemStyle:{borderColor:"#fff",borderWidth:2},
-      label:{formatter:"{b}\n{c}",fontSize:11,color:C.axisText},
-      data:[{name:"极高(76-100)",value:9,itemStyle:{color:"#dc2626"}},{name:"高(51-75)",value:28,itemStyle:{color:"#f97316"}},
-        {name:"潜在(26-50)",value:186,itemStyle:{color:"#d99e00"}},{name:"低(0-25)",value:1063,itemStyle:{color:"#16a34a"}}]}]
-  });
-
   const freq=echarts.init(document.getElementById("ch-freq"));
+  const fac=echarts.init(document.getElementById("ch-factor"));
+
+  // 采购频率分层（固定统计）
   freq.setOption({
     grid:{left:44,right:16,top:16,bottom:50},tooltip:C.tip(),
     xAxis:C.cat({data:["高频\n≤30天","中频\n30-90","低频\n90-180","沉睡\n>180"],axisLabel:{fontSize:10,color:C.axisText,lineHeight:13}}),
@@ -104,32 +147,122 @@ function initCharts(){
       label:{show:true,position:"top",color:C.axisText,fontSize:11}}]
   });
 
-  const fac=echarts.init(document.getElementById("ch-factor"));
-  fac.setOption({
-    tooltip:Object.assign(C.tipItem(),{formatter:"{b}: {c}%"}),
-    series:[{type:"pie",radius:["0%","66%"],center:["50%","46%"],roseType:"radius",itemStyle:{borderColor:"#fff",borderWidth:2},
-      label:{formatter:"{b}\n{c}%",fontSize:10,color:C.axisText},
-      data:[{name:"断单时长",value:40,itemStyle:{color:"#dc2626"}},{name:"采购下滑",value:30,itemStyle:{color:"#f97316"}},
-        {name:"节奏恶化",value:20,itemStyle:{color:"#d99e00"}},{name:"资金恶化",value:10,itemStyle:{color:"#2563eb"}}]}]
+  // 生成确定性合成客户群（用于分布图/KPI 随配置联动）
+  let seed=20260717;
+  function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+  const pop=[];
+  for(let i=0;i<260;i++){
+    const r=rnd();
+    pop.push({
+      lastDays:Math.round(Math.pow(rnd(),1.7)*300),
+      drop:+(rnd()*1.1-0.9).toFixed(2),
+      rate:+(0.8+rnd()*2.0).toFixed(2),
+      fund:rnd()<0.22,
+      ext:Math.round(rnd()*60)
+    });
+  }
+
+  function bandScore(bands,value){for(const b of bands){if(value<=b.max)return b.score;}return bands[bands.length-1].score;}
+  function scoreOne(c,cfg){
+    const s1=bandScore(cfg.s1,c.lastDays);
+    const decline=Math.max(0,-c.drop)*100;               // 下滑率(%)
+    const s2=bandScore(cfg.s2,decline);
+    const s3=bandScore(cfg.s3,c.rate);
+    const s4=(c.fund||c.ext>=cfg.s4.extendDays)?cfg.s4.score:0;
+    const W=cfg.weights, wsum=(W.s1+W.s2+W.s3+W.s4)||100;
+    const total=(s1*W.s1+s2*W.s2+s3*W.s3+s4*W.s4)/wsum;
+    return {s1,s2,s3,s4,total:Math.round(total)};
+  }
+  function levelOf(score,cfg){for(const l of cfg.levels){if(score<=l.max)return l;}return cfg.levels[cfg.levels.length-1];}
+
+  function readConfig(){
+    const g=(sel)=>+document.querySelector(sel).value;
+    const t=(k)=>{const el=document.querySelector('[data-t="'+k+'"]');return el?+el.value:0;};
+    const s=(k)=>{const el=document.querySelector('[data-s="'+k+'"]');return el?+el.value:0;};
+    return {
+      weights:{s1:g("#w1"),s2:g("#w2"),s3:g("#w3"),s4:g("#w4")},
+      s1:[{max:t("1-0"),score:s("1-0")},{max:t("1-1"),score:s("1-1")},{max:t("1-2"),score:s("1-2")},{max:99999,score:s("1-3")}],
+      s2:[{max:t("2-0"),score:s("2-0")},{max:t("2-1"),score:s("2-1")},{max:t("2-2"),score:s("2-2")},{max:9999,score:s("2-3")}],
+      s3:[{max:t("3-0"),score:s("3-0")},{max:t("3-1"),score:s("3-1")},{max:t("3-2"),score:s("3-2")},{max:9999,score:s("3-3")}],
+      s4:{extendDays:t("4-0"),score:s("4-1")},
+      levels:[{max:g("#L1"),name:"低",color:"green"},{max:g("#L2"),name:"潜在",color:"yellow"},{max:g("#L3"),name:"高",color:"orange"},{max:100,name:"极高",color:"red"}]
+    };
+  }
+
+  const pillMap={"低":"green","潜在":"yellow","高":"orange","极高":"red"};
+  const actMap={"低":"常规月度维护","潜在":"本月上门拜访1次","高":"7天内上门+专项报价挽留","极高":"销售主管协同，3天内对接负责人"};
+  function tagOf(c,lv){
+    const high=(lv.name==="高"||lv.name==="极高");
+    if(high&&(c.type==="量利双优"||c.type==="高盈利")) return ["核心利润客户流失预警","red"];
+    if(high&&c.type==="高走量"&&c.lastDays>60) return ["现金流客户流失预警","red"];
+    if(high&&c.loss) return ["亏损客户流失预警","red"];
+    return ["—","gray"];
+  }
+
+  function render(){
+    const cfg=readConfig();
+    // 校验权重
+    const wsum=cfg.weights.s1+cfg.weights.s2+cfg.weights.s3+cfg.weights.s4;
+    const tip=document.getElementById("sum-tip");
+    tip.innerHTML="权重合计 "+wsum+"%"+(wsum===100?' <span class="sum-ok">✓</span>':' <span class="sum-bad">（将按比例归一化）</span>');
+    document.getElementById("formula").textContent=
+      `Total = S1×${(cfg.weights.s1/wsum).toFixed(2)} + S2×${(cfg.weights.s2/wsum).toFixed(2)} + S3×${(cfg.weights.s3/wsum).toFixed(2)} + S4×${(cfg.weights.s4/wsum).toFixed(2)}`;
+
+    // 表格（重点客户）
+    const tb=document.querySelector("#ch-table tbody");
+    tb.innerHTML=CH.map(c=>{
+      const r=scoreOne(c,cfg), lv=levelOf(r.total,cfg), tag=tagOf(c,lv);
+      const barColor={"低":"#16a34a","潜在":"#d99e00","高":"#f97316","极高":"#dc2626"}[lv.name];
+      const cell=(v)=>`<td class="num" style="color:${v>=70?'var(--red)':v>=40?'var(--orange)':'var(--muted)'}">${v}</td>`;
+      return `<tr>
+        <td><b>${c.name}</b></td><td>${c.type}</td><td>${c.sale}</td>
+        <td class="num">${c.lastDays}天</td>
+        <td class="num" style="color:${c.drop<0?'var(--red)':'var(--green)'}">${(c.drop*100).toFixed(0)}%</td>
+        ${cell(r.s1)}${cell(r.s2)}${cell(r.s3)}${cell(r.s4)}
+        <td class="num"><div class="dot-tag" style="justify-content:flex-end"><div class="bar-mini" style="width:52px"><i style="width:${r.total}%;background:${barColor}"></i></div><b>${r.total}</b></div></td>
+        <td><span class="pill ${pillMap[lv.name]}">${lv.name}</span></td>
+        <td>${tag[0]==="—"?'<span style="color:var(--muted)">—</span>':'<span class="pill '+tag[1]+'">'+tag[0]+'</span>'}</td>
+        <td style="font-size:12px;color:var(--muted)">${actMap[lv.name]}</td>
+      </tr>`;}).join("");
+
+    // 合成客户分布
+    const cnt={"低":0,"潜在":0,"高":0,"极高":0};
+    pop.forEach(c=>{const r=scoreOne(c,cfg);cnt[levelOf(r.total,cfg).name]++;});
+    document.getElementById("kpi-vh").textContent=cnt["极高"];
+    document.getElementById("kpi-h").textContent=cnt["高"];
+    document.getElementById("kpi-m").textContent=cnt["潜在"];
+
+    lvl.setOption({
+      tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
+      series:[{type:"pie",radius:["40%","68%"],center:["50%","44%"],itemStyle:{borderColor:"#fff",borderWidth:2},
+        label:{formatter:"{b}\n{c}",fontSize:11,color:C.axisText},
+        data:[{name:"极高(>"+cfg.levels[2].max+")",value:cnt["极高"],itemStyle:{color:"#dc2626"}},
+          {name:"高",value:cnt["高"],itemStyle:{color:"#f97316"}},
+          {name:"潜在",value:cnt["潜在"],itemStyle:{color:"#d99e00"}},
+          {name:"低",value:cnt["低"],itemStyle:{color:"#16a34a"}}]}]
+    },true);
+
+    const W=cfg.weights;
+    fac.setOption({
+      tooltip:Object.assign(C.tipItem(),{formatter:"{b}: {c}%"}),
+      series:[{type:"pie",radius:["0%","66%"],center:["50%","46%"],roseType:"radius",itemStyle:{borderColor:"#fff",borderWidth:2},
+        label:{formatter:"{b}\n{c}%",fontSize:10,color:C.axisText},
+        data:[{name:"断单时长",value:W.s1,itemStyle:{color:"#dc2626"}},{name:"采购下滑",value:W.s2,itemStyle:{color:"#f97316"}},
+          {name:"节奏恶化",value:W.s3,itemStyle:{color:"#d99e00"}},{name:"资金恶化",value:W.s4,itemStyle:{color:"#2563eb"}}]}]
+    },true);
+  }
+
+  document.getElementById("btn-apply").addEventListener("click",render);
+  document.getElementById("btn-reset").addEventListener("click",()=>{
+    const d={w1:40,w2:30,w3:20,w4:10,L1:25,L2:50,L3:75,"1-0":30,"1-1":90,"1-2":180,"2-0":0,"2-1":30,"2-2":60,"3-0":1.0,"3-1":1.3,"3-2":1.8,"4-0":30};
+    for(const k in d){const byId=document.getElementById(k);if(byId){byId.value=d[k];}const byT=document.querySelector('[data-t="'+k+'"]');if(byT){byT.value=d[k];}}
+    const sc={"1-0":0,"1-1":30,"1-2":70,"1-3":100,"2-0":0,"2-1":40,"2-2":70,"2-3":100,"3-0":0,"3-1":30,"3-2":60,"3-3":100,"4-0":0,"4-1":100,"4-1b":100};
+    for(const k in sc){const el=document.querySelector('[data-s="'+k+'"]');if(el)el.value=sc[k];}
+    render();
   });
 
-  const tb=document.querySelector("#ch-table tbody");
-  const lvlMap={"极高":["red","销售主管协同，3天内对接负责人"],"高":["orange","7天内上门+专项报价挽留"],"潜在":["yellow","本月上门拜访1次"],"低":["green","常规月度维护"]};
-  tb.innerHTML=CH.map(c=>{
-    const m=lvlMap[c.level];
-    const barColor=c.score>75?"#dc2626":c.score>50?"#f97316":c.score>25?"#d99e00":"#16a34a";
-    return `<tr>
-      <td><b>${c.name}</b></td><td>${c.type}</td><td>${c.sale}</td>
-      <td class="num">${c.lastDays}天</td>
-      <td class="num" style="color:${c.drop<0?'var(--red)':'var(--green)'}">${(c.drop*100).toFixed(0)}%</td>
-      <td class="num"><div class="dot-tag" style="justify-content:flex-end"><div class="bar-mini" style="width:56px"><i style="width:${c.score}%;background:${barColor}"></i></div><b>${c.score}</b></div></td>
-      <td><span class="pill ${m[0]}">${c.level}</span></td>
-      <td>${c.tag==="—"?'<span style="color:var(--muted)">—</span>':'<span class="pill red">'+c.tag+'</span>'}</td>
-      <td style="font-size:12px;color:var(--muted)">${m[1]}</td>
-    </tr>`;}).join("");
-
-  const all=[lvl,freq,fac];
-  window.addEventListener("resize",()=>all.forEach(c=>c.resize()));
+  render();
+  window.addEventListener("resize",()=>{lvl.resize();freq.resize();fac.resize();});
 }
 Layout.render("churn",{title:"购货频率 · 流失预警",crumb:"购货频率 · 流失预警"});
 </script>

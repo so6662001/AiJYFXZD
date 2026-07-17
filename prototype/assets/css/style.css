@@ -219,3 +219,25 @@ a{color:inherit;text-decoration:none}
 
 .legend-quad{position:relative}
 .badge-soft{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600}
+
+/* ---------- Configurable model panel ---------- */
+.cfg-factor{border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:#fbfcfe}
+.cfg-factor .cf-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cfg-factor .cf-h b{font-size:13px;color:var(--ink)}
+.cfg-factor .cf-w{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.cfg-band{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);margin:5px 0}
+.cfg-band .cond{flex:1;color:var(--muted)}
+.cfg-band .sc{display:inline-flex;align-items:center;gap:4px}
+input.cfg{width:56px;border:1px solid var(--line);border-radius:7px;padding:4px 7px;font-family:inherit;font-size:12px;color:var(--ink);text-align:center;background:#fff}
+input.cfg:focus{outline:0;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+input.cfg.w{width:50px;font-weight:700}
+.cfg-band .dotc{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.cfg-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:9px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+.sum-ok{color:var(--green);font-weight:700}
+.sum-bad{color:var(--red);font-weight:700}
+.cfg-levels{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.cfg-levels .lvl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)}
+.cfg-levels .lvl i{width:10px;height:10px;border-radius:3px}
