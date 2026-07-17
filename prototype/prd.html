@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>产品需求文档 PRD · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>产品需求文档（PRD）· 钢贸企业三维经营分析与诊断系统</h1>
+    <p>面向 ERP 内嵌的市场 / 客户 / 员工三维分析与 AI 诊断产品。本页含产品概述、功能架构图、信息架构、核心流程、功能需求清单与非功能需求，可直接打印或另存为 PDF 交付评审。</p>
+  </div>
+
+  <!-- 概述 -->
+  <div class="section-title"><span class="n">1</span><h2>产品概述</h2><span class="line"></span></div>
+  <div class="card"><div class="c-body">
+    <div class="prd-meta">
+      <div class="m"><div class="l">产品名称</div><div class="v">钢智经营 · 三维分析与AI诊断</div></div>
+      <div class="m"><div class="l">产品形态</div><div class="v">ERP 内嵌模块（私有化/云 SaaS 双兼容）</div></div>
+      <div class="m"><div class="l">目标用户</div><div class="v">营销总裁 / 销售总监 / 一线销售</div></div>
+      <div class="m"><div class="l">版本 · 状态</div><div class="v">V1.0 · 高保真原型</div></div>
+    </div>
+    <div style="margin-top:14px" class="doc">
+      <p><b>产品定位：</b>100% 复用现有销售明细字段自动取数，无需新增业务单据；把"分析能力"转化为一线可执行的日常动作。</p>
+      <p><b>核心价值：</b>①零思考可视化——色块颜色自动区分机会与风险；②规则引擎免费预警 + AI 付费深度诊断，成本可控；③分析结论自动转任务派发，形成"分析→动作→复盘"闭环。</p>
+    </div>
+  </div></div>
+
+  <!-- 用户角色 -->
+  <div class="section-title"><span class="n">2</span><h2>用户角色与核心诉求</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="mod-card"><div class="m-ic bg-blue">👔</div><h3>营销总裁</h3><p>全局经营决策</p><div class="feat">一页看清三维机会与风险</div><div class="feat">资源倾斜、客户分配、人员管理决策</div></div>
+    <div class="mod-card"><div class="m-ic bg-green">🧑‍💼</div><h3>销售总监/销管</h3><p>团队与资源管理</p><div class="feat">客户资源分配与负载均衡</div><div class="feat">员工能力诊断与差异化管理</div></div>
+    <div class="mod-card"><div class="m-ic bg-orange">🤝</div><h3>一线销售</h3><p>客户跟进执行</p><div class="feat">我的客户任务清单(频次/话术)</div><div class="feat">流失预警与挽留方案</div></div>
+    <div class="mod-card"><div class="m-ic bg-purple">🛠️</div><h3>数据/IT</h3><p>系统与规则维护</p><div class="feat">阈值/权重/规则可视化配置</div><div class="feat">数据同步、性能与算力成本管控</div></div>
+  </div>
+
+  <!-- 功能架构图 -->
+  <div class="section-title"><span class="n">3</span><h2>产品功能架构图</h2><span class="sub">自上而下：入口 → 分析 → 执行 → 智能 → 配置 → 数据</span><span class="line"></span></div>
+  <div class="card"><div class="c-body">
+    <div class="archmap">
+      <div class="archrow"><div class="rlabel" style="background:#0d1b33">用户入口层</div>
+        <div class="rboxes" style="grid-template-columns:1fr">
+          <div class="pbox accent"><b>🧭 总裁驾驶舱</b><span>三栏总览(市场/客户/员工) · AI 综合经营诊断总报告 · 今日重点动作队列 · 快捷工作台入口</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#2563eb">三维分析层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(3,1fr)">
+          <div class="pbox"><b>🗺️ 市场潜力分析</b><span>区域/品类/行业四象限 · 趋势 · 机会/衰退预警</span></div>
+          <div class="pbox"><b>👥 客户价值分层</b><span>四维分级 · 走量/盈利矩阵 · 购货频率 · 采购趋势</span></div>
+          <div class="pbox"><b>🧑‍💼 员工能力画像</b><span>潜力四象限 · 六维雷达 · 客户资源健康度</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#16a34a">落地执行层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
+          <div class="pbox"><b>🔎 客户查询工作台</b><span>数千客户多维查询/分群/批量运营</span></div>
+          <div class="pbox"><b>📌 跟进分配·我的客户</b><span>智能分配 + 任务派发</span></div>
+          <div class="pbox"><b>📦 市场资源倾斜方案</b><span>库存/人力/政策决策输出</span></div>
+          <div class="pbox"><b>⚠ 购货频率·流失预警</b><span>评分表 + 销售分发</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#7c3aed">智能诊断层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
+          <div class="pbox"><b>⚙️ 规则引擎</b><span>免费预警 · 零 Token</span></div>
+          <div class="pbox"><b>🤖 AI 深度诊断</b><span>三段式归因 · 缓存节流</span></div>
+          <div class="pbox"><b>💬 交互问答</b><span>总裁自然语言查询</span></div>
+          <div class="pbox"><b>🔮 预测挖掘</b><span>流失/复购/增购预测</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#ea6d0b">配置层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(3,1fr)">
+          <div class="pbox"><b>🎚️ 流失评分模型配置</b><span>四因子权重/阈值可调</span></div>
+          <div class="pbox"><b>🔄 回收 & 分配规则配置</b><span>无跟进天数/潜力下限/负载</span></div>
+          <div class="pbox"><b>📐 全局阈值配置</b><span>分层中位数/预警阈值</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#0d9488">数据底座层</div>
+        <div class="rboxes" style="grid-template-columns:1fr">
+          <div class="pbox accent" style="border-top-color:#0d9488"><b>🗂️ 销售明细宽表（36 字段）</b><span>ERP 原生数据每日同步 · 清洗/周期切片/维度聚合 · 指标预计算落库(建索引/分库分表) → 6 张模型表</span></div>
+        </div></div>
+    </div>
+  </div></div>
+
+  <!-- 信息架构 + 流程 -->
+  <div class="split">
+    <div>
+      <div class="section-title"><span class="n">4</span><h2>信息架构（页面地图）</h2><span class="line"></span></div>
+      <div class="card"><div class="c-body">
+        <ul class="pmap">
+          <li><span>经营总览</span><ul>
+            <li><a href="dashboard.html">总裁驾驶舱</a></li>
+            <li><a href="design.html">系统设计方案</a></li>
+            <li><a href="prd.html">产品需求文档 PRD</a></li>
+            <li><a href="algorithms.html">指标与算法字典</a></li>
+            <li><a href="rollout.html">运营落地方案</a></li>
+          </ul></li>
+          <li><span>三维分析</span><ul>
+            <li><a href="market.html">市场潜力分析</a></li>
+            <li><a href="customer.html">客户价值分层</a></li>
+            <li><a href="customer-list.html">客户查询工作台</a></li>
+            <li><a href="assign.html">跟进分配·我的客户</a></li>
+            <li><a href="employee.html">员工能力画像</a></li>
+          </ul></li>
+          <li><span>智能诊断</span><ul>
+            <li><a href="ai-diagnosis.html">AI 经营诊断</a></li>
+            <li><a href="churn.html">购货频率·流失预警</a></li>
+          </ul></li>
+        </ul>
+      </div></div>
+    </div>
+    <div>
+      <div class="section-title"><span class="n">5</span><h2>核心业务流程</h2><span class="sub">月度经营闭环</span><span class="line"></span></div>
+      <div class="card"><div class="c-body">
+        <div class="flow" style="flex-direction:column">
+          <div class="step" style="margin-right:0"><span class="s-n">月初</span><b>市场找机会</b><p>输出区域/品类潜力，定重点开拓方向，产出资源倾斜方案</p></div>
+          <div class="step" style="margin-right:0"><span class="s-n">分配</span><b>客户定任务</b><p>按分级/频率/流失标记潜力与预警客户，智能分配并派发跟进任务</p></div>
+          <div class="step" style="margin-right:0"><span class="s-n">执行</span><b>员工配资源</b><p>销售按"我的客户"清单执行，录入跟进记录；差异化管理与资源回收</p></div>
+          <div class="step" style="margin-right:0"><span class="s-n">月末</span><b>复盘再优化</b><p>三维复盘达成，动态调整分级/分配/考核/倾斜策略，进入次月</p></div>
+        </div>
+        <div class="note" style="margin-top:6px"><span class="n-ic">🔁</span><div>数据回流：跟进记录与客户变化回流分析，作为员工能力评判与客户再分配依据。</div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 功能需求清单 -->
+  <div class="section-title"><span class="n">6</span><h2>功能需求清单</h2><span class="sub">P0 核心 · P1 重要 · P2 增值</span><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>模块</th><th>功能点</th><th>说明</th><th>优先级</th><th>原型</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><span class="pill blue">市场</span></td><td>区域/品类/行业四象限分级</td><td>热力地图、四象限、趋势、结构、排名</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>市场机会/衰退预警 + AI 诊断</td><td>阈值规则识别 + 三段式诊断</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>资源倾斜方案（决策输出）</td><td>库存/人力/政策结构化方案表</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="4"><span class="pill green">客户</span></td><td>四维潜力分级 + 走量/盈利矩阵</td><td>A/B/C/D + 四类客户自动打标</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>购货频率分析</td><td>间隔/频次/稳定性/增量/广度</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>客户查询工作台</td><td>多维筛选/排序/分页/批量/导出</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>智能分配 + 我的客户任务</td><td>分配建议 + 任务派发 + 达标率</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="2"><span class="pill purple">员工</span></td><td>能力四象限 + 六维雷达画像</td><td>业绩/资源/拓新/风控评分</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>差异化管理 + 资源回收再分配</td><td>激励/考核/培训 + 回收清单</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="2"><span class="pill orange">诊断</span></td><td>规则预警(免费) + AI 深诊(付费)</td><td>双层展示 + Token 计费/缓存</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>流失评分模型 + 总裁问答</td><td>四因子加权 + 交互问答</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td><span class="pill gray">配置</span></td><td>阈值/权重/规则可视化配置</td><td>流失模型、回收规则、全局阈值</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td><span class="pill gray">智能</span></td><td>预测式挖掘</td><td>流失/复购/增购预测推荐</td><td><span class="pill gray">P2</span></td><td><span class="pill yellow">规划</span></td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+  <!-- 非功能需求 -->
+  <div class="section-title"><span class="n">7</span><h2>非功能需求</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="opt-card"><div class="o-ic bg-teal">⚡</div><h3>性能</h3><p>指标预计算落宽表建索引，凌晨跑批；分页/虚拟滚动，客户超5万自动分库分表，秒开。</p></div>
+    <div class="opt-card"><div class="o-ic bg-blue">🔐</div><h3>权限与数据</h3><p>销售仅见自己客户；计算列锁定；诊断日志可审计，满足集团数据审计。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">💰</div><h3>算力计费</h3><p>规则预警零 Token；AI 按预存/包月计费，缓存7天节流；余额不足提醒。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">🏢</div><h3>部署兼容</h3><p>私有化/云 SaaS 双兼容；一套诊断引擎，计费体系自动适配买断/订阅+Token。</p></div>
+  </div>
+
+  <!-- 迭代规划 -->
+  <div class="section-title"><span class="n">8</span><h2>迭代规划</h2><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="opt-card"><div class="o-ic bg-green">①</div><h3>一期 · 快速见效（1-3周）</h3><p>BI + 规则引擎跑通分层/频率/流失，按销售分发。<a href="rollout.html" style="color:var(--primary)">详见落地方案 →</a></p></div>
+    <div class="opt-card"><div class="o-ic bg-blue">②</div><h3>二期 · ERP 内嵌（4-10周）</h3><p>宽表预计算 + 工作台 + 智能分配 + 任务闭环 + 可视化配置。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">③</div><h3>三期 · 智能增值（11-16周）</h3><p>AI 深诊 + 预测挖掘 + 健康分 + 订阅推送。</p></div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">🖨️</span><div><b>导出建议：</b>本页为可交付 PRD。浏览器打印（Ctrl/⌘+P）可直接另存为 PDF（已适配打印样式，自动隐藏侧边栏与顶栏）；如需图片版可对功能架构图区域截图。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+Layout.render("prd",{title:"产品需求文档 PRD",crumb:"产品需求文档 PRD"});
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@
     { g: "经营总览" , items: [
       { id: "dashboard", t: "总裁驾驶舱", ic: "🧭", href: "dashboard.html" },
       { id: "design",    t: "系统设计方案", ic: "📐", href: "design.html" },
+      { id: "prd",       t: "产品需求文档 PRD", ic: "📄", href: "prd.html" },
       { id: "algorithms",t: "指标与算法字典", ic: "🧮", href: "algorithms.html" },
       { id: "rollout",   t: "运营落地方案", ic: "🚀", href: "rollout.html" },
     ]},

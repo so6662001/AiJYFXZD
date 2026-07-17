@@ -291,3 +291,24 @@ input.cfg.w{width:50px;font-weight:700}
 .entry .e-t span{color:var(--muted);font-size:11.5px}
 .entry .e-ar{margin-left:auto;color:var(--muted);font-size:16px}
 .entry:hover .e-ar{color:var(--primary)}
+
+/* PRD architecture map */
+.archmap{display:flex;flex-direction:column;gap:10px}
+.archrow{display:flex;gap:12px;align-items:stretch}
+.archrow .rlabel{flex:0 0 88px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:12px;color:#fff;padding:8px;line-height:1.35}
+.archrow .rboxes{flex:1;display:grid;gap:10px}
+.pbox{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow-sm)}
+.pbox b{font-size:13px;color:var(--ink);display:block;margin-bottom:3px}
+.pbox span{font-size:11px;color:var(--muted);line-height:1.5}
+.arch-flowdown{text-align:center;color:#c4ccdb;font-size:16px;margin:-4px 0}
+.pmap{list-style:none}
+.pmap li{font-size:13px;margin:3px 0}
+.pmap>li>span{font-weight:700;color:var(--ink)}
+.pmap ul{list-style:none;margin:4px 0 8px 18px;border-left:1px dashed var(--line);padding-left:14px}
+.pmap ul li{color:var(--text)}
+.pmap ul li a{color:var(--primary)}
+.prd-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.prd-meta .m{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fbfcfe}
+.prd-meta .m .l{font-size:11.5px;color:var(--muted)}
+.prd-meta .m .v{font-size:14px;color:var(--ink);font-weight:700;margin-top:3px}
+@media print{.sidebar,.topbar{display:none!important}.main{margin-left:0!important}.content{padding:0!important}}
