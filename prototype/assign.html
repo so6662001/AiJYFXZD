@@ -42,6 +42,28 @@
         </div>
       </div>
 
+      <!-- 回收 & 分配规则配置 -->
+      <div class="card" style="margin-bottom:16px" id="rule-config">
+        <div class="c-head"><h3>回收 & 分配规则配置</h3><span class="pill green">可设置</span>
+          <div class="r"><span id="rule-hit" class="pill orange">—</span></div></div>
+        <div class="c-body">
+          <div class="filters">
+            <div class="fld"><label>回收触发 · 无采购/无跟进 ≥</label><div><input class="inp" id="r-nofollow" value="90" style="min-width:70px"/> 天</div></div>
+            <div class="fld"><label>仅回收 · 潜力分 ≥（保护高潜）</label><input class="inp" id="r-minscore" value="6.0" style="min-width:80px"/></div>
+            <div class="fld"><label>回收触发 · 近3月采购下滑 ≥</label><div><input class="inp" id="r-drop" value="50" style="min-width:70px"/> %</div></div>
+            <div class="fld"><label>负载均衡 · 单人 A 类客户 &gt;</label><div><input class="inp" id="r-overload" value="10" style="min-width:70px"/> 家</div></div>
+            <div class="fld"><label>蓝海新客 · 优先分配 TOP</label><div><input class="inp" id="r-topn" value="3" style="min-width:60px"/> 员工</div></div>
+          </div>
+          <div class="cfg-actions" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+            <span id="rule-summary" style="font-size:12.5px;color:var(--muted)"></span>
+            <div style="margin-left:auto;display:flex;gap:10px">
+              <button class="btn ghost" id="r-reset">恢复默认</button>
+              <button class="btn primary" id="r-apply">应用规则并重算</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="split">
         <div class="card"><div class="c-head"><h3>销售客户负载均衡</h3><span class="sub">A/B 级客户储备对比</span></div><div class="c-body tight"><div id="load" class="chart"></div></div></div>
         <div class="card"><div class="c-head"><h3>负载诊断</h3></div><div class="c-body ai-list">
@@ -167,6 +189,27 @@ function initCharts(){
   }
   sel.addEventListener("change",renderMine);
   renderMine();
+
+  // 回收 & 分配规则配置（可设置，实时重算命中）
+  const pop=DATA.generateCustomers(1860);
+  const defaults={"r-nofollow":90,"r-minscore":6.0,"r-drop":50,"r-overload":10,"r-topn":3};
+  function applyRules(){
+    const g=id=>+document.getElementById(id).value;
+    const noFollow=g("r-nofollow"), minScore=g("r-minscore"), drop=g("r-drop"), overload=g("r-overload"), topn=g("r-topn");
+    // 命中回收：长期无采购/无跟进 且 高潜力（保护高潜、剔除低价值）
+    const recall=pop.filter(c=>c.lastDays>=noFollow && c.score>=minScore);
+    // 负载超标销售
+    const over=E.filter(e=>e.custA>overload);
+    document.getElementById("rule-hit").textContent="命中待回收 "+recall.length+" 家 · 负载超标 "+over.length+" 人";
+    document.getElementById("rule-summary").innerHTML=
+      `当前规则：无采购/跟进 ≥ <b>${noFollow}</b> 天 且 潜力分 ≥ <b>${minScore}</b> → 命中 <b style="color:var(--orange)">${recall.length}</b> 家高潜客户待回收；`+
+      `采购下滑 ≥ <b>${drop}%</b> 追加触发；A类客户 &gt; <b>${overload}</b> 家判定过载（当前 <b>${over.length}</b> 人：${over.map(e=>e.name).join("、")||"无"}）；蓝海新客优先分配能力 TOP <b>${topn}</b> 员工。`;
+    return {recall,over};
+  }
+  function toastRule(msg){toast(msg);}
+  document.getElementById("r-apply").addEventListener("click",()=>{const r=applyRules();toastRule(`规则已应用：命中 ${r.recall.length} 家待回收客户、${r.over.length} 名负载超标销售，已刷新分配依据`);});
+  document.getElementById("r-reset").addEventListener("click",()=>{for(const k in defaults)document.getElementById(k).value=defaults[k];applyRules();toastRule("已恢复默认规则");});
+  applyRules();
 }
 Layout.render("assign",{title:"跟进分配·我的客户",crumb:"跟进分配·我的客户"});
 </script>
