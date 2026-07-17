@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>指标与算法字典 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>指标与算法字典 · 全量计算口径</h1>
+    <p>系统内所有指标与能力分析的具体算法。全部基于现有销售明细字段（销售日期、客户、销售员、重量、金额、成本价、毛利、其他收支、业务净利、账期、结算方式、结算到期日、品类、材质、产地、地区、客户分类/级别等）计算。公式给出 Excel / SQL 通用写法，阈值均可后台配置。</p>
+  </div>
+
+  <div class="note" style="margin-bottom:18px"><span class="n-ic">📖</span><div>阅读约定：<b>周期</b>指统计窗口（近3/6/12月/当月）；<b>X0</b>=全客户总重量中位数、<b>Y0</b>=全客户单吨净利中位数（每日自动重算）；所有"占比/率"以小数或百分比表示。</div></div>
+
+  <div class="doc">
+    <!-- 0 通用口径 -->
+    <div class="section-title"><span class="n">0</span><h2>通用计算口径（全表通用）</h2><span class="line"></span></div>
+    <div class="grid g2">
+      <div class="card"><div class="c-head"><h3>基础单笔口径</h3></div><div class="c-body">
+        <div class="mono"><span class="c">// 单笔（每行销售明细）</span>
+单笔毛利      = 金额 − 成本价
+单笔业务净利  = 单笔毛利 + 其他收入 − 其他支出
+单吨业务净利  = 单笔业务净利 ÷ 重量        <span class="c">// 重量≠0</span>
+挂价毛利差    = 实际毛利 − 挂牌毛利
+
+<span class="c">// 判定</span>
+现款  : 结算方式 = "现款现结"
+赊销  : 账期 &gt; 0
+逾期  : 结算到期日 &lt; TODAY() 且 未结清货款</div>
+      </div></div>
+      <div class="card"><div class="c-head"><h3>全局阈值（自动计算）</h3></div><div class="c-body">
+        <div class="mono">X0 = MEDIAN(各客户 周期总采购吨数)   <span class="c">// 走量阈值</span>
+Y0 = MEDIAN(各客户 平均单吨净利)     <span class="c">// 盈利阈值</span>
+G_avg = 全局 区域/品类 单吨净利均值    <span class="c">// 市场分级基准</span>
+
+<span class="c">// 加权平均账期(按吨位加权，避免小额干扰)</span>
+加权账期 = SUMPRODUCT(单笔账期 × 单笔重量) ÷ 总重量
+
+<span class="c">// 活跃客户</span>
+活跃客户 = 周期内下单次数 ≥ 2 的客户（去重计数）</div>
+      </div></div>
+    </div>
+
+    <!-- 1 市场 -->
+    <div class="section-title"><span class="n">1</span><h2>市场维度算法</h2><span class="sub">区域 / 品类 / 下游行业</span><span class="line"></span></div>
+
+    <h3>1.1 区域指标库（按 省/市/区县/片区 分组统计）</h3>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>类别</th><th>指标</th><th>算法</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><span class="pill blue">规模</span></td><td>总销量(吨)</td><td>SUMIFS(重量, 区域匹配, 周期)</td></tr>
+        <tr><td>总营收 / 累计净利</td><td>SUMIFS(金额 / 业务净利, 区域匹配, 周期)</td></tr>
+        <tr><td>客户总数 / 活跃客户数</td><td>去重计数(客户) / 下单≥2次客户数</td></tr>
+        <tr><td rowspan="3"><span class="pill green">盈利</span></td><td>平均单吨净利</td><td>区域总业务净利 ÷ 区域总销量</td></tr>
+        <tr><td>整体净利率</td><td>区域业务净利 ÷ 区域总营收</td></tr>
+        <tr><td>挂价毛利差值</td><td>Σ(实际毛利 − 挂牌毛利)</td></tr>
+        <tr><td rowspan="2"><span class="pill orange">风险</span></td><td>加权平均账期</td><td>SUMPRODUCT(账期×重量) ÷ 总重量</td></tr>
+        <tr><td>赊销占比 / 现款占比</td><td>赊销订单重量 ÷ 总重量 ；现款重量 ÷ 总重量</td></tr>
+        <tr><td rowspan="2"><span class="pill purple">结构</span></td><td>终端客户占比</td><td>(制造+工程客户数) ÷ 客户总数</td></tr>
+        <tr><td>各类客户销量占比</td><td>某客户分类销量 ÷ 区域总销量</td></tr>
+        <tr><td rowspan="2"><span class="pill gray">趋势</span></td><td>销量同比增速</td><td>(本期销量 − 上期同维度销量) ÷ 上期</td></tr>
+        <tr><td>净利同比增速</td><td>(本期净利 − 上期净利) ÷ 上期</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3>1.2 区域市场潜力四象限判定</h3>
+    <div class="card"><div class="c-body">
+      <div class="mono"><span class="c">// 增速阈值 20%，单吨净利与全局均值 G_avg 比较</span>
+市场标签 =
+ IF(AND(增速 ≥ 0.20, 单吨净利 ≥ G_avg), <span class="s">"明星市场"</span>,
+ IF(AND(增速 ≥ 0.20, 单吨净利 &lt; G_avg), <span class="s">"蓝海潜力市场"</span>,
+ IF(AND(增速 &gt; −0.20, 单吨净利 ≥ G_avg), <span class="s">"成熟存量市场"</span>,
+   <span class="s">"衰退弱势市场"</span>)))</div>
+    </div></div>
+
+    <h3>1.3 品类 / 产地 / 计价分析</h3>
+    <div class="grid g2">
+      <div class="card"><div class="c-body"><div class="mono"><span class="c">// 单品盈利潜力（按单吨业务净利排序）</span>
+单品单吨净利 = 品类总业务净利 ÷ 品类总重量
+品类销量占比 = 品类销量 ÷ 全司总销量
+<span class="c">// 产地对标：同规格不同产地</span>
+产地净利差 = 产地A单吨净利 − 产地B单吨净利</div></div></div>
+      <div class="card"><div class="c-body"><div class="mono"><span class="c">// 计价方式差异（理计 / 过磅）</span>
+计价单吨毛利差 = 理计组单吨毛利 − 过磅组单吨毛利
+<span class="c">// 品类需求趋势：月度环比</span>
+月环比 = (本月销量 − 上月销量) ÷ 上月销量</div></div></div>
+    </div>
+
+    <h3>1.4 下游行业指标 & 市场预警规则</h3>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>规则</th><th>触发条件</th><th>动作</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill green">蓝海市场</span></td><td>连续3个月销量同比增长 ≥ 20% 且 单吨净利 ≥ G_avg</td><td>增配人力、库存倾斜</td></tr>
+        <tr><td><span class="pill red">衰退市场</span></td><td>销量同比 ≤ −30% 且 中间商客户占比 &gt; 80%</td><td>收缩赊销授信、人员缩编</td></tr>
+        <tr><td><span class="pill blue">蓝海品类</span></td><td>单吨毛利高 且 整体采购规模小（未开发）</td><td>专项攻坚、投放优惠</td></tr>
+        <tr><td><span class="pill orange">风险品类</span></td><td>连续2月毛利为负 或 库存积压 &gt; 30天</td><td>清库调价</td></tr>
+      </tbody>
+    </table></div></div>
+    <p style="font-size:12.5px;color:var(--muted)">行业综合评分雷达（0-10）：销量规模、单吨毛利、购货频次、账期健康、逾期风险(低) 五维标准化打分。</p>
+
+    <!-- 2 客户 -->
+    <div class="section-title"><span class="n">2</span><h2>客户维度算法</h2><span class="sub">价值 / 购货频率 / 分层 / 流失</span><span class="line"></span></div>
+
+    <h3>2.1 基础价值指标</h3>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>类别</th><th>指标</th><th>算法</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill blue">交易规模</span></td><td>累计采购金额/重量、年均净利</td><td>SUMIFS(金额/重量/业务净利, 客户匹配, 周期)</td></tr>
+        <tr><td><span class="pill green">盈利质量</span></td><td>平均单吨毛利、净利率</td><td>总业务净利 ÷ 总重量 ；净利 ÷ 营收</td></tr>
+        <tr><td><span class="pill orange">资金健康</span></td><td>加权账期、逾期次数、现款占比</td><td>SUMPRODUCT(账期×重量)/总重量 ；COUNTIFS(逾期) ；现款重量/总重量</td></tr>
+        <tr><td><span class="pill purple">合作广度</span></td><td>合作品类数量</td><td>COUNTA(UNIQUE(品类+材质))</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3>2.2 购货频率核心指标（5 项）</h3>
+    <div class="card"><div class="c-body">
+      <div class="mono"><span class="c">// ① 采购频次</span>
+下单总次数 = COUNTIFS(客户匹配, 周期内销售日期)   <span class="c">// 按日期去重</span>
+月均购货次数 = 下单总次数 ÷ 周期月数
+
+<span class="c">// ② 采购周期 / 平均采购间隔天数（购货频率核心）</span>
+Step1: 取该客户周期内全部销售日期，去重、升序 D=[d1..dn]
+Step2: N = 去重日期数
+Step3: IF N≤1 → AvgT = 999（一次性/沉睡）
+       ELSE 间隔数组 T=[d2−d1, d3−d2, ... dn−d(n−1)]
+            AvgT   = AVERAGE(T)      <span class="c">// 平均间隔</span>
+            MaxT   = MAX(T)          <span class="c">// 最大断档</span>
+            RecentT= AVERAGE(近3次间隔) <span class="c">// 近期节奏</span>
+
+<span class="c">// ③ 采购稳定性（变异系数，越小越稳定）</span>
+CV = STDEV(各月采购金额) ÷ AVERAGE(各月采购金额)
+
+<span class="c">// ④ 采购增量（近6个月同比）</span>
+增量 = (近6月采购 − 上一个6月采购) ÷ 上一个6月采购
+
+<span class="c">// ⑤ 采购广度</span>
+广度 = 合作品类/材质规格 去重数量</div>
+    </div></div>
+
+    <h3>2.3 购货频率分层标准</h3>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>层级</th><th>判定（平均间隔 AvgT）</th><th>说明</th><th>跟进要求</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill green">高频稳定</span></td><td>AvgT ≤ 30 天（月均≥2次）</td><td>核心优质客户</td><td>半月回访一次</td></tr>
+        <tr><td><span class="pill blue">中频间歇</span></td><td>30 &lt; AvgT ≤ 90 天</td><td>重点激活</td><td>月度常规回访</td></tr>
+        <tr><td><span class="pill yellow">低频疲软</span></td><td>90 &lt; AvgT ≤ 180 天</td><td>低频预警</td><td>重点跟进缩短周期</td></tr>
+        <tr><td><span class="pill red">沉睡</span></td><td>AvgT &gt; 180 天 或 = 999</td><td>沉睡/一次性</td><td>一周内电话激活</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3>2.4 客户类型判定（走量 / 盈利双维矩阵）</h3>
+    <div class="card"><div class="c-body"><div class="mono"><span class="c">// X=总采购吨(I)，Y=单吨净利(L)；X0/Y0=全局中位数</span>
+客户类型 =
+ IF(AND(X ≥ X0, Y ≥ Y0), <span class="s">"①量利双优"</span>,   <span class="c">// 高吨+高利，核心头部</span>
+ IF(AND(X &lt; X0, Y ≥ Y0), <span class="s">"②高盈利获利型"</span>, <span class="c">// 低吨高利，利润支柱</span>
+ IF(AND(X ≥ X0, Y &lt; Y0), <span class="s">"③高走量流水型"</span>, <span class="c">// 高吨低利，现金流</span>
+   <span class="s">"④量利双弱低效"</span>)))              <span class="c">// 低吨低利，待清理</span></div></div></div>
+
+    <h3>2.5 客户综合潜力打分（总分 10 分，四维加权）</h3>
+    <div class="card"><div class="c-body">
+      <div class="mono"><span class="c">// 每项 0-10 标准化（在全客户中分位标准化）</span>
+利润得分  (40%) : 总业务净利分位标准化 → 0~10
+规模得分  (25%) : 总采购吨数分位标准化 → 0~10
+复购得分  (20%) : 采购间隔越短越高，AvgT≤30天满分10
+资金得分  (15%) : 账期短、无逾期高分
+
+综合潜力分 = 利润×0.40 + 规模×0.25 + 复购×0.20 + 资金×0.15</div>
+      <div class="cfg-levels" style="margin-top:12px">
+        <span class="lvl"><i style="background:#16a34a"></i>8~10 一级重点深挖</span>
+        <span class="lvl"><i style="background:#2563eb"></i>6~7.9 二级稳定维护</span>
+        <span class="lvl"><i style="background:#d99e00"></i>4~5.9 三级常规维护</span>
+        <span class="lvl"><i style="background:#9aa4bb"></i>&lt;4 休眠待清理</span>
+      </div>
+    </div></div>
+
+    <h3>2.6 客户流失风险评分模型（4 因子加权，纯算法·可配置）</h3>
+    <div class="card"><div class="c-body"><div class="mono"><span class="c">// 各因子 0-100 分</span>
+S1 断单时长(40%) : ≤30→0 · 30-90→30 · 90-180→70 · &gt;180→100
+S2 采购下滑(30%) : ≤0→0 · ≤30%→40 · ≤60%→70 · &gt;60%→100   <span class="c">// 下滑率=近3月vs上3月降幅</span>
+S3 节奏恶化(20%) : RecentT/AvgT ≤1→0 · ≤1.3→30 · ≤1.8→60 · &gt;1.8→100
+S4 资金恶化(10%) : 存在逾期 或 现款转赊销 或 账期拉长≥30天 → 100，否则 0
+
+流失总分 = S1×0.4 + S2×0.3 + S3×0.2 + S4×0.1
+分级: 0-25 低 · 26-50 潜在 · 51-75 高 · 76-100 极高
+
+<span class="c">// 附加硬预警标签（不参与打分，强制提示）</span>
+量利双优/高盈利客户 进入高风险 → 核心利润客户流失预警
+高走量客户 断单 &gt; 60天         → 现金流客户流失预警
+连续2月业务净利为负           → 亏损客户流失预警</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px">※ 权重与各档阈值均在「购货频率·流失预警」页面可视化配置，实时重算。</p>
+    </div></div>
+
+    <h3>2.7 采购趋势 & 跟进优先级</h3>
+    <div class="grid g2">
+      <div class="card"><div class="c-body"><div class="mono"><span class="c">// 近3月采购同比</span>
+同比 = IF(同期=0, "新增客户", (本期−同期)÷同期)
+<span class="c">// 流失预警硬规则</span>
+连续2月无下单 或 采购量环比 ↓≥50% → 流失预警</div></div></div>
+      <div class="card"><div class="c-body"><div class="mono"><span class="c">// 跟进优先级（按客户类型映射）</span>
+①量利双优 → 一级（每周线下拜访+月度复盘）
+②高盈利   → 一级（专属报价、高层对接）
+③高走量   → 二级（半月沟通、优化账期）
+④量利双弱 → 三级（月度线上回访）</div></div></div>
+    </div>
+
+    <!-- 3 员工 -->
+    <div class="section-title"><span class="n">3</span><h2>员工维度算法</h2><span class="sub">业绩 / 客户资源 / 能力画像</span><span class="line"></span></div>
+
+    <h3>3.1 业绩产出 & 客户资源结构指标</h3>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>类别</th><th>指标</th><th>算法</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><span class="pill blue">业绩</span></td><td>个人总销量/总净利</td><td>SUMIFS(重量/业务净利, 销售员匹配, 周期)</td></tr>
+        <tr><td>个人平均单吨净利</td><td>个人总净利 ÷ 个人总销量</td></tr>
+        <tr><td>低毛利订单占比</td><td>低毛利订单数 ÷ 总订单数</td></tr>
+        <tr><td rowspan="3"><span class="pill purple">资源</span></td><td>名下 A/B/C/D 客户数</td><td>COUNTIFS(销售=A2, 客户级别=X)</td></tr>
+        <tr><td>高盈利/高走量客户持有数</td><td>COUNTIFS(销售匹配, 客户类型=②/③)</td></tr>
+        <tr><td><b>客户毛利集中度风险值</b></td><td>前两大客户净利合计 ÷ 个人总净利　<span style="color:var(--red)">≥0.7 标红</span></td></tr>
+        <tr><td rowspan="3"><span class="pill green">运营</span></td><td>客户平均购货间隔（盘活能力）</td><td>SUMPRODUCT(客户AvgT×客户吨) ÷ 个人总吨</td></tr>
+        <tr><td>客户年度流失率</td><td>周期内2次以上无采购客户数 ÷ 名下客户数</td></tr>
+        <tr><td>沉睡唤醒数 / 新增签约数</td><td>由999间隔转≤90天客户数 ；周期内首次合作客户数</td></tr>
+        <tr><td><span class="pill orange">风控</span></td><td>名下逾期客户净利</td><td>SUMIFS(业务净利, 销售匹配, 逾期次数&gt;0)</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3>3.2 员工潜力四象限判定</h3>
+    <div class="card"><div class="c-body"><div class="mono"><span class="c">// 横轴=个人总净利F，纵轴=客户盘活能力(1/平均间隔K)，与全局员工均值比较</span>
+员工类型 =
+ IF(AND(F ≥ 净利均值, 1/K ≥ 盘活均值), <span class="s">"标杆全能型"</span>,   <span class="c">// 高净利+高增长</span>
+ IF(AND(F ≥ 净利均值, 1/K &lt; 盘活均值), <span class="s">"存量守成型"</span>, <span class="c">// 高净利+低增长</span>
+ IF(AND(F &lt; 净利均值, 1/K ≥ 盘活均值), <span class="s">"潜力攻坚型"</span>, <span class="c">// 低净利+高增长</span>
+   <span class="s">"低效弱势型"</span>)))                              <span class="c">// 低净利+低增长</span></div></div></div>
+
+    <h3>3.3 六维能力雷达评分口径（0-10）</h3>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>维度</th><th>评分依据</th></tr></thead>
+      <tbody>
+        <tr><td>业绩产出</td><td>个人总业务净利在全员中的分位标准化</td></tr>
+        <tr><td>客户盈利质量</td><td>名下客户整体净利率 / 平均单吨净利</td></tr>
+        <tr><td>客户盘活</td><td>沉睡唤醒数 + 客户复购间隔缩短幅度</td></tr>
+        <tr><td>拓新能力</td><td>新增签约客户数 + 新客转 B/A 级数量</td></tr>
+        <tr><td>账期风控</td><td>名下客户加权账期、逾期金额（越低越高分）</td></tr>
+        <tr><td>跟进达标率</td><td>按分级要求完成跟进的客户占比</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3>3.4 客户资源健康度 / 公平度诊断</h3>
+    <div class="card"><div class="c-body"><div class="mono"><span class="c">// 资源健康度：单一大客户依赖风险</span>
+若 某销售 前两大客户毛利占比 ≥ 70% → 客户资源单一，强制分配中小客户分散风险
+
+<span class="c">// 资源公平度：全员横向对比</span>
+对比全员 A/B级客户总毛利，识别两极分化 → 总裁统一调配平衡
+
+<span class="c">// 客户盘活能力对比</span>
+同等级客户分配给不同销售后的复购频率、毛利变化 → 判断真实维护能力，作为再分配依据</div></div></div>
+
+    <!-- 4 阈值汇总 -->
+    <div class="section-title"><span class="n">4</span><h2>阈值与权重汇总（后台可配置）</h2><span class="line"></span></div>
+    <div class="card"><div class="c-body" style="padding:0;overflow:auto"><table class="tbl">
+      <thead><tr><th>模块</th><th>参数</th><th>默认值</th></tr></thead>
+      <tbody>
+        <tr><td>走量/盈利分型</td><td>X0 吨数中位数 / Y0 单吨净利中位数</td><td>自动重算（每日）</td></tr>
+        <tr><td>购货频率分层</td><td>高频/中频/低频/沉睡 间隔</td><td>30 / 90 / 180 天</td></tr>
+        <tr><td>潜力打分权重</td><td>利润/规模/复购/资金</td><td>40% / 25% / 20% / 15%</td></tr>
+        <tr><td>流失评分权重</td><td>断单/下滑/节奏/资金</td><td>40% / 30% / 20% / 10%</td></tr>
+        <tr><td>流失风险分级</td><td>低/潜在/高/极高</td><td>25 / 50 / 75 / 100</td></tr>
+        <tr><td>市场机会预警</td><td>销量同比增速阈值</td><td>≥ 20%（连续3月）</td></tr>
+        <tr><td>市场衰退预警</td><td>同比下滑 + 中间商占比</td><td>≤ −30% 且 &gt; 80%</td></tr>
+        <tr><td>员工资源风险</td><td>单一客户毛利集中度</td><td>≥ 70%</td></tr>
+        <tr><td>员工能力短板</td><td>沉睡唤醒率 / 客户流失率</td><td>&lt; 20% / &gt; 30%</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <!-- 5 AI -->
+    <div class="section-title"><span class="n">5</span><h2>AI 触发与节流规则</h2><span class="line"></span></div>
+    <div class="grid g3">
+      <div class="opt-card"><div class="o-ic bg-green">🆓</div><h3>规则预警（零 Token）</h3><p>上述全部指标、分层、评分、预警标签由 SQL/规则引擎本地计算，不消耗 AI。</p></div>
+      <div class="opt-card"><div class="o-ic bg-purple">🤖</div><h3>AI 触发条件</h3><p>仅带风险/机会标签（高/极高、蓝海/衰退、资源失衡）的对象触发大模型深度归因。</p></div>
+      <div class="opt-card"><div class="o-ic bg-blue">⚡</div><h3>缓存节流</h3><p>单对象诊断缓存 7 天、月度报告缓存 30 天；新业务单据（大额订单/逾期）触发缓存失效重算。</p></div>
+    </div>
+
+    <div class="note" style="margin-top:18px"><span class="n-ic">🧮</span><div>以上算法与「流失预警」页面的可配置模型、客户/员工/市场看板的图表口径完全一致，可直接作为研发实现与数据建模的口径手册。</div></div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+Layout.render("algorithms",{title:"指标与算法字典",crumb:"指标与算法字典"});
+</script>
+</body>
+</html>
