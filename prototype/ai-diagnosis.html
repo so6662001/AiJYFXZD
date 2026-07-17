@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI 经营诊断 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>AI 大模型经营诊断</h1>
+    <p>全产品统一 <b>TOKEN 计费</b>：常规报表按<b>输入 + 输出字节</b>折算 Token（单价低）、AI 大模型诊断按 <b>input / output token</b> 计费（单价高）。分层设计 + 缓存节流控制整体成本。</p>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">常规报表调用（字节计费）</span><span class="k-ic bg-green">📊</span></div><div class="k-val">128<small>次</small></div><div class="k-foot">按输入/输出字节折算 Token</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">AI 深度诊断（大模型）</span><span class="k-ic bg-purple">🤖</span></div><div class="k-val">46<small>次</small></div><div class="k-foot">仅高风险/机会触发</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">缓存命中率</span><span class="k-ic bg-blue">⚡</span></div><div class="k-val">68<small>%</small></div><div class="k-foot">7 天内不重复扣费</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">本月 Token 费用</span><span class="k-ic bg-orange">💰</span></div><div class="k-val">¥86<small>.3</small></div><div class="k-foot">报表 ¥43.7 + AI ¥42.6</div></div>
+  </div>
+
+  <!-- 三层诊断逻辑 -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="c-head"><h3>AI 三层智能诊断逻辑</h3><span class="sub">由浅到深，细致无遗漏</span></div>
+    <div class="c-body">
+      <div class="flow">
+        <div class="step" style="border-left:3px solid #0d9488"><span class="s-n">第一层</span><b>图表数据解读</b><p>自动读取每张图表数据，翻译数字为大白话，贴在图表下方。</p></div>
+        <div class="step" style="border-left:3px solid #f97316"><span class="s-n">第二层</span><b>异常识别预警</b><p>内置钢贸行业阈值，捕捉市场/客户/员工异动，标红弹窗推送。</p></div>
+        <div class="step" style="border-left:3px solid #7c3aed"><span class="s-n">第三层</span><b>经营归因深诊</b><p>结合行业逻辑拆解根源，非单纯报数字，输出可落地方案。</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs">
+      <button class="on" data-tab="diag">智能诊断卡片</button>
+      <button data-tab="ask">总裁交互问答</button>
+      <button data-tab="bill">Token 计费 & Prompt</button>
+      <button data-tab="deliver">交付输出物</button>
+    </div>
+
+    <!-- 诊断卡片 -->
+    <div class="tabpane on" data-pane="diag">
+      <div class="split">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="c-head"><h3>常规报表预警区</h3><span class="pill green">规则生成 · 按字节计 Token（低）</span></div>
+            <div class="c-body ai-list">
+              <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>【风险】廊坊金属贸易</b><p>近3月采购下滑62%，账期72天，存在流失风险</p></div><span class="a-time">规则</span></div>
+              <div class="alert-item"><div class="a-ic bg-blue">🔵</div><div class="a-b"><b>【机会】宁波特钢加工</b><p>高盈利客户，仅采购不锈钢板材，未采购高毛利合金型材</p></div><span class="a-time">规则</span></div>
+              <div class="alert-item"><div class="a-ic bg-orange">🟠</div><div class="a-b"><b>【风险】天津建工物资</b><p>下单间隔85天，连续2月净利为负</p></div><span class="a-time">规则</span></div>
+              <div class="alert-item"><div class="a-ic bg-green">🟢</div><div class="a-b"><b>【机会】合肥新材科技</b><p>采购增速36%，100%现款结算，可推年度框架单</p></div><span class="a-time">规则</span></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="c-head"><h3>AI 深度诊断区</h3><span class="pill purple">大模型 · 三段式</span></div>
+            <div class="c-body ai-list">
+              <div class="ai-card">
+                <div class="ai-h"><span class="ai-badge">🤖 高走量客户</span><span class="ai-obj">廊坊金属贸易</span></div>
+                <div class="ai-seg"><span class="lab">① 数据解读</span>年度采购1.2万吨为核心流水客户，但单吨毛利仅42元，账期72天资金占用高。</div>
+                <div class="ai-seg warn"><span class="lab">② 深层归因</span>客户为二级贸易商，仅采购低价普板，无高毛利品类，长期赊销未用现款优惠。</div>
+                <div class="ai-seg act"><span class="lab">③ 落地动作</span>销售半月回访一次，推现款每吨减15元阶梯政策，同步推送型材品类报价。</div>
+              </div>
+              <div class="ai-card">
+                <div class="ai-h"><span class="ai-badge">🤖 高盈利客户</span><span class="ai-obj">宁波特钢加工</span></div>
+                <div class="ai-seg"><span class="lab">① 数据解读</span>总采购980吨，单吨净利135元，近3月增速35%，无逾期。</div>
+                <div class="ai-seg warn"><span class="lab">② 深层归因</span>高毛利材质需求旺盛但品类单一，年度增量空间大，具备升A潜力。</div>
+                <div class="ai-seg act"><span class="lab">③ 落地动作</span>专属报价+高层定期对接，推送合金/特种材质推荐清单，年度需求预估锁量。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 问答 -->
+    <div class="tabpane" data-pane="ask">
+      <div class="card">
+        <div class="c-head"><h3>总裁交互问答</h3><span class="sub">自然语言提问，AI 调取全库指标作答</span></div>
+        <div class="c-body">
+          <div id="chat" style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px"></div>
+          <div class="q-ask"><input id="q-input" placeholder="例如：哪个区域新增潜力客户最多，分配给哪些销售最合适？"/><button id="q-send">提问</button></div>
+          <div class="q-sugg">
+            <button>哪个区域新增潜力客户最多，分配给谁最合适？</button>
+            <button>今年亏损客户集中在哪类行业，如何筛选淘汰？</button>
+            <button>客户盘活能力最弱的3人，需调整哪些客户资源？</button>
+            <button>我名下所有橙色流失客户有哪些挽留方案？</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 账单 -->
+    <div class="tabpane" data-pane="bill">
+      <div class="card" style="margin-bottom:16px">
+        <div class="c-head"><h3>统一 Token 计费模型</h3><span class="pill purple">全量报表 + AI 均按 Token 计费</span>
+          <div class="r"><a href="billing.html" class="pill blue" style="text-decoration:none">前往 Token 计费中心 →</a></div></div>
+        <div class="c-body" style="padding:0;overflow:auto">
+          <table class="tbl">
+            <thead><tr><th>计费对象</th><th>计费方式</th><th class="num">输入单价(元/百万Token)</th><th class="num">输出单价(元/百万Token)</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><b>常规报表 / 看板 / 清单</b></td><td>按<b>输入+输出字节</b>折算 Token</td><td class="num">0.2</td><td class="num">0.4</td><td>取数字节=输入，生成报表/导出字节=输出</td></tr>
+              <tr><td><b>AI 深度诊断 / 问答 / 报告</b></td><td>大模型 input/output token</td><td class="num">0.5</td><td class="num">4.0</td><td>预存套餐价，按量散客上浮 20%</td></tr>
+              <tr><td><b>包月不限量</b></td><td colspan="2" style="text-align:center">关闭扣费，仅记录调用日志</td><td class="num">—</td><td>适合高频使用客户</td></tr>
+            </tbody>
+          </table>
+          <div class="c-body"><div class="note"><span class="n-ic">💡</span><div>字节→Token 折算：约每 <b>1.5 字节 ≈ 1 Token</b>（中文场景）。报表消耗远低于 AI；预计算宽表 + 分页减少取数字节，缓存减少重复扣费。</div></div></div>
+        </div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="c-head"><h3>Token 消耗趋势</h3><span class="sub">报表 vs AI</span></div><div class="c-body tight"><div id="ai-token" class="chart"></div></div></div>
+        <div class="card">
+          <div class="c-head"><h3>钢贸专属 Prompt 模板</h3><span class="pill purple">内置 ERP 代码</span></div>
+          <div class="c-body">
+            <div class="mono"><span class="c">【行业限定】</span>钢材贸易行业分析，输出落地经营动作，禁止空泛话术
+<span class="c">【分析对象】</span>高盈利获利型 / 高走量流水型 / 区域 / 员工
+<span class="c">【基础指标】</span>结构化 JSON（总吨、单吨净利、采购间隔、账期、同比、逾期、品类）
+<span class="c">【系统标签】</span>风险:[...] 机会:[...]
+<span class="c">【业务约束】</span>
+ 1. 高盈利客户 → 扩品类、提年度总利润
+ 2. 高走量客户 → 缩账期、稳采购量
+ 3. 输出三段：<span class="s">①数据解读 ②深层归因 ③落地方案</span>
+<span class="c">【格式】</span>简洁商务文本，分点，≤300字</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="c-head"><h3>Token 调用账单明细</h3><span class="sub">报表与 AI 统一计费</span></div>
+        <div class="c-body" style="padding:0;overflow:auto">
+          <table class="tbl">
+            <thead><tr><th>时间</th><th>对象</th><th>类型</th><th>计费方式</th><th class="num">输入Token</th><th class="num">输出Token</th><th class="num">扣费</th><th>缓存</th></tr></thead>
+            <tbody>
+              <tr><td>08:00</td><td>客户分层看板</td><td><span class="pill green">常规报表</span></td><td>字节折算</td><td class="num">4,200</td><td class="num">1,800</td><td class="num">¥0.0016</td><td><span class="pill gray">新生成</span></td></tr>
+              <tr><td>08:01</td><td>流失预警清单(导出)</td><td><span class="pill green">常规报表</span></td><td>字节折算</td><td class="num">6,500</td><td class="num">9,400</td><td class="num">¥0.0051</td><td><span class="pill gray">新生成</span></td></tr>
+              <tr><td>08:02</td><td>廊坊金属贸易</td><td><span class="pill purple">AI 客户深诊</span></td><td>大模型</td><td class="num">1,240</td><td class="num">386</td><td class="num">¥0.0021</td><td><span class="pill gray">新调用</span></td></tr>
+              <tr><td>08:02</td><td>华北廊坊区域</td><td><span class="pill purple">AI 市场深诊</span></td><td>大模型</td><td class="num">1,580</td><td class="num">412</td><td class="num">¥0.0024</td><td><span class="pill gray">新调用</span></td></tr>
+              <tr><td>08:15</td><td>宁波特钢加工</td><td><span class="pill purple">AI 客户深诊</span></td><td>大模型</td><td class="num">—</td><td class="num">—</td><td class="num">¥0.0000</td><td><span class="pill green">命中缓存</span></td></tr>
+              <tr><td>02:00</td><td>月度批量报告</td><td><span class="pill purple">AI 全量诊断</span></td><td>大模型</td><td class="num">86,400</td><td class="num">24,200</td><td class="num">¥0.14</td><td><span class="pill blue">定时批量</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 交付物 -->
+    <div class="tabpane" data-pane="deliver">
+      <div class="grid g4">
+        <div class="mod-card"><div class="m-ic bg-blue">📰</div><h3>每日简报</h3><p>当日异动市场、流失预警客户、员工业绩异常，简短100字。</p></div>
+        <div class="mod-card"><div class="m-ic bg-green">📊</div><h3>周度分析报告</h3><p>三大板块图表截图 + AI 完整诊断 + 下周执行计划。</p></div>
+        <div class="mod-card"><div class="m-ic bg-purple">📕</div><h3>月度诊断白皮书</h3><p>市场趋势预判、客户潜力目标、员工资源优化方案。</p></div>
+        <div class="mod-card"><div class="m-ic bg-orange">💬</div><h3>交互问答</h3><p>随时提问，大模型调取全库指标即时作答。</p></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="c-head"><h3>今日经营简报预览</h3><span class="sub">AI 自动生成 · 8:00 推送企微/钉钉</span></div>
+        <div class="c-body">
+          <div class="ai-card">
+            <div class="ai-h"><span class="ai-badge">📰 每日简报</span><span style="color:var(--muted);font-size:12px;margin-left:auto">2026-07-16</span></div>
+            <p>① <b>市场</b>：山东济南连续3月增速31%属蓝海，建议增配销售；华北廊坊持续亏损建议收缩授信。<br/>② <b>客户</b>：新增极高流失预警2家（佛山五金城、廊坊金属贸易），需主管协同3天内对接。<br/>③ <b>员工</b>：李四3个月零新增、流失率34%，触发整改预警；张三A级客户复购96%，建议授权蓝海攻坚。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, M=DATA.months;
+  const tk=echarts.init(document.getElementById("ai-token"));
+  tk.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:M}),yAxis:C.val({name:"万 Token"}),
+    series:[
+      {name:"报表Token(字节)",type:"bar",stack:"t",data:[12,13,11,14,15,13,16,14,15,17,16,15],itemStyle:{color:"#16a34a"}},
+      {name:"AI输入Token",type:"bar",stack:"t",data:[6,7,5,8,9,7,10,8,9,11,10,9],itemStyle:{color:"#8fb6ff"}},
+      {name:"AI输出Token",type:"bar",stack:"t",data:[2,2,1.5,2.4,2.8,2,3,2.4,2.8,3.2,3,2.6],itemStyle:{color:"#7c3aed",borderRadius:[3,3,0,0]}}]
+  });
+  window.addEventListener("resize",()=>tk.resize());
+
+  // 问答交互
+  const chat=document.getElementById("chat");
+  const answers={
+    "哪个区域新增潜力客户最多，分配给谁最合适？":"华东（无锡/上海）本月新增潜力客户最多（+22家，其中蓝海济南+8）。建议将济南、合肥蓝海客户分配给标杆销售<b>张三</b>专项攻坚；宁波B级成长客户交由<b>王五</b>（拓新能力强）培养。",
+    "今年亏损客户集中在哪类行业，如何筛选淘汰？":"亏损客户集中在<b>二级钢贸商</b>与<b>零售加工</b>（合计占亏损额81%），特征为低单吨毛利+长账期+高逾期。建议：对④量利双弱客户停止赊销仅支持现款，连续2月净利为负且无改善则清退。",
+    "客户盘活能力最弱的3人，需调整哪些客户资源？":"盘活能力最弱：<b>李四</b>(唤醒率≈5%)、<b>陈刚</b>、<b>周琳</b>。建议回收李四名下6家高潜客户重新分配；陈刚/周琳下达沉睡唤醒硬性考核指标，并配销售总监帮扶。",
+    "我名下所有橙色流失客户有哪些挽留方案？":"当前橙色（高流失51-75分）客户：天津建工物资、武汉钢联商贸。挽留方案：7天内上门+专项报价；高走量客户申请阶梯采购优惠稳定吨位，缩短账期至30天。"
+  };
+  function push(role,html){
+    const wrap=document.createElement("div");
+    wrap.style.cssText="display:flex;gap:10px;"+(role==="u"?"flex-direction:row-reverse":"");
+    const av=document.createElement("div");
+    av.style.cssText="width:32px;height:32px;flex:0 0 32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;background:"+(role==="u"?"linear-gradient(135deg,#7c3aed,#2563eb)":"linear-gradient(135deg,#0d9488,#2563eb)");
+    av.textContent=role==="u"?"李":"AI";
+    const bub=document.createElement("div");
+    bub.style.cssText="max-width:74%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;"+(role==="u"?"background:#2563eb;color:#fff":"background:#f4f6fb;color:var(--text);border:1px solid var(--line)");
+    bub.innerHTML=html;
+    wrap.appendChild(av);wrap.appendChild(bub);chat.appendChild(wrap);chat.scrollTop=chat.scrollHeight;
+  }
+  function ask(q){
+    push("u",q);
+    setTimeout(()=>push("ai",answers[q]||"已调取全库指标分析：该问题涉及多维数据，建议在对应看板下钻查看。（原型示例）"),350);
+  }
+  document.getElementById("q-send").addEventListener("click",()=>{const v=document.getElementById("q-input").value.trim();if(v){ask(v);document.getElementById("q-input").value="";}});
+  document.getElementById("q-input").addEventListener("keydown",e=>{if(e.key==="Enter"){document.getElementById("q-send").click();}});
+  document.querySelectorAll(".q-sugg button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));
+  ask("哪个区域新增潜力客户最多，分配给谁最合适？");
+}
+Layout.render("ai",{title:"AI 经营诊断",crumb:"AI 经营诊断"});
+</script>
+</body>
+</html>

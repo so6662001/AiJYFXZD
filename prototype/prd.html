@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>产品需求文档 PRD · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>.mermaid{display:flex;justify-content:center;overflow:auto;padding:8px 4px;font-family:inherit}.mermaid svg{max-width:100%;height:auto}</style>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>产品需求文档（PRD）· 钢贸企业三维经营分析与诊断系统</h1>
+    <p>面向 ERP 内嵌的市场 / 客户 / 员工三维分析与 AI 诊断产品。本页含产品概述、功能架构图、信息架构、核心流程、功能需求清单与非功能需求，可直接打印或另存为 PDF 交付评审。</p>
+  </div>
+
+  <!-- 概述 -->
+  <div class="section-title"><span class="n">1</span><h2>产品概述</h2><span class="line"></span></div>
+  <div class="card"><div class="c-body">
+    <div class="prd-meta">
+      <div class="m"><div class="l">产品名称</div><div class="v">钢智经营 · 三维分析与AI诊断</div></div>
+      <div class="m"><div class="l">产品形态</div><div class="v">ERP 内嵌模块（私有化/云 SaaS 双兼容）</div></div>
+      <div class="m"><div class="l">目标用户</div><div class="v">营销总裁 / 销售总监 / 一线销售</div></div>
+      <div class="m"><div class="l">版本 · 状态</div><div class="v">V1.0 · 高保真原型</div></div>
+    </div>
+    <div style="margin-top:14px" class="doc">
+      <p><b>产品定位：</b>100% 复用现有销售明细字段自动取数，无需新增业务单据；把"分析能力"转化为一线可执行的日常动作。</p>
+      <p><b>核心价值：</b>①零思考可视化——色块颜色自动区分机会与风险；②全量 <b>TOKEN 计费</b>：常规报表按输入/输出字节折算 Token（低单价）、AI 按大模型 token（高单价），缓存节流控成本；③分析结论自动转任务派发，形成"分析→动作→复盘"闭环。</p>
+    </div>
+  </div></div>
+
+  <!-- 用户角色 -->
+  <div class="section-title"><span class="n">2</span><h2>用户角色与核心诉求</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="mod-card"><div class="m-ic bg-blue">👔</div><h3>营销总裁</h3><p>全局经营决策</p><div class="feat">一页看清三维机会与风险</div><div class="feat">资源倾斜、客户分配、人员管理决策</div></div>
+    <div class="mod-card"><div class="m-ic bg-green">🧑‍💼</div><h3>销售总监/销管</h3><p>团队与资源管理</p><div class="feat">客户资源分配与负载均衡</div><div class="feat">员工能力诊断与差异化管理</div></div>
+    <div class="mod-card"><div class="m-ic bg-orange">🤝</div><h3>一线销售</h3><p>客户跟进执行</p><div class="feat">我的客户任务清单(频次/话术)</div><div class="feat">流失预警与挽留方案</div></div>
+    <div class="mod-card"><div class="m-ic bg-purple">🛠️</div><h3>数据/IT</h3><p>系统与规则维护</p><div class="feat">阈值/权重/规则可视化配置</div><div class="feat">数据同步、性能与算力成本管控</div></div>
+  </div>
+
+  <!-- 功能架构图 -->
+  <div class="section-title"><span class="n">3</span><h2>产品功能架构图</h2><span class="sub">自上而下：入口 → 分析 → 执行 → 智能 → 配置 → 数据</span><span class="line"></span></div>
+  <div class="card"><div class="c-body">
+    <div class="archmap">
+      <div class="archrow"><div class="rlabel" style="background:#0d1b33">用户入口层</div>
+        <div class="rboxes" style="grid-template-columns:1fr">
+          <div class="pbox accent"><b>🧭 总裁驾驶舱</b><span>三栏总览(市场/客户/员工) · AI 综合经营诊断总报告 · 今日重点动作队列 · 快捷工作台入口</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#2563eb">三维分析层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(3,1fr)">
+          <div class="pbox"><b>🗺️ 市场潜力分析</b><span>区域/品类/行业四象限 · 趋势 · 机会/衰退预警</span></div>
+          <div class="pbox"><b>👥 客户价值分层</b><span>四维分级 · 走量/盈利矩阵 · 购货频率 · 采购趋势 · 复购预测</span></div>
+          <div class="pbox"><b>🧑‍💼 员工能力画像</b><span>潜力四象限 · 六维雷达 · 客户资源健康度</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#16a34a">落地执行层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
+          <div class="pbox"><b>🔎 客户查询工作台</b><span>数千客户多维查询/分群/批量运营</span></div>
+          <div class="pbox"><b>📌 跟进分配·我的客户</b><span>智能分配 + 任务派发 + 到期复购催单</span></div>
+          <div class="pbox"><b>📦 市场资源倾斜方案</b><span>库存/人力/政策决策输出</span></div>
+          <div class="pbox"><b>⚠ 购货频率·流失预警</b><span>评分表 + 销售分发</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#7c3aed">智能诊断层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
+          <div class="pbox"><b>⚙️ 规则引擎</b><span>报表按字节计 Token</span></div>
+          <div class="pbox"><b>🤖 AI 深度诊断</b><span>三段式归因 · 缓存节流</span></div>
+          <div class="pbox"><b>💬 交互问答</b><span>总裁自然语言查询</span></div>
+          <div class="pbox"><b>🔮 预测挖掘</b><span>流失/复购/增购预测</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#ea6d0b">配置层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(3,1fr)">
+          <div class="pbox"><b>🎚️ 流失评分模型配置</b><span>四因子权重/阈值可调</span></div>
+          <div class="pbox"><b>🔄 回收 & 分配规则配置</b><span>无跟进天数/潜力下限/负载</span></div>
+          <div class="pbox"><b>📐 全局阈值配置</b><span>分层中位数/预警阈值</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#0d9488">数据底座层</div>
+        <div class="rboxes" style="grid-template-columns:1fr">
+          <div class="pbox accent" style="border-top-color:#0d9488"><b>🗂️ 销售明细宽表（36 字段）</b><span>ERP 原生数据每日同步 · 清洗/周期切片/维度聚合 · 指标预计算落库(建索引/分库分表) → 6 张模型表</span></div>
+        </div></div>
+      <div class="arch-flowdown">▼</div>
+      <div class="archrow"><div class="rlabel" style="background:#334155">系统与平台层</div>
+        <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
+          <div class="pbox"><b>🔐 角色与权限</b><span>RBAC + 组织数据域 + 监管审批</span></div>
+          <div class="pbox"><b>🔌 数据源管理</b><span>SQL Server / MySQL / API 多源</span></div>
+          <div class="pbox"><b>⏰ 定时任务调度</b><span>每日跑批 DAG + 重试/补数</span></div>
+          <div class="pbox"><b>🧩 平台接入</b><span>SSO 鉴权 + 租户隔离 + 挂载</span></div>
+        </div></div>
+    </div>
+  </div></div>
+
+  <!-- 数据模型 & ER图 -->
+  <div class="section-title"><span class="n">4</span><h2>数据模型 & ER 图</h2><span class="sub">核心实体与关系（100% 复用销售明细，衍生指标宽表）</span><span class="line"></span></div>
+  <div class="card" style="margin-bottom:16px"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>实体</th><th>说明</th><th>主键</th><th>关键字段</th></tr></thead>
+      <tbody>
+        <tr><td><b>销售明细 SALE_DETAIL</b></td><td>数据源，每日同步</td><td>单号</td><td>客户、销售员、日期、品类、重量、金额、成本、业务净利、账期、结算方式、到期日</td></tr>
+        <tr><td><b>客户 CUSTOMER</b></td><td>客户档案</td><td>客户编码</td><td>名称、分类、级别、区域(FK)、归属销售(FK)</td></tr>
+        <tr><td><b>销售员 SALES_REP</b></td><td>员工档案</td><td>工号</td><td>姓名、部门</td></tr>
+        <tr><td><b>区域 REGION / 品类 CATEGORY</b></td><td>维度表</td><td>编码</td><td>省/市/区县 ；品类/材质/产地/牌号</td></tr>
+        <tr><td><b>客户指标宽表 CUST_METRIC</b></td><td>预计算派生</td><td>客户编码</td><td>类型标签、潜力分、购货频率、流失分、跟进优先级</td></tr>
+        <tr><td><b>跟进任务 FOLLOW_TASK</b></td><td>任务派发</td><td>任务ID</td><td>客户(FK)、销售员(FK)、类型、频次、截止、状态</td></tr>
+        <tr><td><b>AI诊断 DIAGNOSIS</b></td><td>诊断结果缓存</td><td>诊断ID</td><td>对象类型/ID、深度归因、执行动作、优先级、缓存到期</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <div class="card"><div class="c-head"><h3>实体关系图（ER Diagram）</h3></div><div class="c-body">
+    <div class="mermaid">
+erDiagram
+  SALES_REP ||--o{ CUSTOMER : 负责
+  REGION ||--o{ CUSTOMER : 归属
+  CUSTOMER ||--o{ SALE_DETAIL : 产生
+  SALES_REP ||--o{ SALE_DETAIL : 开单
+  CATEGORY ||--o{ SALE_DETAIL : 涉及
+  CUSTOMER ||--|| CUST_METRIC : 汇总
+  CUSTOMER ||--o{ FOLLOW_TASK : 跟进
+  SALES_REP ||--o{ FOLLOW_TASK : 执行
+  CUSTOMER ||--o{ DIAGNOSIS : 诊断
+  CUSTOMER {
+    string 客户编码 PK
+    string 客户名称
+    string 客户分类
+    string 客户级别
+    string 所属区域 FK
+    string 归属销售 FK
+  }
+  SALE_DETAIL {
+    string 单号 PK
+    string 客户编码 FK
+    string 销售员 FK
+    date 销售日期
+    string 品类
+    float 重量
+    float 金额
+    float 成本价
+    float 业务净利
+    int 账期
+    string 结算方式
+  }
+  SALES_REP {
+    string 工号 PK
+    string 姓名
+    string 部门
+  }
+  CUST_METRIC {
+    string 客户编码 PK
+    string 类型标签
+    float 潜力分
+    string 购货频率
+    int 流失分
+    string 跟进优先级
+  }
+  FOLLOW_TASK {
+    string 任务ID PK
+    string 客户编码 FK
+    string 销售员 FK
+    string 任务类型
+    date 截止日期
+    string 状态
+  }
+  DIAGNOSIS {
+    string 诊断ID PK
+    string 对象类型
+    string 对象ID
+    string 深度归因
+    string 执行动作
+    date 缓存到期
+  }
+  REGION {
+    string 区域编码 PK
+    string 省
+    string 市
+  }
+  CATEGORY {
+    string 品类编码 PK
+    string 品类
+    string 材质
+    string 产地
+  }
+    </div>
+  </div></div>
+
+  <!-- 状态机 -->
+  <div class="section-title"><span class="n">5</span><h2>状态机（State Machine）</h2><span class="sub">客户生命周期 / 跟进任务 / 客户分级动态升降级</span><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="card"><div class="c-head"><h3>客户生命周期</h3></div><div class="c-body"><div class="mermaid">
+stateDiagram-v2
+  [*] --> 新客
+  新客 --> 成长: 复购增长
+  成长 --> 成熟: 稳定高频
+  成熟 --> 衰退: 采购下滑
+  衰退 --> 成熟: 挽留成功
+  衰退 --> 流失: 断单超阈值
+  流失 --> 唤醒: 回访激活
+  唤醒 --> 成长: 恢复采购
+  流失 --> [*]: 清退
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>跟进任务状态</h3></div><div class="c-body"><div class="mermaid">
+stateDiagram-v2
+  [*] --> 待办
+  待办 --> 跟进中: 销售领取
+  跟进中 --> 已完成: 录入跟进记录
+  待办 --> 已逾期: 超截止
+  跟进中 --> 已逾期: 超截止
+  已逾期 --> 已完成: 补跟进
+  已完成 --> [*]
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>客户分级动态升降级</h3></div><div class="c-body"><div class="mermaid">
+stateDiagram-v2
+  direction LR
+  A级 --> B级: 月度降级
+  B级 --> A级: 月度升级
+  B级 --> C级: 降级
+  C级 --> B级: 升级
+  C级 --> D级: 降级
+  D级 --> C级: 升级
+    </div></div></div>
+  </div>
+
+  <!-- 流程图 -->
+  <div class="section-title"><span class="n">6</span><h2>流程图（Flowchart）</h2><span class="sub">AI 诊断调用与节流 / 客户分配到任务闭环</span><span class="line"></span></div>
+  <div class="grid g2">
+    <div class="card"><div class="c-head"><h3>AI 诊断调用与节流流程</h3></div><div class="c-body"><div class="mermaid">
+flowchart TD
+  A[每日同步销售明细] --> B[清洗/周期切片/维度聚合]
+  B --> C[指标预计算宽表]
+  C --> D[规则引擎打标签]
+  D --> E{有风险/机会标签?}
+  E -->|否| F[生成常规报表 · 按字节计Token]
+  E -->|是| G[规则预警报表 · 按字节计Token]
+  G --> H{开通AI且无缓存?}
+  H -->|否| I[使用缓存 · 不扣Token]
+  H -->|是| J[调用大模型 · 结构化Prompt]
+  J --> K[三段式深度诊断]
+  K --> L[写入缓存7天]
+  L --> M[前端展示 / 企微钉钉推送]
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>客户分配到任务闭环</h3></div><div class="c-body"><div class="mermaid">
+flowchart LR
+  A[客户分层/频率/流失] --> B[智能分配引擎]
+  B --> C[分配建议: 能力x负载x潜力]
+  C --> D[采纳 / 改派]
+  D --> E[生成跟进任务]
+  E --> F[派发到我的客户]
+  F --> G[销售执行 + 录入跟进]
+  G --> H[达标率/客户变化回流]
+  H --> A
+    </div></div></div>
+  </div>
+
+  <div class="card" style="margin-top:16px"><div class="c-head"><h3>到期复购预测与催单闭环</h3><span class="pill green">复购转化</span></div><div class="c-body"><div class="mermaid">
+flowchart LR
+  A[购货频率分析: 平均采购间隔AvgT] --> B[复购预测: 上次下单+AvgT]
+  B --> C{复购信号}
+  C -->|即将采购/已到期| D[到期复购催单队列]
+  C -->|临近采购| E[复购预热]
+  D --> F[一键生成催单任务]
+  E --> F
+  F --> G[派发销售 我的客户]
+  G --> H[执行: 催单/推新/锁量报价]
+  H --> I[成交回流: 更新采购间隔与复购概率]
+  I --> B
+    </div></div></div>
+
+  <!-- 接口交互图 -->
+  <div class="section-title"><span class="n">7</span><h2>接口交互图（时序图）</h2><span class="sub">数据同步与 AI 诊断 / 智能分配与任务派发</span><span class="line"></span></div>
+  <div class="grid g2">
+    <div class="card"><div class="c-head"><h3>数据同步 & AI 诊断时序</h3></div><div class="c-body"><div class="mermaid">
+sequenceDiagram
+  participant ERP as ERP业务系统
+  participant DL as 数据层
+  participant RE as 规则引擎
+  participant AI as 大模型
+  participant FE as 前端/看板
+  ERP->>DL: 每日同步销售明细
+  DL->>DL: 清洗+预计算落宽表
+  FE->>RE: 请求对象诊断
+  RE->>DL: 读取指标宽表
+  RE-->>FE: 常规报表/规则预警(按字节计Token)
+  RE->>AI: 高风险对象+结构化Prompt
+  AI-->>RE: 三段式诊断文本
+  RE->>DL: 写入诊断缓存(7天)
+  RE-->>FE: 返回AI诊断结果
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>智能分配 & 任务派发时序</h3></div><div class="c-body"><div class="mermaid">
+sequenceDiagram
+  participant M as 总裁/销管
+  participant AE as 分配引擎
+  participant DL as 数据层
+  participant TC as 任务中心
+  participant S as 销售端
+  M->>AE: 触发智能分配
+  AE->>DL: 读取客户潜力+销售负载
+  AE-->>M: 返回分配建议
+  M->>AE: 采纳/改派
+  AE->>TC: 生成跟进任务
+  TC->>S: 派发到我的客户
+  S->>TC: 录入跟进记录
+  TC->>DL: 回流达标率/客户变化
+    </div></div></div>
+  </div>
+
+  <!-- 8 角色与权限 -->
+  <div class="section-title"><span class="n">8</span><h2>角色与权限体系（RBAC + 数据域 + 监管）</h2><span class="sub">详见「角色与权限设计」</span><span class="line"></span>
+    <a href="roles.html" class="pill blue" style="text-decoration:none">查看详情 →</a></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>角色</th><th>数据范围</th><th>核心权限</th><th>占客户/业绩</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill red">营销总裁</span></td><td>全公司</td><td>全权 + 规则终审 + 分配终审</td><td>否</td></tr>
+        <tr><td><span class="pill purple">运营经理</span></td><td>全公司(只读+配置)</td><td>规则/阈值/算力配置与监管</td><td>否</td></tr>
+        <tr><td><span class="pill blue">销售部经理</span></td><td>本部门</td><td>部门审批、绩效考核</td><td>可挂大客户</td></tr>
+        <tr><td><span class="pill blue">销售主管</span></td><td>本区域(多组)</td><td>组间调配、达标监控、组审批</td><td>可挂重点客户</td></tr>
+        <tr><td><span class="pill green">小组组长</span></td><td>本组</td><td>组内分配、带组作战</td><td>是</td></tr>
+        <tr><td><span class="pill green">销售员</span></td><td>本人客户</td><td>跟进执行、录入</td><td>是</td></tr>
+        <tr><td><span class="pill gray">销售助理</span></td><td>继承所辅助对象</td><td>代录入/代查(只读+代操作)</td><td>否</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <div class="note" style="margin-top:12px"><span class="n-ic">🔐</span><div>三层控制：功能权限(RBAC) × 数据范围(组织树行级权限,上级继承下级) × 监管关系(纵向上下级 + 运营经理横向监管 + 分级审批 + 全量审计)。字段级：成本价/货源等敏感字段按角色脱敏。</div></div>
+
+  <!-- 9 数据源与平台接入 -->
+  <div class="section-title"><span class="n">9</span><h2>数据源与平台接入</h2><span class="sub">多 ERP 接入 + SSO/租户，详见「数据源 & 平台接入」</span><span class="line"></span>
+    <a href="datasource.html" class="pill blue" style="text-decoration:none">查看详情 →</a></div>
+  <div class="card"><div class="c-head"><h3>平台接入架构（本系统作为平台业务模块）</h3></div><div class="c-body"><div class="mermaid">
+flowchart TB
+  subgraph PLAT["公司统一平台"]
+    SSO["统一鉴权 SSO"]
+    TEN["租户管理"]
+    ORG["组织/角色"]
+  end
+  subgraph MOD["本模块 · 经营分析"]
+    UI["前端(微前端挂载)"]
+    SVC["分析服务"]
+    DL["数据接入层"]
+  end
+  subgraph SRC["多 ERP 数据源"]
+    DB1["SQL Server"]
+    DB2["MySQL"]
+    API1["API 接口"]
+  end
+  SSO --> UI
+  TEN --> SVC
+  ORG --> SVC
+  UI --> SVC
+  DB1 --> DL
+  DB2 --> DL
+  API1 --> DL
+  DL --> SVC
+    </div></div></div>
+  <div class="note" style="margin-top:12px"><span class="n-ic">🔌</span><div>数据侧支持 SQL Server / MySQL / API 三类数据源 + 字段映射到 36 项标准字段;鉴权与租户复用平台统一基础接口(SSO + 租户上下文),按租户隔离数据/指标/权限,一租户可绑定多数据源。</div></div>
+
+  <!-- 10 定时任务与自动化 -->
+  <div class="section-title"><span class="n">10</span><h2>定时任务与自动化服务</h2><span class="sub">每日跑批数据管道，详见「定时任务 · 自动化服务」</span><span class="line"></span>
+    <a href="jobs.html" class="pill blue" style="text-decoration:none">查看详情 →</a></div>
+  <div class="card"><div class="c-head"><h3>每日数据管道（DAG 依赖编排）</h3></div><div class="c-body"><div class="mermaid">
+flowchart LR
+  A["①多源同步<br/>02:00"] --> B["②清洗聚合<br/>落宽表"]
+  B --> C["③指标/分层/复购/流失"]
+  C --> D["④规则打标签+动态升降级"]
+  D --> E["⑤AI批量诊断<br/>04:00"]
+  D --> F["⑥分配/回收+生成任务<br/>07:30"]
+  E --> G["⑦报表/预警推送<br/>08:00"]
+  F --> G
+    </div></div></div>
+  <div class="note" style="margin-top:12px"><span class="n-ic">⏰</span><div>Cron 调度 + DAG 依赖编排;失败自动重试(退避3次)+告警;幂等写入 + 可补数重跑;分租户并行 + 增量(CDC)。前端只读预计算结果,打开秒开。</div></div>
+
+  <!-- 信息架构 + 流程 -->
+  <div class="split">
+    <div>
+      <div class="section-title"><span class="n">11</span><h2>信息架构（页面地图）</h2><span class="line"></span></div>
+      <div class="card"><div class="c-body">
+        <ul class="pmap">
+          <li><span>经营总览</span><ul>
+            <li><a href="dashboard.html">总裁驾驶舱</a></li>
+            <li><a href="design.html">系统设计方案</a></li>
+            <li><a href="prd.html">产品需求文档 PRD</a></li>
+            <li><a href="algorithms.html">指标与算法字典</a></li>
+            <li><a href="rollout.html">运营落地方案</a></li>
+          </ul></li>
+          <li><span>三维分析</span><ul>
+            <li><a href="market.html">市场潜力分析</a></li>
+            <li><a href="customer.html">客户价值分层</a></li>
+            <li><a href="customer-list.html">客户查询工作台</a></li>
+            <li><a href="assign.html">跟进分配·我的客户</a></li>
+            <li><a href="employee.html">员工能力画像</a></li>
+          </ul></li>
+          <li><span>智能诊断</span><ul>
+            <li><a href="ai-diagnosis.html">AI 经营诊断</a></li>
+            <li><a href="churn.html">购货频率·流失预警</a></li>
+            <li><a href="billing.html">Token 计费中心</a></li>
+          </ul></li>
+          <li><span>系统与权限</span><ul>
+            <li><a href="roles.html">角色与权限设计</a></li>
+            <li><a href="datasource.html">数据源 & 平台接入</a></li>
+            <li><a href="jobs.html">定时任务 · 自动化服务</a></li>
+          </ul></li>
+        </ul>
+      </div></div>
+    </div>
+    <div>
+      <div class="section-title"><span class="n">12</span><h2>核心业务流程</h2><span class="sub">月度经营闭环</span><span class="line"></span></div>
+      <div class="card"><div class="c-body">
+        <div class="flow" style="flex-direction:column">
+          <div class="step" style="margin-right:0"><span class="s-n">月初</span><b>市场找机会</b><p>输出区域/品类潜力，定重点开拓方向，产出资源倾斜方案</p></div>
+          <div class="step" style="margin-right:0"><span class="s-n">分配</span><b>客户定任务</b><p>按分级/频率/流失标记潜力与预警客户，智能分配并派发跟进任务</p></div>
+          <div class="step" style="margin-right:0"><span class="s-n">执行</span><b>员工配资源</b><p>销售按"我的客户"清单执行，录入跟进记录；差异化管理与资源回收</p></div>
+          <div class="step" style="margin-right:0"><span class="s-n">月末</span><b>复盘再优化</b><p>三维复盘达成，动态调整分级/分配/考核/倾斜策略，进入次月</p></div>
+        </div>
+        <div class="note" style="margin-top:6px"><span class="n-ic">🔁</span><div>数据回流：跟进记录与客户变化回流分析，作为员工能力评判与客户再分配依据。</div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 功能需求清单 -->
+  <div class="section-title"><span class="n">13</span><h2>功能需求清单</h2><span class="sub">P0 核心 · P1 重要 · P2 增值</span><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>模块</th><th>功能点</th><th>说明</th><th>优先级</th><th>原型</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><span class="pill blue">市场</span></td><td>区域/品类/行业四象限分级</td><td>热力地图、四象限、趋势、结构、排名</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>市场机会/衰退预警 + AI 诊断</td><td>阈值规则识别 + 三段式诊断</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>资源倾斜方案（决策输出）</td><td>库存/人力/政策结构化方案表</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="4"><span class="pill green">客户</span></td><td>四维潜力分级 + 走量/盈利矩阵</td><td>A/B/C/D + 四类客户自动打标</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>购货频率分析</td><td>间隔/频次/稳定性/增量/广度</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>客户查询工作台</td><td>多维筛选/排序/分页/批量/导出</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>智能分配 + 我的客户任务</td><td>分配建议 + 任务派发 + 达标率</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="2"><span class="pill purple">员工</span></td><td>能力四象限 + 六维雷达画像</td><td>业绩/资源/拓新/风控评分</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>差异化管理 + 资源回收再分配</td><td>激励/考核/培训 + 回收清单</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="2"><span class="pill orange">诊断</span></td><td>常规报表(字节计Token) + AI 深诊(大模型Token)</td><td>统一 Token 计费 + 缓存节流</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>流失评分模型 + 总裁问答</td><td>四因子加权 + 交互问答</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td><span class="pill gray">配置</span></td><td>阈值/权重/规则可视化配置</td><td>流失模型、回收规则、全局阈值</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="4"><span class="pill gray">系统</span></td><td>角色与权限(RBAC+数据域+监管)</td><td>组织树数据域、功能矩阵、分级审批、审计</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>数据源管理(多 ERP)</td><td>SQL Server/MySQL/API 接入 + 字段映射 + 同步</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>平台接入(SSO/租户)</td><td>统一鉴权 + 租户隔离 + 模块化挂载</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td>定时任务/自动化(作业调度)</td><td>每日跑批 DAG + 重试/告警/补数 + 监控</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td><span class="pill gray">计费</span></td><td>Token 计费中心</td><td>用量总览/多维排行/账单导出/余额预警/套餐</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td><span class="pill gray">智能</span></td><td>复购预测 + 到期催单闭环</td><td>复购预测(上次下单+平均间隔) + 复购概率 + 工作台查询 + 催单队列一键生成任务派发销售</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓ 规则版</span></td></tr>
+        <tr><td><span class="pill gray">智能</span></td><td>ML 预测式挖掘</td><td>流失/复购/增购机器学习预测</td><td><span class="pill gray">P2</span></td><td><span class="pill yellow">规划</span></td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+  <!-- 非功能需求 -->
+  <div class="section-title"><span class="n">14</span><h2>非功能需求</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="opt-card"><div class="o-ic bg-teal">⚡</div><h3>性能</h3><p>指标预计算落宽表建索引，凌晨跑批；分页/虚拟滚动，客户超5万自动分库分表，秒开。</p></div>
+    <div class="opt-card"><div class="o-ic bg-blue">🔐</div><h3>权限与数据</h3><p>销售仅见自己客户；计算列锁定；诊断日志可审计，满足集团数据审计。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">💰</div><h3>Token 计费</h3><p>全量按 Token 计费：报表按输入/输出字节折算(约1.5字节≈1Token)、AI 按大模型 token；预存/按量/包月三模式，缓存7天节流，余额不足提醒。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">🏢</div><h3>部署兼容</h3><p>私有化/云 SaaS 双兼容；一套诊断引擎，计费体系自动适配买断/订阅+Token。</p></div>
+  </div>
+
+  <!-- 迭代规划 -->
+  <div class="section-title"><span class="n">15</span><h2>迭代规划</h2><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="opt-card"><div class="o-ic bg-green">①</div><h3>一期 · 快速见效（1-3周）</h3><p>BI + 规则引擎跑通分层/频率/流失，按销售分发。<a href="rollout.html" style="color:var(--primary)">详见落地方案 →</a></p></div>
+    <div class="opt-card"><div class="o-ic bg-blue">②</div><h3>二期 · ERP 内嵌（4-10周）</h3><p>宽表预计算 + 工作台 + 智能分配 + 任务闭环 + 可视化配置。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">③</div><h3>三期 · 智能增值（11-16周）</h3><p>AI 深诊 + 预测挖掘 + 健康分 + 订阅推送。</p></div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">🖨️</span><div><b>导出建议：</b>本页为可交付 PRD。浏览器打印（Ctrl/⌘+P）可直接另存为 PDF（已适配打印样式，自动隐藏侧边栏与顶栏）；如需图片版可对功能架构图区域截图。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  if(window.mermaid){
+    try{
+      mermaid.initialize({startOnLoad:false,theme:"base",securityLevel:"loose",
+        themeVariables:{primaryColor:"#e6efff",primaryBorderColor:"#2563eb",primaryTextColor:"#16233d",
+          lineColor:"#8592ac",secondaryColor:"#e7f6ec",tertiaryColor:"#fbf3d6",fontFamily:"inherit",fontSize:"13px"},
+        flowchart:{curve:"basis",useMaxWidth:true},sequence:{useMaxWidth:true}});
+      mermaid.run({querySelector:".content .mermaid"});
+    }catch(e){console.warn("mermaid render failed",e);}
+  }
+}
+Layout.render("prd",{title:"产品需求文档 PRD",crumb:"产品需求文档 PRD"});
+</script>
+</body>
+</html>

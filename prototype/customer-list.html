@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>客户查询与分析工作台 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>客户查询与分析工作台</h1>
+    <p>面向半年度数千客户的多维查询、筛选、排序、分群与批量运营。全部指标基于销售明细预计算宽表，分页加载秒开。可下钻定位、批量分配销售、导出清单、加入唤醒计划。</p>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="c-head"><h3>🔎 多维查询</h3><span class="sub" id="hit">—</span>
+      <div class="r"><button class="btn ghost" id="btn-reset">重置筛选</button></div></div>
+    <div class="c-body">
+      <div class="filters">
+        <div class="fld"><label>关键词（名称/编码/销售）</label><input class="inp search" id="f-q" placeholder="输入关键词搜索…"/></div>
+        <div class="fld"><label>客户分级</label><select class="inp" id="f-grade"><option>全部</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+        <div class="fld"><label>客户类型</label><select class="inp" id="f-type"><option>全部</option><option>①量利双优</option><option>②高盈利获利</option><option>③高走量流水</option><option>④量利双弱</option></select></div>
+        <div class="fld"><label>所属行业</label><select class="inp" id="f-cat"></select></div>
+        <div class="fld"><label>所属区域</label><select class="inp" id="f-region"></select></div>
+        <div class="fld"><label>归属销售</label><select class="inp" id="f-sale"></select></div>
+        <div class="fld"><label>购货频率</label><select class="inp" id="f-freq"><option>全部</option><option>高频</option><option>中频</option><option>低频</option><option>沉睡</option></select></div>
+        <div class="fld"><label>流失风险</label><select class="inp" id="f-churn"><option>全部</option><option>低</option><option>潜在</option><option>高</option><option>极高</option></select></div>
+        <div class="fld"><label>采购趋势</label><select class="inp" id="f-trend"><option value="全部">全部</option><option value="up">上升</option><option value="flat">平稳</option><option value="down">下滑</option></select></div>
+        <div class="fld"><label>跟进优先级</label><select class="inp" id="f-priority"><option>全部</option><option>一级</option><option>二级</option><option>三级</option><option>休眠</option></select></div>
+        <div class="fld"><label>复购信号（预测）</label><select class="inp" id="f-reorder"><option>全部</option><option>即将采购</option><option>已到期</option><option>临近采购</option><option>常规</option><option>流失沉睡</option></select></div>
+      </div>
+      <div class="chips-row" id="chips">
+        <button class="chip" data-dim="grade" data-val="A">⭐ A级黄金客户</button>
+        <button class="chip" data-dim="type" data-val="②高盈利获利">💎 高盈利待挖掘</button>
+        <button class="chip" data-dim="type" data-val="③高走量流水">🌊 高走量优化账期</button>
+        <button class="chip" data-dim="freq" data-val="沉睡">😴 沉睡待唤醒</button>
+        <button class="chip" data-dim="reorder" data-val="即将采购">🛒 即将采购(7天内)</button>
+        <button class="chip" data-dim="reorder" data-val="已到期">⏰ 已到期待催单</button>
+        <button class="chip" data-dim="churnHigh" data-val="1">⚠ 流失预警(高/极高)</button>
+        <button class="chip" data-dim="loss" data-val="1">📉 亏损客户</button>
+        <button class="chip" data-dim="unassigned" data-val="1">📥 未分配客户</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 汇总 + 图表 -->
+  <div class="split" style="margin-bottom:16px">
+    <div class="card"><div class="c-head"><h3>筛选结果概览</h3><span class="sub">随筛选实时联动</span></div>
+      <div class="c-body"><div class="mini-metric" id="metrics"></div></div></div>
+    <div class="card"><div class="c-head"><h3>结果分布</h3></div>
+      <div class="c-body tight" style="display:flex"><div id="dist-type" class="chart sm" style="flex:1"></div><div id="dist-grade" class="chart sm" style="flex:1"></div></div></div>
+  </div>
+
+  <!-- 批量操作栏 -->
+  <div class="bulkbar" id="bulkbar" style="display:none">
+    <b id="sel-count">0</b> <span>已选客户</span>
+    <span style="opacity:.6">|</span>
+    <span>分配销售</span>
+    <select id="bulk-sale"></select>
+    <button class="bbtn" id="bulk-assign">确认分配</button>
+    <span style="opacity:.6">|</span>
+    <span>设优先级</span>
+    <select id="bulk-prio"><option>一级</option><option>二级</option><option>三级</option><option>休眠</option></select>
+    <button class="bbtn" id="bulk-setp">应用</button>
+    <span class="sp"></span>
+    <button class="bbtn ghost" id="bulk-revive">加入唤醒计划</button>
+    <button class="bbtn ghost" id="bulk-clear">取消选择</button>
+  </div>
+
+  <!-- 表格 -->
+  <div class="card">
+    <div class="c-head"><h3>客户清单</h3><span class="sub" id="tbl-sub">—</span>
+      <div class="r">
+        <button class="pill blue" id="btn-export" style="cursor:pointer;border:0;padding:6px 12px">⬇ 导出筛选结果</button>
+      </div>
+    </div>
+    <div class="c-body" style="padding:0;overflow:auto">
+      <table class="tbl" id="ctable">
+        <thead><tr id="thead-row"></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager"></div>
+  </div>
+
+  <!-- 优化建议 -->
+  <div class="section-title"><span class="n">💡</span><h2>海量客户运营优化方案</h2><span class="sub">数千客户下的分析与管理提效建议</span><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="opt-card"><div class="o-ic bg-blue">🎯</div><h3>例外管理（By Exception）</h3><p>不逐个浏览客户，只看偏离阈值的「预警队列」与「机会队列」。系统每日自动把 3000+ 客户压缩成几十条待办，总裁与销售只处理异常。</p></div>
+    <div class="opt-card"><div class="o-ic bg-green">🏷️</div><h3>自动分群 + 动态升降级</h3><p>基于走量/盈利四象限 + RFM + 购货频率自动打标签，每月按当月数据自动升降级，无需人工维护数千客户的分级。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">🤝</div><h3>智能分配 + 负载均衡</h3><p>按销售能力与现有 A/B 客户负载自动分配，识别资源两极分化，蓝海/沉睡客户定向派发，避免优质客户躺平、新人无资源。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">📋</div><h3>分析即任务（Analysis→Action）</h3><p>把"分析结论"直接转成带频次、话术、截止日期的跟进任务，自动派发到销售的"我的客户"清单，形成闭环而非一次性报表。</p></div>
+    <div class="opt-card"><div class="o-ic bg-teal">🤖</div><h3>长尾自动化维护</h3><p>占比最大的低价值走量/沉睡客户交给"规则 + 自动触达（短信/企微）"，不占用人力；人力聚焦头部高价值与高流失风险客户。</p></div>
+    <div class="opt-card"><div class="o-ic bg-red">🧬</div><h3>客户健康分 + 生命周期</h3><p>用单一健康分（0-100）与生命周期阶段（新客/成长/成熟/衰退/流失）统一刻画客户，一眼识别需干预对象，替代多指标人工比对。</p></div>
+    <div class="opt-card"><div class="o-ic bg-blue">🔖</div><h3>保存视图 + 订阅推送</h3><p>常用查询条件保存为视图（如"我负责的高流失A客户"），可订阅每日/每周自动推送至企微/钉钉，免去重复筛选。</p></div>
+    <div class="opt-card"><div class="o-ic bg-green">⚡</div><h3>性能：预计算 + 分页/虚拟滚动</h3><p>指标凌晨预计算落宽表并建索引，前端分页/虚拟滚动 + 服务端分页；客户超 5 万自动分库分表，百万级明细也秒开。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">🔮</div><h3>预测式挖掘</h3><p>在分层之上叠加流失预测、复购预测、增购品类推荐（关联规则），从"描述现状"升级为"预测 + 推荐下一步动作"。</p></div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART;
+  const ALL=DATA.generateCustomers(1860);
+  const typeColor={"①量利双优":"#16a34a","②高盈利获利":"#2563eb","③高走量流水":"#f97316","④量利双弱":"#dc2626"};
+  const gradeColor={A:"#16a34a",B:"#2563eb",C:"#d99e00",D:"#9aa4bb"};
+
+  // 填充下拉
+  const fill=(id,arr,all)=>{document.getElementById(id).innerHTML=(all?'<option>全部</option>':'')+arr.map(v=>`<option>${v}</option>`).join("");};
+  fill("f-cat",DATA.industryList,true);
+  fill("f-region",[...DATA.cityList].sort(),true);
+  fill("f-sale",DATA.salesList,true);
+  document.getElementById("bulk-sale").innerHTML=DATA.salesList.map(v=>`<option>${v}</option>`).join("");
+
+  const f={q:"",grade:"全部",type:"全部",cat:"全部",region:"全部",sale:"全部",freq:"全部",churn:"全部",trend:"全部",priority:"全部",reorder:"全部",churnHigh:false,loss:false,unassigned:false};
+  const state={page:1,pageSize:20,sortKey:"net",sortDir:-1,sel:new Set()};
+
+  const cols=[
+    {k:"_ck",t:"",sort:false},
+    {k:"id",t:"编码",sort:true},
+    {k:"name",t:"客户名称",sort:true},
+    {k:"grade",t:"分级",sort:true},
+    {k:"type",t:"客户类型",sort:true},
+    {k:"cat",t:"行业",sort:true},
+    {k:"region",t:"区域",sort:true},
+    {k:"sale",t:"归属销售",sort:true},
+    {k:"ton",t:"采购吨",sort:true,num:true},
+    {k:"net",t:"净利(万)",sort:true,num:true},
+    {k:"perTon",t:"单吨净利",sort:true,num:true},
+    {k:"interval",t:"采购间隔",sort:true,num:true},
+    {k:"freq",t:"频率",sort:true},
+    {k:"account",t:"账期",sort:true,num:true},
+    {k:"score",t:"潜力分",sort:true,num:true},
+    {k:"churnScore",t:"流失分",sort:true,num:true},
+    {k:"reorder",t:"复购信号",sort:true},
+    {k:"reorderProb",t:"复购概率",sort:true,num:true},
+    {k:"priority",t:"优先级",sort:true},
+    {k:"_op",t:"操作",sort:false},
+  ];
+  const gradeOrder={A:0,B:1,C:2,D:3}, trendOrder={up:0,flat:1,down:2}, prioOrder={"一级":0,"二级":1,"三级":2,"休眠":3};
+
+  function applyFilters(){
+    return ALL.filter(c=>{
+      if(f.q){const q=f.q.toLowerCase();if(!(c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||c.sale.includes(f.q)))return false;}
+      if(f.grade!=="全部"&&c.grade!==f.grade)return false;
+      if(f.type!=="全部"&&c.type!==f.type)return false;
+      if(f.cat!=="全部"&&c.cat!==f.cat)return false;
+      if(f.region!=="全部"&&c.region!==f.region)return false;
+      if(f.sale!=="全部"&&c.sale!==f.sale)return false;
+      if(f.freq!=="全部"&&c.freq!==f.freq)return false;
+      if(f.churn!=="全部"&&c.churnLevel!==f.churn)return false;
+      if(f.trend!=="全部"&&c.trend!==f.trend)return false;
+      if(f.priority!=="全部"&&c.priority!==f.priority)return false;
+      if(f.reorder!=="全部"&&c.reorder!==f.reorder)return false;
+      if(f.churnHigh&&!(c.churnLevel==="高"||c.churnLevel==="极高"))return false;
+      if(f.loss&&c.net>=0)return false;
+      if(f.unassigned&&c.assigned)return false;
+      return true;
+    });
+  }
+  function sortRows(rows){
+    const k=state.sortKey,d=state.sortDir;
+    return rows.sort((a,b)=>{
+      let va=a[k],vb=b[k];
+      if(k==="grade"){va=gradeOrder[va];vb=gradeOrder[vb];}
+      else if(k==="priority"){va=prioOrder[va];vb=prioOrder[vb];}
+      else if(typeof va==="string"){return d*va.localeCompare(vb,"zh");}
+      return d*((va>vb)?1:(va<vb)?-1:0);
+    });
+  }
+
+  const chartType=echarts.init(document.getElementById("dist-type"));
+  const chartGrade=echarts.init(document.getElementById("dist-grade"));
+
+  function fmt(n){return n.toLocaleString("en-US");}
+  function trendTag(t){return {up:'<span class="trend up">↑上升</span>',flat:'<span style="color:var(--muted)">—平稳</span>',down:'<span class="trend down">↓下滑</span>'}[t];}
+
+  function render(){
+    const filtered=applyFilters();
+    // chips active
+    document.querySelectorAll("#chips .chip").forEach(ch=>{
+      const dim=ch.dataset.dim,val=ch.dataset.val;
+      const on=(dim==="churnHigh"||dim==="loss"||dim==="unassigned")?f[dim]:(f[dim]===val);
+      ch.classList.toggle("on",!!on);
+    });
+    // metrics
+    const n=filtered.length;
+    const sumNet=filtered.reduce((s,c)=>s+c.net,0);
+    const sumTon=filtered.reduce((s,c)=>s+c.ton,0);
+    const avgPT=sumTon?Math.round(sumNet*10000/sumTon):0;
+    const aCnt=filtered.filter(c=>c.grade==="A").length;
+    const churnCnt=filtered.filter(c=>c.churnLevel==="高"||c.churnLevel==="极高").length;
+    const reorderCnt=filtered.filter(c=>c.reorder==="即将采购"||c.reorder==="已到期").length;
+    document.getElementById("metrics").innerHTML=[
+      ["客户数",fmt(n)],["总业务净利",fmt(Math.round(sumNet))+" 万"],["总采购量",fmt(Math.round(sumTon))+" 吨"],
+      ["平均单吨净利",avgPT+" 元"],["A级占比",n?Math.round(aCnt/n*100)+"%":"0%"],["即将/到期采购",reorderCnt+" 家"],["流失预警",churnCnt+" 家"]
+    ].map(m=>`<div class="m"><span class="v">${m[1]}</span><span class="l">${m[0]}</span></div>`).join("");
+    document.getElementById("hit").textContent=`命中 ${fmt(n)} / ${fmt(ALL.length)} 位客户`;
+
+    // charts
+    const tc={};filtered.forEach(c=>tc[c.type]=(tc[c.type]||0)+1);
+    chartType.setOption({title:{text:"客户类型",left:"center",top:2,textStyle:{fontSize:12,color:C.axisText,fontWeight:600}},
+      tooltip:C.tipItem(),series:[{type:"pie",radius:["38%","64%"],center:["50%","56%"],itemStyle:{borderColor:"#fff",borderWidth:2},
+      label:{fontSize:10,color:C.axisText,formatter:"{d}%"},data:Object.keys(tc).map(k=>({name:k,value:tc[k],itemStyle:{color:typeColor[k]}}))}]},true);
+    const gc={A:0,B:0,C:0,D:0};filtered.forEach(c=>gc[c.grade]++);
+    chartGrade.setOption({title:{text:"客户分级",left:"center",top:2,textStyle:{fontSize:12,color:C.axisText,fontWeight:600}},
+      tooltip:C.tipItem(),series:[{type:"pie",radius:["38%","64%"],center:["50%","56%"],itemStyle:{borderColor:"#fff",borderWidth:2},
+      label:{fontSize:10,color:C.axisText,formatter:"{b} {d}%"},data:["A","B","C","D"].map(k=>({name:k,value:gc[k],itemStyle:{color:gradeColor[k]}}))}]},true);
+
+    // sort + paginate
+    const sorted=sortRows(filtered);
+    const total=sorted.length, ps=state.pageSize;
+    const pages=Math.max(1,Math.ceil(total/ps));
+    if(state.page>pages)state.page=pages;
+    const start=(state.page-1)*ps, pageRows=sorted.slice(start,start+ps);
+
+    // header
+    const thr=document.getElementById("thead-row");
+    thr.innerHTML=cols.map(c=>{
+      if(c.k==="_ck")return `<th style="width:34px"><input type="checkbox" class="ck" id="ck-all"></th>`;
+      const cls=c.sort?("sort"+(state.sortKey===c.k?(state.sortDir<0?" desc":" asc"):"")):"";
+      const ar=c.sort?`<span class="ar">${state.sortKey===c.k?(state.sortDir<0?"▼":"▲"):"↕"}</span>`:"";
+      return `<th class="${cls}${c.num?" num":""}" data-k="${c.k}">${c.t}${ar}</th>`;
+    }).join("");
+
+    // body
+    const tb=document.querySelector("#ctable tbody");
+    tb.innerHTML=pageRows.map(c=>{
+      const cl={"低":"green","潜在":"yellow","高":"orange","极高":"red"}[c.churnLevel];
+      const pc={"一级":"green","二级":"blue","三级":"yellow","休眠":"gray"}[c.priority];
+      const rs={"即将采购":"green","已到期":"orange","临近采购":"blue","常规":"gray","流失沉睡":"red"}[c.reorder];
+      const rlabel=c.dueIn>0?("预计约"+c.dueIn+"天后采购"):("已到期"+(-c.dueIn)+"天未下单");
+      const checked=state.sel.has(c.id)?"checked":"";
+      return `<tr>
+        <td><input type="checkbox" class="ck rk" data-id="${c.id}" ${checked}></td>
+        <td style="color:var(--muted);font-size:12px">${c.id}</td>
+        <td><b>${c.name}</b>${c.assigned?"":' <span class="pill gray">未分配</span>'}</td>
+        <td><span class="grade ${c.grade}">${c.grade}</span></td>
+        <td>${c.type}</td><td>${c.cat}</td><td>${c.region}</td><td>${c.sale}</td>
+        <td class="num">${fmt(c.ton)}</td>
+        <td class="num" style="color:${c.net<0?'var(--red)':'var(--ink)'}"><b>${c.net}</b></td>
+        <td class="num" style="color:${c.perTon<0?'var(--red)':'var(--text)'}">${c.perTon}</td>
+        <td class="num">${c.interval}天</td>
+        <td><span class="pill ${c.freq==='高频'?'green':c.freq==='中频'?'blue':c.freq==='低频'?'yellow':'red'}">${c.freq}</span></td>
+        <td class="num">${c.account}天</td>
+        <td class="num"><b>${c.score}</b></td>
+        <td class="num"><span class="pill ${cl}">${c.churnScore}</span></td>
+        <td><span class="pill ${rs}" title="${rlabel}">${c.reorder}</span></td>
+        <td class="num">${c.reorder==='流失沉睡'?'<span style="color:var(--muted)">—</span>':'<b>'+c.reorderProb+'%</b>'}</td>
+        <td><span class="pill ${pc}">${c.priority}</span></td>
+        <td><button class="rowbtn" data-view="${c.id}">详情</button></td>
+      </tr>`;}).join("");
+    document.getElementById("tbl-sub").textContent=`第 ${start+1}-${Math.min(start+ps,total)} 条，共 ${fmt(total)} 条`;
+
+    // header sort binding
+    thr.querySelectorAll("th.sort").forEach(th=>th.addEventListener("click",()=>{
+      const k=th.dataset.k;
+      if(state.sortKey===k)state.sortDir*=-1;else{state.sortKey=k;state.sortDir=(["ton","net","perTon","score","churnScore"].includes(k))?-1:1;}
+      render();
+    }));
+    // select all (current page)
+    const ckAll=document.getElementById("ck-all");
+    ckAll.checked=pageRows.length>0&&pageRows.every(c=>state.sel.has(c.id));
+    ckAll.addEventListener("change",()=>{pageRows.forEach(c=>{if(ckAll.checked)state.sel.add(c.id);else state.sel.delete(c.id);});render();});
+    tb.querySelectorAll(".rk").forEach(ck=>ck.addEventListener("change",()=>{if(ck.checked)state.sel.add(ck.dataset.id);else state.sel.delete(ck.dataset.id);updateBulk();}));
+    tb.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{const c=ALL.find(x=>x.id===b.dataset.view);toast(`打开客户详情：${c.name}（${c.type} · 潜力${c.score}分 · 流失${c.churnScore}分）`);}));
+
+    // pager
+    renderPager(pages,total);
+    updateBulk();
+  }
+
+  function renderPager(pages,total){
+    const p=state.page, el=document.getElementById("pager");
+    let btns=`<span class="info">每页
+      <select class="inp" id="psize" style="min-width:auto;padding:4px 6px;margin:0 4px">
+      ${[20,50,100].map(s=>`<option ${s===state.pageSize?"selected":""}>${s}</option>`).join("")}</select>条 · 共 ${total.toLocaleString("en-US")} 条</span>`;
+    btns+=`<button class="pbtn" data-p="1" ${p===1?"disabled":""}>«</button><button class="pbtn" data-p="${p-1}" ${p===1?"disabled":""}>‹</button>`;
+    const win=2;let a=Math.max(1,p-win),b=Math.min(pages,p+win);
+    if(a>1)btns+=`<button class="pbtn" data-p="1">1</button>${a>2?'<span style="color:var(--muted)">…</span>':""}`;
+    for(let i=a;i<=b;i++)btns+=`<button class="pbtn ${i===p?"on":""}" data-p="${i}">${i}</button>`;
+    if(b<pages)btns+=`${b<pages-1?'<span style="color:var(--muted)">…</span>':""}<button class="pbtn" data-p="${pages}">${pages}</button>`;
+    btns+=`<button class="pbtn" data-p="${p+1}" ${p===pages?"disabled":""}>›</button><button class="pbtn" data-p="${pages}" ${p===pages?"disabled":""}>»</button>`;
+    el.innerHTML=btns;
+    el.querySelectorAll(".pbtn").forEach(b=>b.addEventListener("click",()=>{if(b.disabled)return;state.page=+b.dataset.p;render();}));
+    document.getElementById("psize").addEventListener("change",e=>{state.pageSize=+e.target.value;state.page=1;render();});
+  }
+
+  function updateBulk(){
+    const bar=document.getElementById("bulkbar");
+    bar.style.display=state.sel.size?"flex":"none";
+    document.getElementById("sel-count").textContent=state.sel.size;
+    // sync visible row checkboxes / select-all
+    const rows=document.querySelectorAll(".rk");
+    rows.forEach(ck=>{ck.checked=state.sel.has(ck.dataset.id);});
+  }
+
+  function toast(msg){const t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0d1b33;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,.28);max-width:80%";document.body.appendChild(t);setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";},1600);setTimeout(()=>t.remove(),2100);}
+
+  // filter bindings
+  const bind=(id,key,isVal)=>document.getElementById(id).addEventListener("change",e=>{f[key]=e.target.value;state.page=1;render();});
+  document.getElementById("f-q").addEventListener("input",e=>{f.q=e.target.value.trim();state.page=1;render();});
+  ["f-grade|grade","f-type|type","f-cat|cat","f-region|region","f-sale|sale","f-freq|freq","f-churn|churn","f-trend|trend","f-priority|priority","f-reorder|reorder"].forEach(x=>{const[id,key]=x.split("|");bind(id,key);});
+
+  // chips
+  document.querySelectorAll("#chips .chip").forEach(ch=>ch.addEventListener("click",()=>{
+    const dim=ch.dataset.dim,val=ch.dataset.val;
+    if(dim==="churnHigh"||dim==="loss"||dim==="unassigned"){f[dim]=!f[dim];}
+    else{f[dim]=(f[dim]===val)?"全部":val;const sel=document.getElementById("f-"+dim);if(sel)sel.value=f[dim];}
+    state.page=1;render();
+  }));
+
+  // reset
+  document.getElementById("btn-reset").addEventListener("click",()=>{
+    Object.assign(f,{q:"",grade:"全部",type:"全部",cat:"全部",region:"全部",sale:"全部",freq:"全部",churn:"全部",trend:"全部",priority:"全部",reorder:"全部",churnHigh:false,loss:false,unassigned:false});
+    document.getElementById("f-q").value="";
+    ["f-grade","f-type","f-cat","f-region","f-sale","f-freq","f-churn","f-trend","f-priority","f-reorder"].forEach(id=>{document.getElementById(id).value="全部";});
+    state.page=1;state.sel.clear();render();
+  });
+
+  // bulk
+  document.getElementById("bulk-clear").addEventListener("click",()=>{state.sel.clear();render();});
+  document.getElementById("bulk-assign").addEventListener("click",()=>{const s=document.getElementById("bulk-sale").value;let c=0;state.sel.forEach(id=>{const x=ALL.find(a=>a.id===id);if(x){x.sale=s;x.assigned=true;c++;}});toast(`已将 ${c} 位客户分配给 ${s}`);state.sel.clear();render();});
+  document.getElementById("bulk-setp").addEventListener("click",()=>{const p=document.getElementById("bulk-prio").value;let c=0;state.sel.forEach(id=>{const x=ALL.find(a=>a.id===id);if(x){x.priority=p;c++;}});toast(`已将 ${c} 位客户跟进优先级设为「${p}」`);state.sel.clear();render();});
+  document.getElementById("bulk-revive").addEventListener("click",()=>{toast(`已将 ${state.sel.size} 位客户加入唤醒计划，将自动生成销售回访任务`);state.sel.clear();render();});
+
+  // export
+  document.getElementById("btn-export").addEventListener("click",()=>{
+    const rows=sortRows(applyFilters());
+    const map=[["客户编码","id"],["客户名称","name"],["分级","grade"],["客户类型","type"],["行业","cat"],["区域","region"],["归属销售","sale"],["采购吨","ton"],["净利(万)","net"],["单吨净利","perTon"],["采购间隔","interval"],["频率","freq"],["账期","account"],["潜力分","score"],["流失分","churnScore"],["复购信号","reorder"],["复购概率","reorderProb"],["距下次采购天数","dueIn"],["优先级","priority"]];
+    const head=map.map(m=>m[0]).join(",");
+    const body=rows.map(r=>map.map(m=>`"${String(r[m[1]]).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const csv="\ufeff"+head+"\n"+body;
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="客户查询结果.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    toast(`已导出 ${rows.length} 条客户记录`);
+  });
+
+  render();
+  window.addEventListener("resize",()=>{chartType.resize();chartGrade.resize();});
+}
+Layout.render("customer-list",{title:"客户查询与分析工作台",crumb:"客户查询与分析工作台"});
+</script>
+</body>
+</html>

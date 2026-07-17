@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>总裁驾驶舱 · 钢智经营分析与诊断</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>总裁驾驶舱 · 一页看完市场 / 客户 / 员工</h1>
+    <p>零思考可视化：色块、颜色、标记自动区分机会与风险；页面底部为 AI 综合经营诊断，直接给出可落地动作。全部指标 100% 基于现有销售明细自动取数。</p>
+  </div>
+
+  <!-- KPI -->
+  <div class="grid g6" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">总营收</span><span class="k-ic bg-blue">¥</span></div>
+      <div class="k-val">2.68<small>亿</small></div><div class="k-foot">环比 <span class="trend up">+12.4%</span></div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">业务净利</span><span class="k-ic bg-green">📈</span></div>
+      <div class="k-val">2114<small>万</small></div><div class="k-foot">净利率 <b style="color:var(--ink)">7.9%</b></div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">总销量</span><span class="k-ic bg-teal">⚖</span></div>
+      <div class="k-val">28.6<small>万吨</small></div><div class="k-foot">环比 <span class="trend up">+8.1%</span></div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">活跃客户</span><span class="k-ic bg-purple">👥</span></div>
+      <div class="k-val">1,286</div><div class="k-foot">A级 <b style="color:var(--ink)">86</b> · 新增 <span class="trend up">+22</span></div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">流失预警客户</span><span class="k-ic bg-red">⚠</span></div>
+      <div class="k-val" style="color:var(--red)">37</div><div class="k-foot">极高风险 <b style="color:var(--red)">9</b> 家</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">加权平均账期</span><span class="k-ic bg-orange">⏱</span></div>
+      <div class="k-val">41<small>天</small></div><div class="k-foot">逾期额 <b style="color:var(--orange)">386万</b></div></div>
+  </div>
+
+  <!-- 快捷工作台入口 -->
+  <div class="section-title" style="margin-top:4px"><span class="n">⚡</span><h2>快捷工作台</h2><span class="sub">分析结论一站式转落地动作</span><span class="line"></span></div>
+  <div class="grid g4" style="margin-bottom:20px">
+    <a class="entry" href="market.html#resource-plan"><span class="e-ic bg-blue">📦</span><span class="e-t"><b>市场资源倾斜方案</b><span>蓝海攻坚/衰退收缩 · 库存·人力·政策</span></span><span class="e-ar">→</span></a>
+    <a class="entry" href="assign.html"><span class="e-ic bg-green">📌</span><span class="e-t"><b>智能分配 · 我的客户</b><span>智能分配 + 跟进任务派发</span></span><span class="e-ar">→</span></a>
+    <a class="entry" href="customer-list.html"><span class="e-ic bg-purple">🔎</span><span class="e-t"><b>客户查询工作台</b><span>数千客户多维查询分析</span></span><span class="e-ar">→</span></a>
+    <a class="entry" href="churn.html"><span class="e-ic bg-orange">⚠</span><span class="e-t"><b>购货频率 · 流失预警</b><span>可配置评分 + 销售分发</span></span><span class="e-ar">→</span></a>
+  </div>
+
+  <!-- Three column -->
+  <div class="grid g3">
+    <!-- 市场 -->
+    <div class="card">
+      <div class="c-head"><h3>🗺️ 市场总览</h3><span class="sub">区域潜力矩阵</span>
+        <div class="r"><a href="market.html" class="pill blue">进入 →</a></div></div>
+      <div class="c-body tight"><div id="dash-market" class="chart"></div></div>
+      <div class="ai-card" style="margin:0 14px 14px">
+        <div class="ai-h"><span class="ai-badge">🤖 AI 市场诊断</span></div>
+        <p><b>华东 / 山东</b>存在蓝海机会，<b>华北廊坊</b>持续亏损建议收缩。</p>
+        <div class="ai-seg act"><span class="lab">落地动作</span>山东济南增速31%、净利率12.8%，增配2名销售+库存倾斜；廊坊型材同比-42%、账期75天，收缩赊销授信。</div>
+      </div>
+    </div>
+    <!-- 客户 -->
+    <div class="card">
+      <div class="c-head"><h3>👥 客户价值</h3><span class="sub">走量 / 盈利四象限</span>
+        <div class="r"><a href="customer.html" class="pill blue">进入 →</a></div></div>
+      <div class="c-body tight"><div id="dash-customer" class="chart"></div></div>
+      <div class="ai-card" style="margin:0 14px 14px">
+        <div class="ai-h"><span class="ai-badge">🤖 AI 客户挖掘</span></div>
+        <p>利润集中于 <b>86 家 A 级客户</b>（贡献 62% 净利），客户集中度偏高。</p>
+        <div class="ai-seg warn"><span class="lab">流失预警</span>无锡精机采购频次由月3次降至1次，量利双优客户，本周安排资深销售上门并推送合金材质。</div>
+      </div>
+    </div>
+    <!-- 员工 -->
+    <div class="card">
+      <div class="c-head"><h3>🧑‍💼 员工潜力</h3><span class="sub">能力 / 资源四象限</span>
+        <div class="r"><a href="employee.html" class="pill blue">进入 →</a></div></div>
+      <div class="c-body tight"><div id="dash-employee" class="chart"></div></div>
+      <div class="ai-card" style="margin:0 14px 14px">
+        <div class="ai-h"><span class="ai-badge">🤖 AI 资源调配</span></div>
+        <p>销售资源两极分化：<b>张三</b>标杆可攻坚蓝海，<b>李四</b>低效需整改。</p>
+        <div class="ai-seg act"><span class="lab">调配建议</span>将山东蓝海客户分配张三；回收李四名下 6 家高潜客户重新分配；李四进入 3 个月整改期。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom: 综合诊断 -->
+  <div class="section-title"><span class="n">AI</span><h2>综合经营诊断总报告</h2><span class="sub">整合市场·客户·员工三层结论，直接给落地动作</span><span class="line"></span></div>
+  <div class="split">
+    <div class="card">
+      <div class="c-head"><h3>本月经营闭环诊断</h3><span class="pill purple">大模型深度归因</span></div>
+      <div class="c-body ai-list">
+        <div class="ai-card">
+          <div class="ai-h"><span class="ai-badge">市场端</span><span class="ai-obj">华东苏州蓝海市场</span><span class="pill green" style="margin-left:auto">高机会</span></div>
+          <div class="ai-seg"><span class="lab">① 数据解读</span>连续3个月销量增速28%、净利率12.1%，本地制造终端占比78%，需求稳定。</div>
+          <div class="ai-seg warn"><span class="lab">② 深层归因</span>区域高毛利型材供给不足，竞品交期长，存在窗口期。</div>
+          <div class="ai-seg act"><span class="lab">③ 落地动作</span>增配2名资深销售，库存倾斜1500吨，推出终端框架价；目标本月新增A级客户3家。</div>
+        </div>
+        <div class="ai-card">
+          <div class="ai-h"><span class="ai-badge">客户端</span><span class="ai-obj">高走量流水客户群</span><span class="pill orange" style="margin-left:auto">资金风险</span></div>
+          <div class="ai-seg"><span class="lab">① 数据解读</span>该客群贡献销量41%，但平均单吨净利仅42元，平均账期68天。</div>
+          <div class="ai-seg warn"><span class="lab">② 深层归因</span>多为二级贸易商，仅采购低价普板，长期赊销未用现款优惠。</div>
+          <div class="ai-seg act"><span class="lab">③ 落地动作</span>推现款每吨减15元阶梯政策，销售半月回访一次，同步推送型材品类降低资金占用。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-head"><h3>今日重点动作 · 优先级队列</h3><span class="sub">AI 自动排序</span></div>
+      <div class="c-body ai-list">
+        <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>佛山五金城 · 极高流失风险</b><p>断单145天，累计亏损，销售主管3天内协同对接负责人</p></div><span class="a-time">高</span></div>
+        <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>廊坊金属贸易 · 现金流客户预警</b><p>近3月采购-62%、账期72天，7天内上门+专项报价挽留</p></div><span class="a-time">高</span></div>
+        <div class="alert-item"><div class="a-ic bg-orange">🟠</div><div class="a-b"><b>华北廊坊区域 · 收缩授信</b><p>连续2季净利下滑，输出市场收缩与低效中间商清退方案</p></div><span class="a-time">中</span></div>
+        <div class="alert-item"><div class="a-ic bg-green">🟢</div><div class="a-b"><b>山东济南 · 蓝海拓客</b><p>增速31%，分配张三专项攻坚，增配库存与阶梯优惠</p></div><span class="a-time">机会</span></div>
+        <div class="alert-item"><div class="a-ic bg-blue">🔵</div><div class="a-b"><b>李四 · 客户资源回收</b><p>3个月无新增、流失率34%，回收高潜客户重新分配</p></div><span class="a-time">中</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C = window.CHART;
+  // 市场：区域潜力散点（X增速 Y净利率，气泡=净利）
+  const mk = echarts.init(document.getElementById("dash-market"));
+  const colorByLevel = {"明星市场":"#16a34a","潜力蓝海":"#2563eb","成熟存量":"#d99e00","衰退弱势":"#dc2626"};
+  mk.setOption({
+    grid:{left:44,right:16,top:24,bottom:38},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>增速 ${(p.data[0]*100).toFixed(0)}% · 净利率 ${(p.data[1]*100).toFixed(1)}%<br/>净利 ${p.data[2]}万`}),
+    xAxis:C.cat({type:"value",name:"销量增速",nameTextStyle:{color:C.axisText,fontSize:10},axisLabel:{formatter:v=>(v*100)+"%",color:C.axisText,fontSize:10}}),
+    yAxis:C.val({name:"净利率",nameTextStyle:{color:C.axisText,fontSize:10},axisLabel:{formatter:v=>(v*100)+"%"}}),
+    series:[{type:"scatter",symbolSize:d=>Math.max(12,Math.sqrt(Math.abs(d[2]))*2.6),
+      data:DATA.regions.map(r=>({value:[r.growth,r.netRate,r.netProfit,r.name],itemStyle:{color:colorByLevel[r.level],opacity:.85}})),
+      markLine:{silent:true,lineStyle:{color:"#c4ccdb",type:"dashed"},data:[{xAxis:0.2},{yAxis:0.09}],label:{show:false}}}]
+  });
+  // 客户：走量/盈利四象限
+  const cu = echarts.init(document.getElementById("dash-customer"));
+  const typeColor={"①量利双优":"#16a34a","②高盈利获利":"#2563eb","③高走量流水":"#f97316","④量利双弱":"#dc2626"};
+  cu.setOption({
+    grid:{left:48,right:16,top:24,bottom:38},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>采购 ${p.data[0]}吨 · 单吨净利 ${p.data[1]}元<br/>${p.data[4]}`}),
+    xAxis:C.val({name:"采购吨数",nameTextStyle:{color:C.axisText,fontSize:10}}),
+    yAxis:C.val({name:"单吨净利",nameTextStyle:{color:C.axisText,fontSize:10}}),
+    series:[{type:"scatter",symbolSize:d=>Math.max(11,Math.sqrt(d[2])*.9),
+      data:DATA.customers.map(c=>({value:[c.ton,c.perTon,c.net,c.name,c.type],itemStyle:{color:typeColor[c.type],opacity:.85}})),
+      markLine:{silent:true,lineStyle:{color:"#c4ccdb",type:"dashed"},data:[{xAxis:1000},{yAxis:90}]}}]
+  });
+  // 员工：潜力四象限
+  const em = echarts.init(document.getElementById("dash-employee"));
+  const emColor={"标杆全能型":"#16a34a","潜力攻坚型":"#2563eb","存量守成型":"#d99e00","低效弱势型":"#dc2626"};
+  em.setOption({
+    grid:{left:48,right:16,top:24,bottom:38},
+    tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.data[3]}<br/>净利 ${p.data[0]}万 · 复购增长 ${(p.data[1]*100).toFixed(0)}%<br/>${p.data[4]}`}),
+    xAxis:C.val({name:"个人净利(万)",nameTextStyle:{color:C.axisText,fontSize:10}}),
+    yAxis:C.val({name:"客户复购增长",nameTextStyle:{color:C.axisText,fontSize:10},axisLabel:{formatter:v=>(v*100)+"%"}}),
+    series:[{type:"scatter",symbolSize:20,
+      data:DATA.employees.map(e=>{const g=(0.4-e.churn)+ e.revive*0.02;return {value:[e.net,Math.max(0.02,g),e.custA,e.name,e.type],itemStyle:{color:emColor[e.type],opacity:.85}};}),
+      markLine:{silent:true,lineStyle:{color:"#c4ccdb",type:"dashed"},data:[{xAxis:250},{yAxis:0.3}]}}]
+  });
+  window.addEventListener("resize",()=>{mk.resize();cu.resize();em.resize();});
+}
+Layout.render("dashboard",{title:"总裁驾驶舱",crumb:"总裁驾驶舱"});
+</script>
+</body>
+</html>

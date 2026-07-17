@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Token 计费中心 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>Token 计费中心</h1>
+    <p>全产品统一按 <b>TOKEN 计费</b>：常规报表按输入/输出字节折算 Token（约 1.5 字节≈1 Token，单价低），AI 大模型诊断按 input/output token 计费（单价高）。本中心提供用量总览、多维消耗排行、账单导出、余额预警与套餐管理。</p>
+  </div>
+
+  <!-- 余额预警 -->
+  <div class="note" style="border-color:#f3c98b;background:#fff5e8;color:#8a5a1f;margin-bottom:16px">
+    <span class="n-ic">⚠️</span>
+    <div><b>余额预警：</b>当前预存余额 <b>¥180.00</b>，按近30天日均消耗 ¥6.1/天，预计可用 <b>约 29 天</b>，已低于 30 天预警阈值，建议及时充值以免影响 AI 诊断与报表生成。
+      <button class="pill orange" id="btn-recharge" style="cursor:pointer;border:0;padding:4px 12px;margin-left:8px">立即充值</button></div>
+  </div>
+
+  <!-- 用量总览 -->
+  <div class="grid g6" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">本月 Token 总量</span><span class="k-ic bg-blue">🔢</span></div><div class="k-val">1.86<small>亿</small></div><div class="k-foot">环比 <span class="trend up">+9.2%</span></div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">本月费用</span><span class="k-ic bg-orange">💰</span></div><div class="k-val">¥186<small>.4</small></div><div class="k-foot">报表¥98 + AI¥88.4</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">报表 Token 占比</span><span class="k-ic bg-green">📊</span></div><div class="k-val">62<small>%</small></div><div class="k-foot">按字节折算·低单价</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">AI Token 占比</span><span class="k-ic bg-purple">🤖</span></div><div class="k-val">38<small>%</small></div><div class="k-foot">大模型·高单价</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">缓存节省</span><span class="k-ic bg-teal">⚡</span></div><div class="k-val">2,640<small>万T</small></div><div class="k-foot">约省 ¥58.0</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">预存余额</span><span class="k-ic bg-red">🪙</span></div><div class="k-val" style="color:var(--orange)">¥180</div><div class="k-foot">≈ 可用 29 天</div></div>
+  </div>
+
+  <!-- 趋势 + 构成 -->
+  <div class="split" style="margin-bottom:16px">
+    <div class="card"><div class="c-head"><h3>Token 消耗趋势</h3><span class="sub">报表 vs AI · 近12月</span></div><div class="c-body tight"><div id="b-trend" class="chart"></div></div></div>
+    <div class="card"><div class="c-head"><h3>消耗构成</h3></div><div class="c-body tight"><div id="b-compose" class="chart"></div></div></div>
+  </div>
+
+  <!-- 多维排行 -->
+  <div class="section-title"><span class="n">📊</span><h2>Token 消耗排行</h2><span class="sub">按功能 / 按用户 / 按报表类型</span><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="card"><div class="c-head"><h3>按功能</h3></div><div class="c-body tight"><div id="b-func" class="chart"></div></div></div>
+    <div class="card"><div class="c-head"><h3>按用户 / 部门</h3></div><div class="c-body tight"><div id="b-user" class="chart"></div></div></div>
+    <div class="card"><div class="c-head"><h3>按报表类型</h3></div><div class="c-body tight"><div id="b-type" class="chart"></div></div></div>
+  </div>
+
+  <!-- 账单明细 -->
+  <div class="section-title"><span class="n">🧾</span><h2>账单明细</h2><span class="sub">报表与 AI 统一计费流水</span><span class="line"></span>
+    <button class="btn primary" id="btn-export" style="padding:6px 14px">⬇ 导出账单 CSV</button></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl" id="bill-table">
+      <thead><tr><th>时间</th><th>功能 / 对象</th><th>计费方式</th><th>用户</th><th class="num">输入Token</th><th class="num">输出Token</th><th class="num">费用</th><th>缓存</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div></div>
+
+  <!-- 套餐管理 -->
+  <div class="section-title"><span class="n">🎫</span><h2>套餐管理</h2><span class="sub">当前套餐与可选计费模式</span><span class="line"></span></div>
+  <div class="card" style="margin-bottom:16px"><div class="c-body" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div><div style="font-size:12px;color:var(--muted)">当前套餐</div><div style="font-size:18px;font-weight:800;color:var(--ink)">预存套餐（Pay-as-you-go）</div></div>
+    <div class="mini-metric" style="flex:1">
+      <div class="m"><span class="v" style="color:var(--orange)">¥180.00</span><span class="l">预存余额</span></div>
+      <div class="m"><span class="v">¥186.4</span><span class="l">本月已用</span></div>
+      <div class="m"><span class="v">¥6.1</span><span class="l">近30天日均</span></div>
+      <div class="m"><span class="v">29 天</span><span class="l">预计可用</span></div>
+    </div>
+    <button class="btn primary" id="btn-recharge2" style="padding:9px 18px">充值 / 续费</button>
+  </div></div>
+
+  <div class="grid g3">
+    <div class="opt-card" style="border-top:3px solid #2563eb">
+      <div class="o-ic bg-blue">🪙</div><h3>预存套餐 <span class="pill green">当前</span></h3>
+      <p>预充值按量扣减，单价最优，适合稳定使用。</p>
+      <table class="tbl" style="margin-top:8px"><tbody>
+        <tr><td>常规报表</td><td class="num">0.2 / 0.4 元/百万T</td></tr>
+        <tr><td>AI 诊断</td><td class="num">0.5 / 4.0 元/百万T</td></tr>
+      </tbody></table>
+      <button class="btn ghost" id="p1" style="margin-top:10px;width:100%">充值</button>
+    </div>
+    <div class="opt-card">
+      <div class="o-ic bg-orange">⚡</div><h3>按量散客</h3>
+      <p>零门槛，用多少扣多少，单价上浮约 20%。</p>
+      <table class="tbl" style="margin-top:8px"><tbody>
+        <tr><td>常规报表</td><td class="num">0.24 / 0.48 元/百万T</td></tr>
+        <tr><td>AI 诊断</td><td class="num">0.6 / 4.8 元/百万T</td></tr>
+      </tbody></table>
+      <button class="btn ghost" id="p2" style="margin-top:10px;width:100%">切换</button>
+    </div>
+    <div class="opt-card" style="border-top:3px solid #7c3aed">
+      <div class="o-ic bg-purple">♾️</div><h3>包月不限量</h3>
+      <p>固定月费，关闭 Token 扣费，仅记录日志，适合高频使用。</p>
+      <table class="tbl" style="margin-top:8px"><tbody>
+        <tr><td>标准版</td><td class="num">¥1,980 / 月</td></tr>
+        <tr><td>集团版(多账套)</td><td class="num">¥4,980 / 月</td></tr>
+      </tbody></table>
+      <button class="btn primary" id="p3" style="margin-top:10px;width:100%">升级包月</button>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">💡</span><div>私有化部署可选：① 客户自备大模型 API 密钥（平台不收 AI 费用，仅逻辑调度）；② 平台提供 API 接口包，预存 Token 统一结算。报表 Token 成本可通过预计算宽表 + 分页 + 缓存进一步压缩。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, M=DATA.months;
+  function toast(msg){const t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0d1b33;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,.28)";document.body.appendChild(t);setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";},1500);setTimeout(()=>t.remove(),2000);}
+
+  // 趋势
+  const trend=echarts.init(document.getElementById("b-trend"));
+  trend.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:M}),yAxis:C.val({name:"万 Token"}),
+    series:[
+      {name:"报表Token(字节)",type:"bar",stack:"t",data:[820,860,790,900,940,880,1020,960,980,1080,1040,1150],itemStyle:{color:"#16a34a"}},
+      {name:"AI输入Token",type:"bar",stack:"t",data:[320,340,300,360,390,350,420,390,410,450,430,470],itemStyle:{color:"#8fb6ff"}},
+      {name:"AI输出Token",type:"bar",stack:"t",data:[120,130,115,140,150,135,165,150,158,175,168,190],itemStyle:{color:"#7c3aed",borderRadius:[3,3,0,0]}}]
+  });
+
+  // 构成
+  const comp=echarts.init(document.getElementById("b-compose"));
+  comp.setOption({
+    tooltip:Object.assign(C.tipItem(),{formatter:"{b}: {c}万T ({d}%)"}),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
+    series:[{type:"pie",radius:["45%","72%"],center:["50%","44%"],itemStyle:{borderColor:"#fff",borderWidth:2},
+      label:{formatter:"{b}\n{d}%",fontSize:11,color:C.axisText},
+      data:[{name:"常规报表",value:1150,itemStyle:{color:"#16a34a"}},{name:"AI输入",value:470,itemStyle:{color:"#8fb6ff"}},{name:"AI输出",value:190,itemStyle:{color:"#7c3aed"}}]}]
+  });
+
+  function rankBar(el,data,unit){
+    const s=[...data].sort((a,b)=>a[1]-b[1]);
+    echarts.init(document.getElementById(el)).setOption({
+      grid:{left:96,right:44,top:10,bottom:20},tooltip:Object.assign(C.tipItem(),{formatter:p=>`${p.name}<br/>${p.value} ${unit}`}),
+      xAxis:C.val({}),yAxis:C.cat({data:s.map(d=>d[0]),axisLabel:{fontSize:11,color:C.axisText}}),
+      series:[{type:"bar",barWidth:13,data:s.map((d,i)=>({value:d[1],itemStyle:{color:d[2]||"#2563eb",borderRadius:4}})),
+        label:{show:true,position:"right",formatter:"{c}",color:C.axisText,fontSize:10}}]
+    });
+  }
+  rankBar("b-func",[["客户分层报表",320,"#16a34a"],["流失预警清单",280,"#16a34a"],["市场潜力看板",240,"#16a34a"],["员工画像报表",160,"#16a34a"],["AI客户深诊",210,"#7c3aed"],["AI市场诊断",150,"#7c3aed"],["月度AI报告",180,"#7c3aed"],["AI交互问答",120,"#7c3aed"]],"万T");
+  rankBar("b-user",[["华东销售部",480,"#2563eb"],["华北销售部",320,"#2563eb"],["李总(总裁)",260,"#0ea5e9"],["销管中心",210,"#0ea5e9"],["西南销售部",180,"#2563eb"],["数据部",140,"#0d9488"]],"万T");
+  rankBar("b-type",[["看板类",520,"#16a34a"],["清单/明细类",430,"#16a34a"],["导出报表",360,"#d99e00"],["AI诊断类",540,"#7c3aed"],["问答类",120,"#7c3aed"]],"万T");
+
+  // 账单
+  const bills=[
+    ["08:00","客户分层看板","常规报表·字节","华东销售部",4200,1800,0.0016,"新生成"],
+    ["08:01","流失预警清单(导出)","常规报表·字节","销管中心",6500,9400,0.0051,"新生成"],
+    ["08:02","廊坊金属贸易","AI客户深诊·大模型","华北销售部",1240,386,0.0021,"新调用"],
+    ["08:05","市场潜力看板","常规报表·字节","李总(总裁)",5200,2100,0.0019,"新生成"],
+    ["08:12","华北廊坊区域","AI市场诊断·大模型","李总(总裁)",1580,412,0.0024,"新调用"],
+    ["08:15","宁波特钢加工","AI客户深诊·大模型","华东销售部",0,0,0.0000,"命中缓存"],
+    ["09:30","员工能力画像","常规报表·字节","销管中心",3800,1500,0.0013,"新生成"],
+    ["02:00","月度批量诊断报告","AI全量·大模型","系统",86400,24200,0.14,"定时批量"],
+  ];
+  const cacheColor={"命中缓存":"green","定时批量":"blue"};
+  document.querySelector("#bill-table tbody").innerHTML=bills.map(b=>{
+    const isAI=b[2].indexOf("大模型")>=0;
+    return `<tr>
+      <td>${b[0]}</td><td><b>${b[1]}</b></td>
+      <td><span class="pill ${isAI?'purple':'green'}">${b[2]}</span></td>
+      <td>${b[3]}</td><td class="num">${b[4].toLocaleString()}</td><td class="num">${b[5].toLocaleString()}</td>
+      <td class="num">¥${b[6].toFixed(4)}</td>
+      <td><span class="pill ${cacheColor[b[7]]||'gray'}">${b[7]}</span></td>
+    </tr>`;}).join("");
+
+  document.getElementById("btn-export").addEventListener("click",()=>{
+    const head="时间,功能/对象,计费方式,用户,输入Token,输出Token,费用";
+    const body=bills.map(b=>`${b[0]},"${b[1]}",${b[2]},${b[3]},${b[4]},${b[5]},${b[6].toFixed(4)}`).join("\n");
+    const csv="\ufeff"+head+"\n"+body;
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="Token账单.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    toast("已导出 Token 账单 CSV");
+  });
+
+  [["btn-recharge","充值"],["btn-recharge2","充值 / 续费"],["p1","预存套餐充值"],["p2","切换为按量散客"],["p3","升级包月不限量"]].forEach(x=>{
+    const el=document.getElementById(x[0]);if(el)el.addEventListener("click",()=>toast("（原型演示）"+x[1]+"：将跳转支付/套餐变更流程"));
+  });
+
+  window.addEventListener("resize",()=>{trend.resize();comp.resize();["b-func","b-user","b-type"].forEach(id=>{const i=echarts.getInstanceByDom(document.getElementById(id));if(i)i.resize();});});
+}
+Layout.render("billing",{title:"Token 计费中心",crumb:"Token 计费中心"});
+</script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>跟进分配 · 我的客户 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>销售跟进分配机制 · 落地工作台</h1>
+    <p>把"客户分析结论"转化为可执行动作：<b>① 智能分配</b>——按销售能力 × 现有负载 × 客户潜力自动推荐归属；<b>② 任务派发</b>——生成带频次、话术、截止日期的跟进任务，直达销售的「我的客户」清单，形成闭环。</p>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs">
+      <button class="on" data-tab="assign">① 智能分配（总裁 / 销管视角）</button>
+      <button data-tab="mine">② 我的客户任务（销售视角）</button>
+    </div>
+
+    <!-- 智能分配 -->
+    <div class="tabpane on" data-pane="assign">
+      <div class="grid g4" style="margin-bottom:16px">
+        <div class="kpi"><div class="k-top"><span class="k-label">待分配客户</span><span class="k-ic bg-blue">📥</span></div><div class="k-val">128</div><div class="k-foot">新增/回收待归属</div></div>
+        <div class="kpi"><div class="k-top"><span class="k-label">蓝海新增潜力客户</span><span class="k-ic bg-green">🌱</span></div><div class="k-val">34</div><div class="k-foot">优先派高潜员工</div></div>
+        <div class="kpi"><div class="k-top"><span class="k-label">沉睡待唤醒</span><span class="k-ic bg-yellow">😴</span></div><div class="k-val">100</div><div class="k-foot">派攻坚型/新人</div></div>
+        <div class="kpi"><div class="k-top"><span class="k-label">资源过载/失衡销售</span><span class="k-ic bg-red">⚖</span></div><div class="k-val" style="color:var(--red)">2</div><div class="k-foot">需分流/回收</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="c-head"><h3>智能分配规则</h3><span class="pill purple">能力 × 负载 × 潜力 × 区域</span></div>
+        <div class="c-body">
+          <div class="chips">
+            <b>① 能力匹配：标杆→大客户/框架，攻坚→蓝海/沉睡，新人→B级成长</b>
+            <b>② 负载均衡：A类过载销售拆分B级潜力客户给空闲销售</b>
+            <b>③ 潜力优先：蓝海新增潜力客户优先给能力 TOP 员工</b>
+            <b>④ 区域就近：优先本片区，降低拜访成本</b>
+            <b>⑤ 回收机制：连续3月无跟进/持续流失 → 收回高潜客户重分配</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- 回收 & 分配规则配置 -->
+      <div class="card" style="margin-bottom:16px" id="rule-config">
+        <div class="c-head"><h3>回收 & 分配规则配置</h3><span class="pill green">可设置</span>
+          <div class="r"><span id="rule-hit" class="pill orange">—</span></div></div>
+        <div class="c-body">
+          <div class="filters">
+            <div class="fld"><label>回收触发 · 无采购/无跟进 ≥</label><div><input class="inp" id="r-nofollow" value="90" style="min-width:70px"/> 天</div></div>
+            <div class="fld"><label>仅回收 · 潜力分 ≥（保护高潜）</label><input class="inp" id="r-minscore" value="6.0" style="min-width:80px"/></div>
+            <div class="fld"><label>回收触发 · 近3月采购下滑 ≥</label><div><input class="inp" id="r-drop" value="50" style="min-width:70px"/> %</div></div>
+            <div class="fld"><label>负载均衡 · 单人 A 类客户 &gt;</label><div><input class="inp" id="r-overload" value="10" style="min-width:70px"/> 家</div></div>
+            <div class="fld"><label>蓝海新客 · 优先分配 TOP</label><div><input class="inp" id="r-topn" value="3" style="min-width:60px"/> 员工</div></div>
+          </div>
+          <div class="cfg-actions" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+            <span id="rule-summary" style="font-size:12.5px;color:var(--muted)"></span>
+            <div style="margin-left:auto;display:flex;gap:10px">
+              <button class="btn ghost" id="r-reset">恢复默认</button>
+              <button class="btn primary" id="r-apply">应用规则并重算</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card"><div class="c-head"><h3>销售客户负载均衡</h3><span class="sub">A/B 级客户储备对比</span></div><div class="c-body tight"><div id="load" class="chart"></div></div></div>
+        <div class="card"><div class="c-head"><h3>负载诊断</h3></div><div class="c-body ai-list">
+          <div class="alert-item"><div class="a-ic bg-red">⚖</div><div class="a-b"><b>张三 · A类过载</b><p>12 家 A 级客户，建议拆分 3 家 B 级潜力给空闲销售</p></div></div>
+          <div class="alert-item"><div class="a-ic bg-orange">📉</div><div class="a-b"><b>李四 · 低效+流失</b><p>流失率34%、3月零新增，回收名下高潜客户重新分配</p></div></div>
+          <div class="alert-item"><div class="a-ic bg-green">🌱</div><div class="a-b"><b>王五 · 拓新能力强</b><p>可承接更多 B 级成长客户，冲刺转 A</p></div></div>
+        </div></div>
+      </div>
+
+      <div class="section-title"><span class="n">🤝</span><h2>智能分配建议</h2><span class="sub">系统自动推荐归属，一键采纳或改派</span><span class="line"></span></div>
+      <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+        <table class="tbl" id="sug-table">
+          <thead><tr><th>客户</th><th>类型</th><th>潜力分</th><th>当前归属</th><th>推荐销售</th><th>推荐理由</th><th>操作</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div></div>
+
+      <div class="section-title"><span class="n">🛒</span><h2>到期复购催单队列</h2><span class="sub">预测=上次下单+平均采购间隔，高复购概率优先</span><span class="line"></span>
+        <span id="reorder-cnt" class="pill green">—</span></div>
+      <div class="card">
+        <div class="c-head"><h3>即将采购 / 已到期客户</h3><span class="sub">一键生成催单任务，派发至归属销售的「我的客户」</span>
+          <div class="r"><button class="btn primary" id="reorder-all" style="padding:6px 14px">批量生成催单任务</button></div></div>
+        <div class="c-body" style="padding:0;overflow:auto">
+          <table class="tbl" id="reorder-table"><thead><tr><th>客户</th><th>复购信号</th><th>复购概率</th><th>预计</th><th>归属销售</th><th>建议动作</th><th>操作</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我的客户 -->
+    <div class="tabpane" data-pane="mine">
+      <div class="card" style="margin-bottom:16px">
+        <div class="c-head"><h3>👤 销售视角</h3>
+          <div class="r"><select id="sale-sel" class="inp"></select></div></div>
+        <div class="c-body">
+          <div class="mini-metric" id="mine-metric"></div>
+        </div>
+      </div>
+      <div id="task-groups"></div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">🔁</span><div><b>闭环逻辑：</b>客户分层/流失预警/市场蓝海 → 智能分配引擎推荐归属 → 生成跟进任务派发到销售「我的客户」 → 销售执行并录入跟进记录 → 达标率与客户变化回流分析，次月动态调整分配。跟进记录同时作为员工能力评判与客户资源再分配依据。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART, E=DATA.employees;
+
+  // 负载均衡
+  const load=echarts.init(document.getElementById("load"));
+  load.setOption({
+    grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
+    xAxis:C.cat({data:E.map(e=>e.name)}),yAxis:C.val({name:"客户数"}),
+    series:[
+      {name:"A级客户",type:"bar",stack:"x",data:E.map(e=>e.custA),itemStyle:{color:"#16a34a"}},
+      {name:"B级客户",type:"bar",stack:"x",data:E.map(e=>e.custB),itemStyle:{color:"#2563eb",borderRadius:[3,3,0,0]}},
+      {name:"人均线",type:"line",data:E.map(()=>Math.round(E.reduce((s,e)=>s+e.custA+e.custB,0)/E.length)),
+        lineStyle:{color:"#f97316",type:"dashed",width:2},itemStyle:{color:"#f97316"},symbol:"none"}]
+  });
+  window.addEventListener("resize",()=>load.resize());
+
+  function toast(msg){const t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0d1b33;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,.28);max-width:80%";document.body.appendChild(t);setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";},1500);setTimeout(()=>t.remove(),2000);}
+
+  // 分配建议
+  const sug=[
+    {cust:"济南装备制造",type:"②高盈利",score:8.8,now:"未分配",rec:"张三",reason:"蓝海市场 + 标杆销售，匹配高潜新客",act:"采纳"},
+    {cust:"合肥新材科技",type:"②高盈利",score:6.9,now:"王五",rec:"王五",reason:"拓新能力强，匹配成长型客户，保持",act:"保持"},
+    {cust:"廊坊金属贸易",type:"③高走量",score:3.6,now:"李四(低效)",rec:"赵敏",reason:"李四流失率高，改派善于账期优化的赵敏",act:"改派"},
+    {cust:"佛山五金城",type:"④量利双弱",score:2.2,now:"王五",rec:"攻坚组",reason:"沉睡唤醒，派攻坚型销售 + 专项激励",act:"改派"},
+    {cust:"苏州轨道建设",type:"③高走量",score:7.8,now:"赵敏",rec:"赵敏",reason:"高走量大客户，赵敏账期管控经验匹配，保持",act:"保持"},
+    {cust:"沉睡客户(批量20家)",type:"④/沉睡",score:"—",now:"多人",rec:"新人/攻坚组",reason:"沉睡唤醒专项，单独设唤醒激励",act:"批量分配"},
+  ];
+  const actPill={"采纳":"green","保持":"gray","改派":"orange","批量分配":"blue"};
+  document.querySelector("#sug-table tbody").innerHTML=sug.map((s,i)=>`<tr>
+    <td><b>${s.cust}</b></td><td>${s.type}</td><td class="num">${s.score}</td><td>${s.now}</td>
+    <td><span class="pill blue">${s.rec}</span></td>
+    <td style="font-size:12px;color:var(--muted)">${s.reason}</td>
+    <td><button class="rowbtn" data-i="${i}">${s.act}</button></td>
+  </tr>`).join("");
+  document.querySelectorAll("#sug-table [data-i]").forEach(b=>b.addEventListener("click",()=>{const s=sug[b.dataset.i];toast(`已${s.act}：${s.cust} → ${s.rec}，已生成跟进任务派发至其「我的客户」`);b.textContent="✓ 已"+s.act;b.style.color="var(--green)";}));
+
+  // 任务派发（销售视角）
+  const tasks=[
+    {sale:"张三",cust:"无锡精机制造",kind:"经营复盘",freq:"每周1次拜访",action:"月度经营复盘，推进年度框架续签，压缩账期至25天",due:"今日",urg:"今日"},
+    {sale:"张三",cust:"华东重工集团",kind:"增购推新",freq:"每周",action:"推送配套合金材质，锁定Q3大单",due:"本周三",urg:"本周"},
+    {sale:"张三",cust:"济南装备制造(新)",kind:"新客转化",freq:"—",action:"蓝海新客首单跟进，目标转化为B级",due:"本周五",urg:"本周"},
+    {sale:"赵敏",cust:"苏州轨道建设",kind:"账期优化",freq:"半月1次",action:"推现款每吨减15元，缩短账期至45天",due:"今日",urg:"今日"},
+    {sale:"赵敏",cust:"武汉钢联商贸",kind:"稳量维护",freq:"半月",action:"稳定吨位，申请阶梯采购优惠",due:"本周四",urg:"本周"},
+    {sale:"王五",cust:"宁波特钢加工",kind:"升级冲刺",freq:"每2周",action:"推送合金型材，阶梯优惠，冲刺升A级",due:"今日",urg:"今日"},
+    {sale:"王五",cust:"合肥新材科技",kind:"增购推新",freq:"每2周",action:"针对增长品类投放阶梯优惠，缩短采购间隔",due:"本周",urg:"本周"},
+    {sale:"王五",cust:"佛山五金城",kind:"挽留",freq:"—",action:"断单145天/亏损，主管协同3天内对接负责人",due:"已逾期3天",urg:"逾期"},
+    {sale:"李四",cust:"廊坊金属贸易",kind:"挽留",freq:"—",action:"断单74天，7天内上门 + 专项报价挽留",due:"已逾期1天",urg:"逾期"},
+    {sale:"李四",cust:"常州建材集散",kind:"挽留",freq:"—",action:"断单210天/亏损，评估清退或转现款",due:"已逾期",urg:"逾期"},
+    {sale:"李四",cust:"天津建工物资",kind:"唤醒",freq:"月度",action:"调研需求停滞原因，评估授信收缩",due:"本周",urg:"本周"},
+    {sale:"陈刚",cust:"成都装备制造",kind:"增购推新",freq:"每2周",action:"推送高毛利品类，提升年度净利",due:"本周",urg:"本周"},
+  ];
+  const kindColor={"经营复盘":"blue","增购推新":"green","新客转化":"purple","账期优化":"orange","稳量维护":"gray","升级冲刺":"green","挽留":"red","唤醒":"yellow","复购催单":"orange","复购推单":"green","复购预热":"blue"};
+
+  // 到期复购 → 自动生成催单任务，并汇入"我的客户"
+  const rpop=DATA.generateCustomers(1860);
+  const reorderList=rpop.filter(c=>c.reorder==="已到期"||c.reorder==="即将采购"||c.reorder==="临近采购")
+    .sort((a,b)=>b.reorderProb-a.reorderProb);
+  const dueCnt=rpop.filter(c=>c.reorder==="已到期"||c.reorder==="即将采购").length;
+  function reorderAction(c){
+    const push=(c.type.indexOf("盈利")>=0||c.type.indexOf("双优")>=0)?"同步推送高毛利品类/合金型材":"确认库存并锁量报价";
+    return (c.reorder==="已到期"?("已到期"+(-c.dueIn)+"天未下单，立即催单"):("预计约"+c.dueIn+"天后采购，提前触达"))+" · "+push;
+  }
+  reorderList.slice(0,60).forEach(c=>{
+    tasks.push({sale:c.sale,cust:c.name,
+      kind:c.reorder==="已到期"?"复购催单":c.reorder==="即将采购"?"复购推单":"复购预热",
+      freq:"到期触发",action:reorderAction(c),
+      due:c.reorder==="已到期"?("已逾期"+(-c.dueIn)+"天"):(c.dueIn+"天内"),
+      urg:c.reorder==="临近采购"?"本周":"今日",reorder:true});
+  });
+
+  const sales=[...new Set(tasks.map(t=>t.sale))];
+  const sel=document.getElementById("sale-sel");
+  sel.innerHTML=sales.map(s=>`<option>${s}</option>`).join("");
+
+  function renderMine(){
+    const s=sel.value, mine=tasks.filter(t=>t.sale===s);
+    const done=mine.filter(t=>t.done).length;
+    const overdue=mine.filter(t=>t.urg==="逾期"&&!t.done).length;
+    document.getElementById("mine-metric").innerHTML=[
+      ["负责客户任务",mine.length],["今日待办",mine.filter(t=>t.urg==="今日"&&!t.done).length],
+      ["逾期未跟进",overdue],["本周达标率",mine.length?Math.round(done/mine.length*100)+"%":"0%"]
+    ].map((m,i)=>`<div class="m"><span class="v" style="${i===2&&overdue>0?'color:var(--red)':''}">${m[1]}</span><span class="l">${m[0]}</span></div>`).join("");
+
+    const groups=[["逾期","🔴 逾期未跟进"],["今日","🟠 今日必做"],["本周","🔵 本周计划"]];
+    document.getElementById("task-groups").innerHTML=groups.map(g=>{
+      const list=mine.filter(t=>t.urg===g[0]);
+      if(!list.length)return "";
+      return `<div class="card" style="margin-bottom:14px"><div class="c-head"><h3>${g[1]}</h3><span class="pill gray">${list.length}</span></div>
+        <div class="c-body ai-list">${list.map(t=>{const gi=tasks.indexOf(t);return `
+          <div class="alert-item" style="${t.done?'opacity:.5':''}">
+            <div class="a-ic bg-${kindColor[t.kind]||'blue'}">📌</div>
+            <div class="a-b"><b>${t.cust}</b> <span class="pill ${kindColor[t.kind]||'blue'}">${t.kind}</span> <span class="pill gray">${t.freq}</span>
+              <p>${t.action}</p></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+              <span class="a-time" style="color:${t.urg==='逾期'?'var(--red)':'var(--muted)'}">${t.due}</span>
+              <button class="rowbtn" data-t="${gi}">${t.done?'✓ 已完成':'记录跟进'}</button>
+            </div>
+          </div>`;}).join("")}</div></div>`;
+    }).join("")||'<div class="card"><div class="c-body" style="text-align:center;color:var(--muted);padding:30px">该销售暂无跟进任务</div></div>';
+
+    document.querySelectorAll("#task-groups [data-t]").forEach(b=>b.addEventListener("click",()=>{
+      const t=tasks[b.dataset.t];t.done=!t.done;toast(t.done?`已记录跟进：${t.cust}`:`已取消：${t.cust}`);renderMine();
+    }));
+  }
+  sel.addEventListener("change",renderMine);
+  renderMine();
+
+  // 到期复购催单队列（总裁/销管视角）
+  document.getElementById("reorder-cnt").textContent="即将/到期采购 "+dueCnt+" 家 · 待催单";
+  const rsigColor={"已到期":"orange","即将采购":"green","临近采购":"blue"};
+  document.querySelector("#reorder-table tbody").innerHTML=reorderList.slice(0,10).map((c,i)=>`<tr>
+    <td><b>${c.name}</b></td>
+    <td><span class="pill ${rsigColor[c.reorder]}">${c.reorder}</span></td>
+    <td class="num"><b>${c.reorderProb}%</b></td>
+    <td class="num">${c.dueIn>0?c.dueIn+"天内":"逾期"+(-c.dueIn)+"天"}</td>
+    <td>${c.sale}</td>
+    <td style="font-size:12px;color:var(--muted)">${reorderAction(c)}</td>
+    <td><button class="rowbtn" data-r="${i}">生成催单任务</button></td>
+  </tr>`).join("");
+  document.querySelectorAll("#reorder-table [data-r]").forEach(b=>b.addEventListener("click",()=>{
+    const c=reorderList[b.dataset.r];toast(`已生成${c.reorder==="已到期"?"复购催单":"复购推单"}任务：${c.name} → 派发至 ${c.sale} 的「我的客户」`);
+    b.textContent="✓ 已派发";b.style.color="var(--green)";
+  }));
+  document.getElementById("reorder-all").addEventListener("click",()=>{toast(`已批量生成 ${Math.min(10,reorderList.length)} 条到期复购催单任务，按归属销售派发`);});
+
+  // 回收 & 分配规则配置（可设置，实时重算命中）
+  const pop=rpop;
+  const defaults={"r-nofollow":90,"r-minscore":6.0,"r-drop":50,"r-overload":10,"r-topn":3};
+  function applyRules(){
+    const g=id=>+document.getElementById(id).value;
+    const noFollow=g("r-nofollow"), minScore=g("r-minscore"), drop=g("r-drop"), overload=g("r-overload"), topn=g("r-topn");
+    // 命中回收：长期无采购/无跟进 且 高潜力（保护高潜、剔除低价值）
+    const recall=pop.filter(c=>c.lastDays>=noFollow && c.score>=minScore);
+    // 负载超标销售
+    const over=E.filter(e=>e.custA>overload);
+    document.getElementById("rule-hit").textContent="命中待回收 "+recall.length+" 家 · 负载超标 "+over.length+" 人";
+    document.getElementById("rule-summary").innerHTML=
+      `当前规则：无采购/跟进 ≥ <b>${noFollow}</b> 天 且 潜力分 ≥ <b>${minScore}</b> → 命中 <b style="color:var(--orange)">${recall.length}</b> 家高潜客户待回收；`+
+      `采购下滑 ≥ <b>${drop}%</b> 追加触发；A类客户 &gt; <b>${overload}</b> 家判定过载（当前 <b>${over.length}</b> 人：${over.map(e=>e.name).join("、")||"无"}）；蓝海新客优先分配能力 TOP <b>${topn}</b> 员工。`;
+    return {recall,over};
+  }
+  function toastRule(msg){toast(msg);}
+  document.getElementById("r-apply").addEventListener("click",()=>{const r=applyRules();toastRule(`规则已应用：命中 ${r.recall.length} 家待回收客户、${r.over.length} 名负载超标销售，已刷新分配依据`);});
+  document.getElementById("r-reset").addEventListener("click",()=>{for(const k in defaults)document.getElementById(k).value=defaults[k];applyRules();toastRule("已恢复默认规则");});
+  applyRules();
+}
+Layout.render("assign",{title:"跟进分配·我的客户",crumb:"跟进分配·我的客户"});
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>数据源 & 平台接入 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>.mermaid{display:flex;justify-content:center;overflow:auto;padding:8px 4px;font-family:inherit}.mermaid svg{max-width:100%;height:auto}.mono-cell{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;color:#2563eb}</style>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>数据源管理 & 平台接入</h1>
+    <p>本系统作为公司平台的一个<b>业务模块</b>接入：登录鉴权与租户管理复用平台<b>统一基础接口</b>（SSO + 租户上下文）；数据侧支持连接不同 ERP —— <b>SQL Server / MySQL 数据库</b>与 <b>API 接口</b>三类数据源，经数据接入层清洗聚合为统一指标宽表。</p>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs">
+      <button class="on" data-tab="ds">① 数据源管理</button>
+      <button data-tab="map">② 字段映射</button>
+      <button data-tab="platform">③ 平台接入（鉴权/租户）</button>
+    </div>
+
+    <!-- 数据源管理 -->
+    <div class="tabpane on" data-pane="ds">
+      <div class="grid g4" style="margin-bottom:16px">
+        <div class="kpi"><div class="k-top"><span class="k-label">已接入数据源</span><span class="k-ic bg-blue">🔌</span></div><div class="k-val">5</div><div class="k-foot">SQL Server 1 · MySQL 2 · API 2</div></div>
+        <div class="kpi"><div class="k-top"><span class="k-label">正常连接</span><span class="k-ic bg-green">✅</span></div><div class="k-val">3</div><div class="k-foot">今日已同步</div></div>
+        <div class="kpi"><div class="k-top"><span class="k-label">同步异常</span><span class="k-ic bg-red">⚠</span></div><div class="k-val" style="color:var(--red)">1</div><div class="k-foot">西南代理商系统</div></div>
+        <div class="kpi"><div class="k-top"><span class="k-label">待配置</span><span class="k-ic bg-orange">🛠️</span></div><div class="k-val">1</div><div class="k-foot">云仓库存API</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="c-head"><h3>数据源列表</h3><span class="sub">多租户 · 多 ERP</span>
+          <div class="r"><button class="btn primary" id="btn-add" style="padding:6px 14px">+ 新增数据源</button></div></div>
+        <div class="c-body" style="padding:0;overflow:auto">
+          <table class="tbl" id="ds-table">
+            <thead><tr><th>数据源名称</th><th>类型</th><th>所属租户</th><th>连接状态</th><th>同步方式</th><th>上次同步</th><th>操作</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 新增/配置表单 -->
+      <div class="card" id="ds-form" style="display:none">
+        <div class="c-head"><h3>新增 / 配置数据源</h3><span class="sub" id="form-sub">按类型填写连接信息</span></div>
+        <div class="c-body">
+          <div class="filters">
+            <div class="fld"><label>数据源名称</label><input class="inp" id="d-name" placeholder="如：华东钢贸ERP主库"/></div>
+            <div class="fld"><label>数据源类型</label><select class="inp" id="d-type"><option value="sqlserver">SQL Server</option><option value="mysql">MySQL</option><option value="api">API 接口</option></select></div>
+            <div class="fld"><label>所属租户</label><select class="inp" id="d-tenant"><option>租户A · 华东总部</option><option>租户B · 华北分公司</option><option>租户C · 西南代理</option></select></div>
+          </div>
+          <!-- DB 字段 -->
+          <div id="grp-db" style="margin-top:12px">
+            <div class="filters">
+              <div class="fld"><label>主机地址</label><input class="inp" placeholder="10.0.0.12"/></div>
+              <div class="fld"><label>端口</label><input class="inp" id="d-port" value="1433" style="min-width:90px"/></div>
+              <div class="fld"><label>数据库名</label><input class="inp" placeholder="ERP_DB"/></div>
+              <div class="fld"><label>Schema</label><input class="inp" placeholder="dbo" style="min-width:100px"/></div>
+              <div class="fld"><label>用户名</label><input class="inp" placeholder="readonly_user"/></div>
+              <div class="fld"><label>密码</label><input class="inp" type="password" placeholder="••••••••"/></div>
+            </div>
+          </div>
+          <!-- API 字段 -->
+          <div id="grp-api" style="margin-top:12px;display:none">
+            <div class="filters">
+              <div class="fld"><label>接口基地址</label><input class="inp" style="min-width:260px" placeholder="https://erp.example.com/api"/></div>
+              <div class="fld"><label>鉴权方式</label><select class="inp"><option>Bearer Token</option><option>OAuth2</option><option>AppKey/Secret</option></select></div>
+              <div class="fld"><label>密钥 / Token</label><input class="inp" type="password" placeholder="••••••••"/></div>
+              <div class="fld"><label>销售明细端点</label><input class="inp" style="min-width:220px" placeholder="/v1/sales/details"/></div>
+            </div>
+          </div>
+          <div class="filters" style="margin-top:12px">
+            <div class="fld"><label>同步方式</label><select class="inp"><option>每日增量（推荐）</option><option>每日全量</option><option>实时/准实时(CDC)</option></select></div>
+            <div class="fld"><label>调度时间</label><input class="inp" value="每日 02:00" style="min-width:120px"/></div>
+          </div>
+          <div class="cfg-actions" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+            <span id="test-tip" style="font-size:12.5px;color:var(--muted)"></span>
+            <div style="margin-left:auto;display:flex;gap:10px">
+              <button class="btn ghost" id="btn-test">测试连接</button>
+              <button class="btn ghost" id="btn-cancel">取消</button>
+              <button class="btn primary" id="btn-save">保存并同步</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 字段映射 -->
+    <div class="tabpane" data-pane="map">
+      <div class="note" style="margin-bottom:14px"><span class="n-ic">🔗</span><div>不同 ERP 字段命名不同，通过<b>字段映射</b>将各源字段统一映射到系统<b>标准字段</b>（36 项），落成统一指标宽表，屏蔽底层差异。支持默认模板 + 手动微调。</div></div>
+      <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+        <table class="tbl">
+          <thead><tr><th>系统标准字段</th><th>SQL Server 源（华东）</th><th>MySQL 源（华北）</th><th>API 源（财务中台）</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td><b>销售日期</b></td><td class="mono-cell">order_date</td><td class="mono-cell">sale_dt</td><td class="mono-cell">data.date</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>客户</b></td><td class="mono-cell">cust_name</td><td class="mono-cell">customer</td><td class="mono-cell">data.customerName</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>销售员</b></td><td class="mono-cell">sales_rep</td><td class="mono-cell">seller</td><td class="mono-cell">data.sales</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>品类/材质</b></td><td class="mono-cell">product_cat</td><td class="mono-cell">goods_type</td><td class="mono-cell">data.category</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>重量(吨)</b></td><td class="mono-cell">weight</td><td class="mono-cell">qty_ton</td><td class="mono-cell">data.weight</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>金额</b></td><td class="mono-cell">amount</td><td class="mono-cell">total_amt</td><td class="mono-cell">data.amount</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>成本价</b></td><td class="mono-cell">cost_price</td><td class="mono-cell">cost</td><td class="mono-cell">data.cost</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>业务净利</b></td><td class="mono-cell">net_profit</td><td class="mono-cell">biz_profit</td><td class="mono-cell">data.netProfit</td><td><span class="pill green">已映射</span></td></tr>
+            <tr><td><b>账期</b></td><td class="mono-cell">credit_days</td><td class="mono-cell">acct_period</td><td class="mono-cell">—</td><td><span class="pill orange">待补充</span></td></tr>
+            <tr><td><b>结算到期日</b></td><td class="mono-cell">due_date</td><td class="mono-cell">pay_deadline</td><td class="mono-cell">data.dueDate</td><td><span class="pill green">已映射</span></td></tr>
+          </tbody>
+        </table>
+      </div></div>
+    </div>
+
+    <!-- 平台接入 -->
+    <div class="tabpane" data-pane="platform">
+      <div class="section-title" style="margin-top:4px"><span class="n">🧩</span><h2>平台接入架构</h2><span class="sub">本系统作为平台的业务模块挂载</span><span class="line"></span></div>
+      <div class="card" style="margin-bottom:16px"><div class="c-body"><div class="mermaid">
+flowchart TB
+  subgraph PLAT["公司统一平台"]
+    SSO["统一登录/鉴权 SSO"]
+    TEN["租户管理"]
+    ORG["组织架构/角色"]
+    GW["API 网关"]
+  end
+  subgraph MOD["本模块 · 经营分析与诊断"]
+    UI["前端(微前端/菜单挂载)"]
+    SVC["分析服务(指标/规则/AI)"]
+    DL["数据接入层"]
+  end
+  subgraph SRC["多 ERP 数据源"]
+    DB1["SQL Server"]
+    DB2["MySQL"]
+    API1["API 接口"]
+  end
+  SSO --> UI
+  TEN --> SVC
+  ORG --> SVC
+  UI --> GW --> SVC
+  DB1 --> DL
+  DB2 --> DL
+  API1 --> DL
+  DL --> SVC
+    </div></div></div>
+
+      <div class="section-title"><span class="n">🔑</span><h2>统一鉴权 SSO 时序</h2><span class="line"></span></div>
+      <div class="card" style="margin-bottom:16px"><div class="c-body"><div class="mermaid">
+sequenceDiagram
+  participant U as 用户
+  participant P as 平台(SSO/租户)
+  participant M as 本模块前端
+  participant S as 本模块服务
+  U->>P: 平台统一登录
+  P-->>U: 签发 Token + 租户上下文
+  U->>M: 打开经营分析模块(携带Token)
+  M->>P: 校验Token/获取用户·租户·组织角色
+  P-->>M: 用户身份 + 租户ID + 角色/组织树
+  M->>S: 业务请求(带租户ID+角色)
+  S-->>M: 按租户隔离+角色数据域返回
+    </div></div></div>
+
+      <div class="grid g3">
+        <div class="opt-card"><div class="o-ic bg-blue">🔑</div><h3>统一鉴权(SSO)</h3><p>复用平台统一登录与 Token 校验，模块免独立登录；调用平台基础接口获取用户身份与角色。</p></div>
+        <div class="opt-card"><div class="o-ic bg-purple">🏢</div><h3>租户管理</h3><p>平台下发租户上下文，模块按租户隔离数据源、指标、配置与权限；一租户可绑定多 ERP 数据源。</p></div>
+        <div class="opt-card"><div class="o-ic bg-green">🧩</div><h3>模块化接入</h3><p>以微前端/菜单挂载方式嵌入平台；组织架构与角色从平台同步，直接驱动本系统数据域权限。</p></div>
+      </div>
+      <div class="note" style="margin-top:16px"><span class="n-ic">🔐</span><div>数据隔离：每租户数据源独立配置、数据物理/逻辑隔离；跨租户不可见。鉴权与组织由平台统一维护，本模块只消费不重复建设，与「角色与权限设计」中的数据域/角色矩阵无缝对接。</div></div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  function toast(msg){const t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0d1b33;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,.28)";document.body.appendChild(t);setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";},1500);setTimeout(()=>t.remove(),2000);}
+
+  const list=[
+    {name:"华东钢贸ERP主库",type:"SQL Server",tc:"blue",tenant:"租户A · 华东总部",st:"已连接",stc:"green",sync:"每日增量",last:"今日 02:00"},
+    {name:"华北分公司ERP",type:"MySQL",tc:"green",tenant:"租户B · 华北分公司",st:"已连接",stc:"green",sync:"每日增量",last:"今日 02:05"},
+    {name:"集团财务中台",type:"API(REST)",tc:"purple",tenant:"租户A · 华东总部",st:"已连接",stc:"green",sync:"每日全量",last:"今日 02:10"},
+    {name:"西南代理商系统",type:"MySQL",tc:"green",tenant:"租户C · 西南代理",st:"同步异常",stc:"red",sync:"每日增量",last:"昨日 02:00"},
+    {name:"云仓库存API",type:"API(OAuth2)",tc:"purple",tenant:"租户A · 华东总部",st:"待配置",stc:"orange",sync:"—",last:"—"},
+  ];
+  document.querySelector("#ds-table tbody").innerHTML=list.map((d,i)=>`<tr>
+    <td><b>${d.name}</b></td>
+    <td><span class="pill ${d.tc}">${d.type}</span></td>
+    <td>${d.tenant}</td>
+    <td><span class="pill ${d.stc}">${d.st}</span></td>
+    <td>${d.sync}</td><td>${d.last}</td>
+    <td style="white-space:nowrap">
+      <button class="rowbtn" data-act="test" data-i="${i}">测试</button>
+      <button class="rowbtn" data-act="sync" data-i="${i}">同步</button>
+      <button class="rowbtn" data-act="edit" data-i="${i}">配置</button>
+    </td>
+  </tr>`).join("");
+  document.querySelectorAll("#ds-table [data-act]").forEach(b=>b.addEventListener("click",()=>{
+    const d=list[b.dataset.i], act=b.dataset.act;
+    if(act==="edit"){showForm(d);return;}
+    if(act==="test"){toast(`正在测试「${d.name}」连接… ${d.st==="已连接"?"连接正常 ✓":"连接失败，请检查配置"}`);return;}
+    if(act==="sync"){toast(`已触发「${d.name}」手动同步，后台执行中…`);return;}
+  }));
+
+  const form=document.getElementById("ds-form");
+  function toggleType(){
+    const t=document.getElementById("d-type").value;
+    document.getElementById("grp-db").style.display=(t==="api")?"none":"block";
+    document.getElementById("grp-api").style.display=(t==="api")?"block":"none";
+    document.getElementById("d-port").value=t==="mysql"?"3306":t==="sqlserver"?"1433":"";
+    document.getElementById("form-sub").textContent=t==="api"?"填写 API 接口与鉴权信息":"填写数据库连接信息";
+  }
+  function showForm(d){form.style.display="block";document.getElementById("d-name").value=d?d.name:"";toggleType();if(form.scrollIntoView)form.scrollIntoView({behavior:"smooth",block:"center"});}
+  document.getElementById("btn-add").addEventListener("click",()=>showForm(null));
+  document.getElementById("d-type").addEventListener("change",toggleType);
+  document.getElementById("btn-cancel").addEventListener("click",()=>{form.style.display="none";});
+  document.getElementById("btn-test").addEventListener("click",()=>{document.getElementById("test-tip").innerHTML='<span style="color:var(--green)">✓ 连接测试成功，读取到销售明细样例 20 条</span>';});
+  document.getElementById("btn-save").addEventListener("click",()=>{toast("数据源已保存，已加入每日同步调度");form.style.display="none";});
+  toggleType();
+
+  if(window.mermaid){
+    try{mermaid.initialize({startOnLoad:false,theme:"base",securityLevel:"loose",
+      themeVariables:{primaryColor:"#e6efff",primaryBorderColor:"#2563eb",primaryTextColor:"#16233d",lineColor:"#8592ac",fontFamily:"inherit",fontSize:"13px"},flowchart:{curve:"basis",useMaxWidth:true}});
+      mermaid.run({querySelector:".content .mermaid"});
+    }catch(e){console.warn(e);}
+  }
+}
+Layout.render("datasource",{title:"数据源 & 平台接入",crumb:"数据源 & 平台接入"});
+</script>
+</body>
+</html>

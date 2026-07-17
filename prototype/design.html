@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>系统设计方案 · 钢智经营分析与诊断</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>钢贸企业三大维度数字化分析体系 · 系统设计方案</h1>
+    <p>面向营销总裁的市场 / 客户 / 员工三层分析与诊断系统，作为独立模块嵌入现有 ERP。整套模型 100% 复用现有销售明细 20+ 字段自动取数，无需新增业务单据，落地成本极低。</p>
+  </div>
+
+  <!-- 目标与价值 -->
+  <div class="grid g4" style="margin-bottom:8px">
+    <div class="kpi"><div class="k-top"><span class="k-label">复用现有字段</span><span class="k-ic bg-blue">🗂️</span></div><div class="k-val">36<small>项</small></div><div class="k-foot">零新增业务单据</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">分析维度</span><span class="k-ic bg-green">📊</span></div><div class="k-val">3<small>维</small></div><div class="k-foot">市场 · 客户 · 员工</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">可视化图表</span><span class="k-ic bg-purple">📈</span></div><div class="k-val">30<small>+</small></div><div class="k-foot">总裁看板直读结论</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">诊断分层</span><span class="k-ic bg-orange">🤖</span></div><div class="k-val">规则+AI</div><div class="k-foot">报表按字节计 + AI大模型Token</div></div>
+  </div>
+
+  <div class="doc">
+    <!-- 三大模块 -->
+    <div class="section-title"><span class="n">1</span><h2>三大分析模块</h2><span class="line"></span></div>
+    <div class="grid g3">
+      <div class="mod-card">
+        <div class="m-ic bg-blue">🗺️</div>
+        <h3>市场潜力挖掘 & 趋势分析</h3>
+        <p>区域 / 品类 / 下游行业三层市场分层，识别蓝海机会与衰退风险。</p>
+        <div class="feat">区域四象限分级：明星 / 蓝海 / 存量 / 衰退</div>
+        <div class="feat">品类单品盈利排名、产地对标、计价方式差异</div>
+        <div class="feat">下游行业潜力赛道挖掘与季节性趋势</div>
+        <div class="feat">价格联动 / 结算结构 / 机会与衰退预警</div>
+      </div>
+      <div class="mod-card">
+        <div class="m-ic bg-green">👥</div>
+        <h3>客户潜力 · 频率 · 分配</h3>
+        <p>客户价值四维分级 + 走量/盈利双维矩阵 + 购货频率 + 销售跟进分配。</p>
+        <div class="feat">四维打分 A/B/C/D（盈利·规模·复购·资金）</div>
+        <div class="feat">走量/盈利四象限：量利双优 / 高盈利 / 高走量 / 双弱</div>
+        <div class="feat">购货频率分层 + 采购趋势 + 流失预警</div>
+        <div class="feat">按分级与能力自动分配销售跟进任务</div>
+      </div>
+      <div class="mod-card">
+        <div class="m-ic bg-purple">🧑‍💼</div>
+        <h3>员工潜力 · 能力画像 · 资源</h3>
+        <p>员工能力四象限 + 客户资源健康度 + 资源公平度诊断。</p>
+        <div class="feat">四象限：标杆 / 守成 / 攻坚 / 低效</div>
+        <div class="feat">客户资源结构、集中度风险、盘活能力对比</div>
+        <div class="feat">六维能力雷达：业绩·盈利·盘活·拓新·风控·跟进</div>
+        <div class="feat">差异化管理：激励 / 考核 / 培训 / 资源回收</div>
+      </div>
+    </div>
+
+    <!-- 四层技术架构 -->
+    <div class="section-title"><span class="n">2</span><h2>ERP 内嵌四层技术架构</h2><span class="sub">数据层 → 指标引擎 → 规则判别 → 大模型推理 → 诊断输出</span><span class="line"></span></div>
+    <div class="arch-layer" style="border-left-color:#0d9488">
+      <h4><span class="lv">层1</span>数据接入层</h4>
+      <p>自动拉取 ERP 原生业务表，无需额外对接。数据清洗（剔除作废/退货冲红/脏数据）、周期切片（近3/6/12月+同期）、维度聚合。</p>
+      <div class="chips"><b>销售明细表</b><b>客户档案表</b><b>销售员档案</b><b>结算应收表</b><b>库存表</b><b>→ 预制指标宽表</b></div>
+    </div>
+    <div class="arch-layer" style="border-left-color:#2563eb">
+      <h4><span class="lv">层2</span>规则引擎层 · 报表按字节计 Token（低）</h4>
+      <p>SQL 存储过程 + ERP 内置表达式引擎，本地化计算。先靠固定业务规则标记机会点/风险点，过滤正常数据，减少大模型调用。</p>
+      <div class="chips"><b>客户诊断规则库</b><b>市场诊断规则库</b><b>员工诊断规则库</b><b>输出：对象ID+风险标签+机会标签+类型</b></div>
+    </div>
+    <div class="arch-layer" style="border-left-color:#7c3aed">
+      <h4><span class="lv">层3</span>大模型推理层 · 消耗 Token</h4>
+      <p>仅对带风险/机会标签的对象调用大模型；结构化 JSON 指标 + 系统标签 + 钢贸专属 Prompt。支持实时单次调用与凌晨定时批量。三段式输出：数据解读 → 深层归因 → 落地动作。</p>
+      <div class="chips"><b>高盈利客户 → 扩品类</b><b>高走量客户 → 缩账期</b><b>区域 → 人力/库存调配</b><b>员工 → 资源/考核/培训</b></div>
+    </div>
+    <div class="arch-layer" style="border-left-color:#f97316">
+      <h4><span class="lv">层4</span>诊断输出与落地层</h4>
+      <p>双层展示：常规报表预警区（规则拼接，按输入/输出字节计 Token）+ AI 智能诊断区（大模型 token 计费，未开通则隐藏）。诊断结果缓存 7 天，重复查看不重复扣 Token。</p>
+      <div class="chips"><b>单对象详情弹窗</b><b>月度自动PDF报告</b><b>总裁问答窗口</b><b>企微/钉钉预警推送</b></div>
+    </div>
+
+    <div class="split" style="margin-top:16px">
+      <!-- 数据流闭环 -->
+      <div class="card">
+        <div class="c-head"><h3>月度经营闭环流程</h3></div>
+        <div class="c-body">
+          <div class="flow">
+            <div class="step"><span class="s-n">月初</span><b>定策略</b><p>输出市场潜力报告，定重点区域/品类；按员工能力分配潜力客户，下达跟进频次。</p></div>
+            <div class="step"><span class="s-n">月中</span><b>盯执行</b><p>监控购货频率变化与流失预警，跟进员工客户维护动作。</p></div>
+            <div class="step"><span class="s-n">月末</span><b>复盘</b><p>三维复盘：市场达成、客户复购、员工业绩与资源产出。</p></div>
+            <div class="step"><span class="s-n">次月</span><b>再优化</b><p>调整分级规则、客户分配、员工考核、资源倾斜策略。</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- 计费 -->
+      <div class="card">
+        <div class="c-head"><h3>统一 Token 计费与节流设计</h3><span class="pill purple">全量报表+AI 均计 Token</span></div>
+        <div class="c-body">
+          <table class="tbl">
+            <thead><tr><th>计费对象</th><th>计费方式</th><th class="num">输入(元/百万T)</th><th class="num">输出(元/百万T)</th></tr></thead>
+            <tbody>
+              <tr><td>常规报表/看板/清单</td><td>输入+输出<b>字节</b>折Token</td><td class="num">0.2</td><td class="num">0.4</td></tr>
+              <tr><td>AI 深诊·预存套餐</td><td>大模型 token</td><td class="num">0.5</td><td class="num">4.0</td></tr>
+              <tr><td>AI 深诊·按量散客</td><td>大模型 token</td><td class="num">0.6</td><td class="num">4.8</td></tr>
+              <tr><td>包月不限量</td><td colspan="3" style="text-align:center">关闭扣费，仅记录调用日志</td></tr>
+            </tbody>
+          </table>
+          <div class="note" style="margin-top:12px"><span class="n-ic">💡</span><div>全量 Token 计费：报表按字节折算（约 1.5 字节≈1 Token，单价低），AI 按大模型 token（单价高）。节流：① 预计算宽表+分页降低取数字节；② 仅高风险触发 AI 深诊；③ 结果缓存 7 天。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据模型 -->
+    <div class="section-title"><span class="n">3</span><h2>数据模型 · 6 张核心表</h2><span class="sub">全部通过 Power Query / 存储过程自动取数</span><span class="line"></span></div>
+    <div class="card">
+      <div class="c-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>表</th><th>名称</th><th>作用</th><th>关键产出</th></tr></thead>
+          <tbody>
+            <tr><td><b>表1</b></td><td>原始销售明细</td><td>数据源，业务系统每日刷新</td><td>36 项原始字段，无计算列</td></tr>
+            <tr><td><b>表2</b></td><td>市场综合指标汇总</td><td>区域+品类+下游行业分析</td><td>规模/盈利/风险/趋势指标 + 四象限标签</td></tr>
+            <tr><td><b>表3</b></td><td>客户价值分层汇总</td><td>核心：区分走量/盈利客户</td><td>购货间隔、类型标签、潜力打分、跟进优先级</td></tr>
+            <tr><td><b>表4</b></td><td>客户四象限统计看板</td><td>图表专用聚合</td><td>四类客户数量/吨数/净利/间隔</td></tr>
+            <tr><td><b>表5</b></td><td>销售员工能力资源分析</td><td>员工业绩+客户资源结构</td><td>资源集中度、盘活能力、四象限标签、雷达评分</td></tr>
+            <tr><td><b>表6</b></td><td>经营诊断 AI 输出落地</td><td>AI 读取前 5 表自动生成</td><td>诊断对象、异常数据、深度归因、执行动作、优先级</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 核心计算模型 -->
+    <div class="section-title"><span class="n">4</span><h2>核心计算模型（Excel/SQL 通用口径）</h2><span class="line"></span></div>
+    <div class="grid g2">
+      <div class="card"><div class="c-head"><h3>通用基础口径</h3></div><div class="c-body doc">
+        <ul>
+          <li>单笔毛利 = 金额 − 成本价</li>
+          <li>单笔业务净利 = 单笔毛利 + 其他收入 − 其他支出</li>
+          <li>单吨业务净利 = 单笔业务净利 ÷ 重量（重量≠0）</li>
+          <li>现款判定：结算方式 = 现款现结；赊销：账期 &gt; 0</li>
+          <li>逾期判定：结算到期日 &lt; 当前日期 且 未结清</li>
+          <li>全局阈值 X0=客户总重量中位数、Y0=单吨净利中位数（每日自动重算）</li>
+        </ul>
+      </div></div>
+      <div class="card"><div class="c-head"><h3>客户类型判定模型（走量/盈利）</h3></div><div class="c-body">
+        <div class="mono"><span class="c">// X=总采购吨  Y=单吨净利  X0/Y0=全局中位数</span>
+=IF(AND(<span class="k">X&gt;=X0</span>,<span class="k">Y&gt;=Y0</span>),<span class="s">"①量利双优"</span>,
+ IF(AND(X&lt;X0,Y&gt;=Y0),<span class="s">"②高盈利获利型"</span>,
+ IF(AND(X&gt;=X0,Y&lt;Y0),<span class="s">"③高走量流水型"</span>,
+   <span class="s">"④量利双弱低效"</span>)))</div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:10px">潜力打分权重：总净利 40% · 采购吨数 25% · 复购频次 20% · 资金安全 15%</p>
+      </div></div>
+    </div>
+
+    <!-- 落地路径 -->
+    <div class="section-title"><span class="n">5</span><h2>落地实施路径</h2><span class="line"></span></div>
+    <div class="grid g2">
+      <div class="card"><div class="c-head"><h3>短期 · 零开发快速落地</h3><span class="pill green">Excel + BI</span></div>
+        <div class="c-body doc"><ul>
+          <li>销售明细导入 Power BI / Excel PowerBI，一键生成全套图表</li>
+          <li>Power Query 每日自动刷新，公式化取数无需人工录入</li>
+          <li>本地 AI 插件读取图表数据生成诊断文字，粘贴至看板</li>
+        </ul></div>
+      </div>
+      <div class="card"><div class="c-head"><h3>中长期 · 企业级正式落地</h3><span class="pill blue">ERP 内嵌</span></div>
+        <div class="c-body doc"><ul>
+          <li>业务数据库自动同步销售明细至 BI，指标预计算存库</li>
+          <li>AI 与 BI 打通，实时取数、自动计算、图表实时刷新</li>
+          <li>系统自动推送每日/每周 AI 诊断报告至企微/钉钉</li>
+          <li>私有化 / 云 SaaS 双兼容，计费体系自动适配</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:18px"><span class="n-ic">🧭</span><div><b>本原型说明：</b>左侧导航可进入总裁驾驶舱及市场 / 客户 / 员工三维看板与 AI 诊断、流失预警模块，均为高保真交互原型（图表基于模拟数据）。可直接作为产品 UED 评审与研发对齐依据。</div></div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+Layout.render("design",{title:"系统设计方案",crumb:"系统设计方案"});
+</script>
+</body>
+</html>
