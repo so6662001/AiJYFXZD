@@ -51,14 +51,14 @@
       <div class="archrow"><div class="rlabel" style="background:#2563eb">三维分析层</div>
         <div class="rboxes" style="grid-template-columns:repeat(3,1fr)">
           <div class="pbox"><b>🗺️ 市场潜力分析</b><span>区域/品类/行业四象限 · 趋势 · 机会/衰退预警</span></div>
-          <div class="pbox"><b>👥 客户价值分层</b><span>四维分级 · 走量/盈利矩阵 · 购货频率 · 采购趋势</span></div>
+          <div class="pbox"><b>👥 客户价值分层</b><span>四维分级 · 走量/盈利矩阵 · 购货频率 · 采购趋势 · 复购预测</span></div>
           <div class="pbox"><b>🧑‍💼 员工能力画像</b><span>潜力四象限 · 六维雷达 · 客户资源健康度</span></div>
         </div></div>
       <div class="arch-flowdown">▼</div>
       <div class="archrow"><div class="rlabel" style="background:#16a34a">落地执行层</div>
         <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
           <div class="pbox"><b>🔎 客户查询工作台</b><span>数千客户多维查询/分群/批量运营</span></div>
-          <div class="pbox"><b>📌 跟进分配·我的客户</b><span>智能分配 + 任务派发</span></div>
+          <div class="pbox"><b>📌 跟进分配·我的客户</b><span>智能分配 + 任务派发 + 到期复购催单</span></div>
           <div class="pbox"><b>📦 市场资源倾斜方案</b><span>库存/人力/政策决策输出</span></div>
           <div class="pbox"><b>⚠ 购货频率·流失预警</b><span>评分表 + 销售分发</span></div>
         </div></div>
@@ -245,6 +245,20 @@ flowchart LR
     </div></div></div>
   </div>
 
+  <div class="card" style="margin-top:16px"><div class="c-head"><h3>到期复购预测与催单闭环</h3><span class="pill green">复购转化</span></div><div class="c-body"><div class="mermaid">
+flowchart LR
+  A[购货频率分析: 平均采购间隔AvgT] --> B[复购预测: 上次下单+AvgT]
+  B --> C{复购信号}
+  C -->|即将采购/已到期| D[到期复购催单队列]
+  C -->|临近采购| E[复购预热]
+  D --> F[一键生成催单任务]
+  E --> F
+  F --> G[派发销售 我的客户]
+  G --> H[执行: 催单/推新/锁量报价]
+  H --> I[成交回流: 更新采购间隔与复购概率]
+  I --> B
+    </div></div></div>
+
   <!-- 接口交互图 -->
   <div class="section-title"><span class="n">7</span><h2>接口交互图（时序图）</h2><span class="sub">数据同步与 AI 诊断 / 智能分配与任务派发</span><span class="line"></span></div>
   <div class="grid g2">
@@ -342,7 +356,7 @@ sequenceDiagram
         <tr><td rowspan="2"><span class="pill orange">诊断</span></td><td>常规报表(字节计Token) + AI 深诊(大模型Token)</td><td>统一 Token 计费 + 缓存节流</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td>流失评分模型 + 总裁问答</td><td>四因子加权 + 交互问答</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td><span class="pill gray">配置</span></td><td>阈值/权重/规则可视化配置</td><td>流失模型、回收规则、全局阈值</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
-        <tr><td><span class="pill gray">智能</span></td><td>复购预测（即将采购识别）</td><td>到期复购预测 + 复购概率 + 工作台查询</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓ 规则版</span></td></tr>
+        <tr><td><span class="pill gray">智能</span></td><td>复购预测 + 到期催单闭环</td><td>复购预测(上次下单+平均间隔) + 复购概率 + 工作台查询 + 催单队列一键生成任务派发销售</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓ 规则版</span></td></tr>
         <tr><td><span class="pill gray">智能</span></td><td>ML 预测式挖掘</td><td>流失/复购/增购机器学习预测</td><td><span class="pill gray">P2</span></td><td><span class="pill yellow">规划</span></td></tr>
       </tbody>
     </table>
