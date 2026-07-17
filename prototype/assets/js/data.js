@@ -98,4 +98,72 @@ window.DATA = {
     "二级贸易": [8, 3, 7, 3, 4],
   },
   months: ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
+
+  // 销售员 & 城市 & 行业（供大数据量生成使用）
+  salesList: ["张三","赵敏","王五","李四","陈刚","周琳","孙浩","吴迪","郑楠","冯磊"],
+  cityList: ["无锡","上海","宁波","苏州","杭州","合肥","济南","佛山","武汉","成都","南京","天津","廊坊","常州","徐州","青岛","郑州","西安","重庆","长沙"],
+  industryList: ["制造终端","基建工程","二级钢贸","零售加工"],
+
+  // 生成 n 个客户（确定性，用于查询工作台演示海量数据）
+  generateCustomers(n) {
+    let s = 987654321;
+    const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    const words = ["精机","重工","轨道","建工","金属","五金","特钢","新材","装备","钢联","建材","机械","物资","工贸","实业","锻造","模具","桥梁","电气","汽配"];
+    const sufs = ["有限公司","集团","科技","制造","贸易","加工厂","工程公司","商贸","实业"];
+    const cats = this.industryList, sales = this.salesList, cities = this.cityList;
+    const raw = [];
+    for (let i = 0; i < n; i++) {
+      const ton = Math.round(20 + Math.pow(rnd(), 2) * 3800);
+      const perTon = Math.round(-20 + rnd() * 185);
+      raw.push({ ton, perTon });
+    }
+    const sortedTon = raw.map(r => r.ton).sort((a, b) => a - b);
+    const sortedPT = raw.map(r => r.perTon).sort((a, b) => a - b);
+    const X0 = sortedTon[Math.floor(n / 2)], Y0 = sortedPT[Math.floor(n / 2)];
+    const trends = ["up", "flat", "down"];
+    const arr = [];
+    for (let i = 0; i < n; i++) {
+      const { ton, perTon } = raw[i];
+      const net = +(ton * perTon / 10000).toFixed(1);
+      const interval = Math.round(8 + Math.pow(rnd(), 1.5) * 210);
+      const freq = interval <= 30 ? "高频" : interval <= 90 ? "中频" : interval <= 180 ? "低频" : "沉睡";
+      const account = [0, 0, 15, 30, 30, 45, 60, 75, 90][Math.floor(rnd() * 9)];
+      const overdue = rnd() < 0.16 ? 1 + Math.floor(rnd() * 4) : 0;
+      const lastDays = Math.round(Math.pow(rnd(), 1.6) * 300);
+      const type = (ton >= X0 && perTon >= Y0) ? "①量利双优"
+        : (ton < X0 && perTon >= Y0) ? "②高盈利获利"
+        : (ton >= X0 && perTon < Y0) ? "③高走量流水" : "④量利双弱";
+      // 潜力分 0-10（利润40% 规模25% 复购20% 资金15%）
+      const pScore = Math.min(10, Math.max(0,
+        (net > 0 ? Math.min(4, net / 12) : 0) +
+        Math.min(2.5, ton / 1200) +
+        (interval <= 30 ? 2 : interval <= 90 ? 1.2 : interval <= 180 ? 0.5 : 0) +
+        (account <= 30 && overdue === 0 ? 1.5 : account <= 60 ? 0.7 : 0)));
+      const score = +pScore.toFixed(1);
+      const grade = score >= 8 ? "A" : score >= 6 ? "B" : score >= 4 ? "C" : "D";
+      const priority = freq === "沉睡" ? "休眠"
+        : (type === "①量利双优" || type === "②高盈利获利") ? "一级"
+        : type === "③高走量流水" ? "二级" : "三级";
+      // 流失评分（与流失模块口径一致的简化版）
+      const s1 = lastDays <= 30 ? 0 : lastDays <= 90 ? 30 : lastDays <= 180 ? 70 : 100;
+      const dropRate = rnd(); // 0-1 下滑（演示）
+      const s2 = dropRate <= 0 ? 0 : dropRate <= 0.3 ? 40 : dropRate <= 0.6 ? 70 : 100;
+      const s3 = interval > 120 ? 60 : interval > 60 ? 30 : 0;
+      const s4 = (overdue > 0 || account >= 75) ? 100 : 0;
+      const churnScore = Math.round(s1 * 0.4 + s2 * 0.3 + s3 * 0.2 + s4 * 0.1);
+      const churnLevel = churnScore <= 25 ? "低" : churnScore <= 50 ? "潜在" : churnScore <= 75 ? "高" : "极高";
+      const trend = net < 0 ? "down" : trends[Math.floor(rnd() * 3)];
+      const city = cities[Math.floor(rnd() * cities.length)];
+      const cat = cats[Math.floor(rnd() * cats.length)];
+      const name = city + words[Math.floor(rnd() * words.length)] + sufs[Math.floor(rnd() * sufs.length)];
+      arr.push({
+        id: "KH" + String(100001 + i), name, cat, grade, type, region: city,
+        sale: sales[Math.floor(rnd() * sales.length)],
+        ton, net, perTon, interval, freq, account, overdue,
+        score, trend, lastDays, churnScore, churnLevel, priority,
+        assigned: rnd() > 0.12,
+      });
+    }
+    return arr;
+  },
 };

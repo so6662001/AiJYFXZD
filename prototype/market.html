@@ -113,7 +113,8 @@ function initCharts(){
         itemStyle:{borderRadius:4},label:{show:true,position:"right",formatter:"{c}万",color:C.axisText,fontSize:11}}]
     });
   }
-  fetch("https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json")
+  if(typeof fetch==="undefined"){fallbackHeat();}
+  else fetch("https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json")
     .then(r=>r.ok?r.json():Promise.reject()).then(geo=>{
       echarts.registerMap("china",geo);
       map.setOption({
