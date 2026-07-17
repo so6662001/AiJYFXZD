@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>产品需求文档 PRD · 钢智经营</title>
 <link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>.mermaid{display:flex;justify-content:center;overflow:auto;padding:8px 4px;font-family:inherit}.mermaid svg{max-width:100%;height:auto}</style>
 </head>
 <body>
 <div id="view" style="display:none">
@@ -83,10 +85,208 @@
     </div>
   </div></div>
 
+  <!-- 数据模型 & ER图 -->
+  <div class="section-title"><span class="n">4</span><h2>数据模型 & ER 图</h2><span class="sub">核心实体与关系（100% 复用销售明细，衍生指标宽表）</span><span class="line"></span></div>
+  <div class="card" style="margin-bottom:16px"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl">
+      <thead><tr><th>实体</th><th>说明</th><th>主键</th><th>关键字段</th></tr></thead>
+      <tbody>
+        <tr><td><b>销售明细 SALE_DETAIL</b></td><td>数据源，每日同步</td><td>单号</td><td>客户、销售员、日期、品类、重量、金额、成本、业务净利、账期、结算方式、到期日</td></tr>
+        <tr><td><b>客户 CUSTOMER</b></td><td>客户档案</td><td>客户编码</td><td>名称、分类、级别、区域(FK)、归属销售(FK)</td></tr>
+        <tr><td><b>销售员 SALES_REP</b></td><td>员工档案</td><td>工号</td><td>姓名、部门</td></tr>
+        <tr><td><b>区域 REGION / 品类 CATEGORY</b></td><td>维度表</td><td>编码</td><td>省/市/区县 ；品类/材质/产地/牌号</td></tr>
+        <tr><td><b>客户指标宽表 CUST_METRIC</b></td><td>预计算派生</td><td>客户编码</td><td>类型标签、潜力分、购货频率、流失分、跟进优先级</td></tr>
+        <tr><td><b>跟进任务 FOLLOW_TASK</b></td><td>任务派发</td><td>任务ID</td><td>客户(FK)、销售员(FK)、类型、频次、截止、状态</td></tr>
+        <tr><td><b>AI诊断 DIAGNOSIS</b></td><td>诊断结果缓存</td><td>诊断ID</td><td>对象类型/ID、深度归因、执行动作、优先级、缓存到期</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <div class="card"><div class="c-head"><h3>实体关系图（ER Diagram）</h3></div><div class="c-body">
+    <div class="mermaid">
+erDiagram
+  SALES_REP ||--o{ CUSTOMER : 负责
+  REGION ||--o{ CUSTOMER : 归属
+  CUSTOMER ||--o{ SALE_DETAIL : 产生
+  SALES_REP ||--o{ SALE_DETAIL : 开单
+  CATEGORY ||--o{ SALE_DETAIL : 涉及
+  CUSTOMER ||--|| CUST_METRIC : 汇总
+  CUSTOMER ||--o{ FOLLOW_TASK : 跟进
+  SALES_REP ||--o{ FOLLOW_TASK : 执行
+  CUSTOMER ||--o{ DIAGNOSIS : 诊断
+  CUSTOMER {
+    string 客户编码 PK
+    string 客户名称
+    string 客户分类
+    string 客户级别
+    string 所属区域 FK
+    string 归属销售 FK
+  }
+  SALE_DETAIL {
+    string 单号 PK
+    string 客户编码 FK
+    string 销售员 FK
+    date 销售日期
+    string 品类
+    float 重量
+    float 金额
+    float 成本价
+    float 业务净利
+    int 账期
+    string 结算方式
+  }
+  SALES_REP {
+    string 工号 PK
+    string 姓名
+    string 部门
+  }
+  CUST_METRIC {
+    string 客户编码 PK
+    string 类型标签
+    float 潜力分
+    string 购货频率
+    int 流失分
+    string 跟进优先级
+  }
+  FOLLOW_TASK {
+    string 任务ID PK
+    string 客户编码 FK
+    string 销售员 FK
+    string 任务类型
+    date 截止日期
+    string 状态
+  }
+  DIAGNOSIS {
+    string 诊断ID PK
+    string 对象类型
+    string 对象ID
+    string 深度归因
+    string 执行动作
+    date 缓存到期
+  }
+  REGION {
+    string 区域编码 PK
+    string 省
+    string 市
+  }
+  CATEGORY {
+    string 品类编码 PK
+    string 品类
+    string 材质
+    string 产地
+  }
+    </div>
+  </div></div>
+
+  <!-- 状态机 -->
+  <div class="section-title"><span class="n">5</span><h2>状态机（State Machine）</h2><span class="sub">客户生命周期 / 跟进任务 / 客户分级动态升降级</span><span class="line"></span></div>
+  <div class="grid g3">
+    <div class="card"><div class="c-head"><h3>客户生命周期</h3></div><div class="c-body"><div class="mermaid">
+stateDiagram-v2
+  [*] --> 新客
+  新客 --> 成长: 复购增长
+  成长 --> 成熟: 稳定高频
+  成熟 --> 衰退: 采购下滑
+  衰退 --> 成熟: 挽留成功
+  衰退 --> 流失: 断单超阈值
+  流失 --> 唤醒: 回访激活
+  唤醒 --> 成长: 恢复采购
+  流失 --> [*]: 清退
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>跟进任务状态</h3></div><div class="c-body"><div class="mermaid">
+stateDiagram-v2
+  [*] --> 待办
+  待办 --> 跟进中: 销售领取
+  跟进中 --> 已完成: 录入跟进记录
+  待办 --> 已逾期: 超截止
+  跟进中 --> 已逾期: 超截止
+  已逾期 --> 已完成: 补跟进
+  已完成 --> [*]
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>客户分级动态升降级</h3></div><div class="c-body"><div class="mermaid">
+stateDiagram-v2
+  direction LR
+  A级 --> B级: 月度降级
+  B级 --> A级: 月度升级
+  B级 --> C级: 降级
+  C级 --> B级: 升级
+  C级 --> D级: 降级
+  D级 --> C级: 升级
+    </div></div></div>
+  </div>
+
+  <!-- 流程图 -->
+  <div class="section-title"><span class="n">6</span><h2>流程图（Flowchart）</h2><span class="sub">AI 诊断调用与节流 / 客户分配到任务闭环</span><span class="line"></span></div>
+  <div class="grid g2">
+    <div class="card"><div class="c-head"><h3>AI 诊断调用与节流流程</h3></div><div class="c-body"><div class="mermaid">
+flowchart TD
+  A[每日同步销售明细] --> B[清洗/周期切片/维度聚合]
+  B --> C[指标预计算宽表]
+  C --> D[规则引擎打标签]
+  D --> E{有风险/机会标签?}
+  E -->|否| F[仅展示指标 · 免费]
+  E -->|是| G[展示规则预警 · 免费]
+  G --> H{开通AI且无缓存?}
+  H -->|否| I[使用缓存 · 不扣Token]
+  H -->|是| J[调用大模型 · 结构化Prompt]
+  J --> K[三段式深度诊断]
+  K --> L[写入缓存7天]
+  L --> M[前端展示 / 企微钉钉推送]
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>客户分配到任务闭环</h3></div><div class="c-body"><div class="mermaid">
+flowchart LR
+  A[客户分层/频率/流失] --> B[智能分配引擎]
+  B --> C[分配建议: 能力x负载x潜力]
+  C --> D[采纳 / 改派]
+  D --> E[生成跟进任务]
+  E --> F[派发到我的客户]
+  F --> G[销售执行 + 录入跟进]
+  G --> H[达标率/客户变化回流]
+  H --> A
+    </div></div></div>
+  </div>
+
+  <!-- 接口交互图 -->
+  <div class="section-title"><span class="n">7</span><h2>接口交互图（时序图）</h2><span class="sub">数据同步与 AI 诊断 / 智能分配与任务派发</span><span class="line"></span></div>
+  <div class="grid g2">
+    <div class="card"><div class="c-head"><h3>数据同步 & AI 诊断时序</h3></div><div class="c-body"><div class="mermaid">
+sequenceDiagram
+  participant ERP as ERP业务系统
+  participant DL as 数据层
+  participant RE as 规则引擎
+  participant AI as 大模型
+  participant FE as 前端/看板
+  ERP->>DL: 每日同步销售明细
+  DL->>DL: 清洗+预计算落宽表
+  FE->>RE: 请求对象诊断
+  RE->>DL: 读取指标宽表
+  RE-->>FE: 规则预警(免费·0Token)
+  RE->>AI: 高风险对象+结构化Prompt
+  AI-->>RE: 三段式诊断文本
+  RE->>DL: 写入诊断缓存(7天)
+  RE-->>FE: 返回AI诊断结果
+    </div></div></div>
+    <div class="card"><div class="c-head"><h3>智能分配 & 任务派发时序</h3></div><div class="c-body"><div class="mermaid">
+sequenceDiagram
+  participant M as 总裁/销管
+  participant AE as 分配引擎
+  participant DL as 数据层
+  participant TC as 任务中心
+  participant S as 销售端
+  M->>AE: 触发智能分配
+  AE->>DL: 读取客户潜力+销售负载
+  AE-->>M: 返回分配建议
+  M->>AE: 采纳/改派
+  AE->>TC: 生成跟进任务
+  TC->>S: 派发到我的客户
+  S->>TC: 录入跟进记录
+  TC->>DL: 回流达标率/客户变化
+    </div></div></div>
+  </div>
+
   <!-- 信息架构 + 流程 -->
   <div class="split">
     <div>
-      <div class="section-title"><span class="n">4</span><h2>信息架构（页面地图）</h2><span class="line"></span></div>
+      <div class="section-title"><span class="n">8</span><h2>信息架构（页面地图）</h2><span class="line"></span></div>
       <div class="card"><div class="c-body">
         <ul class="pmap">
           <li><span>经营总览</span><ul>
@@ -111,7 +311,7 @@
       </div></div>
     </div>
     <div>
-      <div class="section-title"><span class="n">5</span><h2>核心业务流程</h2><span class="sub">月度经营闭环</span><span class="line"></span></div>
+      <div class="section-title"><span class="n">9</span><h2>核心业务流程</h2><span class="sub">月度经营闭环</span><span class="line"></span></div>
       <div class="card"><div class="c-body">
         <div class="flow" style="flex-direction:column">
           <div class="step" style="margin-right:0"><span class="s-n">月初</span><b>市场找机会</b><p>输出区域/品类潜力，定重点开拓方向，产出资源倾斜方案</p></div>
@@ -125,7 +325,7 @@
   </div>
 
   <!-- 功能需求清单 -->
-  <div class="section-title"><span class="n">6</span><h2>功能需求清单</h2><span class="sub">P0 核心 · P1 重要 · P2 增值</span><span class="line"></span></div>
+  <div class="section-title"><span class="n">10</span><h2>功能需求清单</h2><span class="sub">P0 核心 · P1 重要 · P2 增值</span><span class="line"></span></div>
   <div class="card"><div class="c-body" style="padding:0;overflow:auto">
     <table class="tbl">
       <thead><tr><th>模块</th><th>功能点</th><th>说明</th><th>优先级</th><th>原型</th></tr></thead>
@@ -148,7 +348,7 @@
   </div></div>
 
   <!-- 非功能需求 -->
-  <div class="section-title"><span class="n">7</span><h2>非功能需求</h2><span class="line"></span></div>
+  <div class="section-title"><span class="n">11</span><h2>非功能需求</h2><span class="line"></span></div>
   <div class="grid g4">
     <div class="opt-card"><div class="o-ic bg-teal">⚡</div><h3>性能</h3><p>指标预计算落宽表建索引，凌晨跑批；分页/虚拟滚动，客户超5万自动分库分表，秒开。</p></div>
     <div class="opt-card"><div class="o-ic bg-blue">🔐</div><h3>权限与数据</h3><p>销售仅见自己客户；计算列锁定；诊断日志可审计，满足集团数据审计。</p></div>
@@ -157,7 +357,7 @@
   </div>
 
   <!-- 迭代规划 -->
-  <div class="section-title"><span class="n">8</span><h2>迭代规划</h2><span class="line"></span></div>
+  <div class="section-title"><span class="n">12</span><h2>迭代规划</h2><span class="line"></span></div>
   <div class="grid g3">
     <div class="opt-card"><div class="o-ic bg-green">①</div><h3>一期 · 快速见效（1-3周）</h3><p>BI + 规则引擎跑通分层/频率/流失，按销售分发。<a href="rollout.html" style="color:var(--primary)">详见落地方案 →</a></p></div>
     <div class="opt-card"><div class="o-ic bg-blue">②</div><h3>二期 · ERP 内嵌（4-10周）</h3><p>宽表预计算 + 工作台 + 智能分配 + 任务闭环 + 可视化配置。</p></div>
@@ -170,6 +370,17 @@
 <script src="assets/js/data.js"></script>
 <script src="assets/js/common.js"></script>
 <script>
+function initCharts(){
+  if(window.mermaid){
+    try{
+      mermaid.initialize({startOnLoad:false,theme:"base",securityLevel:"loose",
+        themeVariables:{primaryColor:"#e6efff",primaryBorderColor:"#2563eb",primaryTextColor:"#16233d",
+          lineColor:"#8592ac",secondaryColor:"#e7f6ec",tertiaryColor:"#fbf3d6",fontFamily:"inherit",fontSize:"13px"},
+        flowchart:{curve:"basis",useMaxWidth:true},sequence:{useMaxWidth:true}});
+      mermaid.run({querySelector:".content .mermaid"});
+    }catch(e){console.warn("mermaid render failed",e);}
+  }
+}
 Layout.render("prd",{title:"产品需求文档 PRD",crumb:"产品需求文档 PRD"});
 </script>
 </body>
