@@ -17,7 +17,7 @@
   <!-- 落地总原则 -->
   <div class="grid g4" style="margin-bottom:18px">
     <div class="opt-card"><div class="o-ic bg-blue">🗂️</div><h3>数据零改造</h3><p>100% 复用现有销售明细 36 项字段，凌晨跑批预计算落宽表，不动业务流程。</p></div>
-    <div class="opt-card"><div class="o-ic bg-green">⚙️</div><h3>规则先行</h3><p>分层/频率/流失/分配全部用 SQL+规则实现，零 Token、可批量；AI 只做增值。</p></div>
+    <div class="opt-card"><div class="o-ic bg-green">⚙️</div><h3>规则先行</h3><p>分层/频率/流失/分配用 SQL+规则实现，报表按字节计 Token（低消耗、可批量）；AI 按大模型 Token 做增值。</p></div>
     <div class="opt-card"><div class="o-ic bg-orange">🎯</div><h3>例外管理</h3><p>3000+ 客户压缩成几十条预警/机会待办，人只处理异常，其余自动化。</p></div>
     <div class="opt-card"><div class="o-ic bg-purple">🔁</div><h3>闭环到任务</h3><p>分析结论自动转成带频次/话术/期限的跟进任务，派发到销售"我的客户"。</p></div>
   </div>
@@ -168,7 +168,7 @@
     <div class="kpi"><div class="k-top"><span class="k-label">人均可维护客户</span><span class="k-ic bg-blue">👥</span></div><div class="k-val">×3<small>倍</small></div><div class="k-foot">自动化替代人工统计</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">流失发现时效</span><span class="k-ic bg-green">⏱</span></div><div class="k-val">T+1<small>天</small></div><div class="k-foot">由月度复盘→每日自动</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">跟进达标率</span><span class="k-ic bg-orange">✅</span></div><div class="k-val">↑ 40<small>%+</small></div><div class="k-foot">任务派发+达标监控</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">AI 算力成本</span><span class="k-ic bg-purple">💰</span></div><div class="k-val">可控</div><div class="k-foot">规则过滤+缓存节流</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">Token 成本</span><span class="k-ic bg-purple">💰</span></div><div class="k-val">可控</div><div class="k-foot">报表低单价 + AI缓存节流</div></div>
   </div>
 
   <div class="note" style="margin-top:18px"><span class="n-ic">🚀</span><div><b>最小可行落地（MVP）建议：</b>先做一期——用现有 BI 跑通"客户分层 + 流失预警 + 按销售分发"，2-3 周即可让销售用起来、验证价值；再逐步内嵌 ERP、接入 AI 与预测。避免一次性大而全，按期滚动交付。</div></div>

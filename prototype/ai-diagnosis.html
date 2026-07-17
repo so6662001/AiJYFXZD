@@ -11,14 +11,14 @@
 <div id="view" style="display:none">
   <div class="page-lead">
     <h1>AI 大模型经营诊断</h1>
-    <p>钢贸行业专属 Prompt + 分层客户逻辑，自动区分走量 / 盈利客户差异化分析。双层设计：规则引擎预警（免费、零 Token）+ 大模型深度归因（付费、可缓存节流）。</p>
+    <p>全产品统一 <b>TOKEN 计费</b>：常规报表按<b>输入 + 输出字节</b>折算 Token（单价低）、AI 大模型诊断按 <b>input / output token</b> 计费（单价高）。分层设计 + 缓存节流控制整体成本。</p>
   </div>
 
   <div class="grid g4" style="margin-bottom:18px">
-    <div class="kpi"><div class="k-top"><span class="k-label">规则预警（免费）</span><span class="k-ic bg-green">🆓</span></div><div class="k-val">128<small>条</small></div><div class="k-foot">SQL 引擎实时生成</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">AI 深度诊断</span><span class="k-ic bg-purple">🤖</span></div><div class="k-val">46<small>次</small></div><div class="k-foot">仅高风险/机会触发</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">常规报表调用（字节计费）</span><span class="k-ic bg-green">📊</span></div><div class="k-val">128<small>次</small></div><div class="k-foot">按输入/输出字节折算 Token</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">AI 深度诊断（大模型）</span><span class="k-ic bg-purple">🤖</span></div><div class="k-val">46<small>次</small></div><div class="k-foot">仅高风险/机会触发</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">缓存命中率</span><span class="k-ic bg-blue">⚡</span></div><div class="k-val">68<small>%</small></div><div class="k-foot">7 天内不重复扣费</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">本月算力消耗</span><span class="k-ic bg-orange">💰</span></div><div class="k-val">¥42<small>.6</small></div><div class="k-foot">预存套餐扣减</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">本月 Token 费用</span><span class="k-ic bg-orange">💰</span></div><div class="k-val">¥86<small>.3</small></div><div class="k-foot">报表 ¥43.7 + AI ¥42.6</div></div>
   </div>
 
   <!-- 三层诊断逻辑 -->
@@ -37,7 +37,7 @@
     <div class="tabs">
       <button class="on" data-tab="diag">智能诊断卡片</button>
       <button data-tab="ask">总裁交互问答</button>
-      <button data-tab="bill">算力账单 & Prompt</button>
+      <button data-tab="bill">Token 计费 & Prompt</button>
       <button data-tab="deliver">交付输出物</button>
     </div>
 
@@ -46,7 +46,7 @@
       <div class="split">
         <div>
           <div class="card" style="margin-bottom:16px">
-            <div class="c-head"><h3>免费规则预警区</h3><span class="pill green">零 Token · 全客户可见</span></div>
+            <div class="c-head"><h3>常规报表预警区</h3><span class="pill green">规则生成 · 按字节计 Token（低）</span></div>
             <div class="c-body ai-list">
               <div class="alert-item"><div class="a-ic bg-red">🔴</div><div class="a-b"><b>【风险】廊坊金属贸易</b><p>近3月采购下滑62%，账期72天，存在流失风险</p></div><span class="a-time">规则</span></div>
               <div class="alert-item"><div class="a-ic bg-blue">🔵</div><div class="a-b"><b>【机会】宁波特钢加工</b><p>高盈利客户，仅采购不锈钢板材，未采购高毛利合金型材</p></div><span class="a-time">规则</span></div>
@@ -96,8 +96,22 @@
 
     <!-- 账单 -->
     <div class="tabpane" data-pane="bill">
+      <div class="card" style="margin-bottom:16px">
+        <div class="c-head"><h3>统一 Token 计费模型</h3><span class="pill purple">全量报表 + AI 均按 Token 计费</span></div>
+        <div class="c-body" style="padding:0;overflow:auto">
+          <table class="tbl">
+            <thead><tr><th>计费对象</th><th>计费方式</th><th class="num">输入单价(元/百万Token)</th><th class="num">输出单价(元/百万Token)</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><b>常规报表 / 看板 / 清单</b></td><td>按<b>输入+输出字节</b>折算 Token</td><td class="num">0.2</td><td class="num">0.4</td><td>取数字节=输入，生成报表/导出字节=输出</td></tr>
+              <tr><td><b>AI 深度诊断 / 问答 / 报告</b></td><td>大模型 input/output token</td><td class="num">0.5</td><td class="num">4.0</td><td>预存套餐价，按量散客上浮 20%</td></tr>
+              <tr><td><b>包月不限量</b></td><td colspan="2" style="text-align:center">关闭扣费，仅记录调用日志</td><td class="num">—</td><td>适合高频使用客户</td></tr>
+            </tbody>
+          </table>
+          <div class="c-body"><div class="note"><span class="n-ic">💡</span><div>字节→Token 折算：约每 <b>1.5 字节 ≈ 1 Token</b>（中文场景）。报表消耗远低于 AI；预计算宽表 + 分页减少取数字节，缓存减少重复扣费。</div></div></div>
+        </div>
+      </div>
       <div class="grid g2">
-        <div class="card"><div class="c-head"><h3>Token 消耗趋势</h3><span class="sub">输入 / 输出</span></div><div class="c-body tight"><div id="ai-token" class="chart"></div></div></div>
+        <div class="card"><div class="c-head"><h3>Token 消耗趋势</h3><span class="sub">报表 vs AI</span></div><div class="c-body tight"><div id="ai-token" class="chart"></div></div></div>
         <div class="card">
           <div class="c-head"><h3>钢贸专属 Prompt 模板</h3><span class="pill purple">内置 ERP 代码</span></div>
           <div class="c-body">
@@ -114,15 +128,17 @@
         </div>
       </div>
       <div class="card" style="margin-top:16px">
-        <div class="c-head"><h3>Token 调用账单明细</h3></div>
+        <div class="c-head"><h3>Token 调用账单明细</h3><span class="sub">报表与 AI 统一计费</span></div>
         <div class="c-body" style="padding:0;overflow:auto">
           <table class="tbl">
-            <thead><tr><th>时间</th><th>分析对象</th><th>类型</th><th class="num">输入Token</th><th class="num">输出Token</th><th class="num">扣费</th><th>缓存</th></tr></thead>
+            <thead><tr><th>时间</th><th>对象</th><th>类型</th><th>计费方式</th><th class="num">输入Token</th><th class="num">输出Token</th><th class="num">扣费</th><th>缓存</th></tr></thead>
             <tbody>
-              <tr><td>08:02</td><td>廊坊金属贸易</td><td>客户深诊</td><td class="num">1,240</td><td class="num">386</td><td class="num">¥0.002</td><td><span class="pill gray">新调用</span></td></tr>
-              <tr><td>08:02</td><td>华北廊坊区域</td><td>市场深诊</td><td class="num">1,580</td><td class="num">412</td><td class="num">¥0.002</td><td><span class="pill gray">新调用</span></td></tr>
-              <tr><td>08:15</td><td>宁波特钢加工</td><td>客户深诊</td><td class="num">—</td><td class="num">—</td><td class="num">¥0.000</td><td><span class="pill green">命中缓存</span></td></tr>
-              <tr><td>02:00</td><td>月度批量报告</td><td>全量诊断</td><td class="num">86,400</td><td class="num">24,200</td><td class="num">¥0.14</td><td><span class="pill blue">定时批量</span></td></tr>
+              <tr><td>08:00</td><td>客户分层看板</td><td><span class="pill green">常规报表</span></td><td>字节折算</td><td class="num">4,200</td><td class="num">1,800</td><td class="num">¥0.0016</td><td><span class="pill gray">新生成</span></td></tr>
+              <tr><td>08:01</td><td>流失预警清单(导出)</td><td><span class="pill green">常规报表</span></td><td>字节折算</td><td class="num">6,500</td><td class="num">9,400</td><td class="num">¥0.0051</td><td><span class="pill gray">新生成</span></td></tr>
+              <tr><td>08:02</td><td>廊坊金属贸易</td><td><span class="pill purple">AI 客户深诊</span></td><td>大模型</td><td class="num">1,240</td><td class="num">386</td><td class="num">¥0.0021</td><td><span class="pill gray">新调用</span></td></tr>
+              <tr><td>08:02</td><td>华北廊坊区域</td><td><span class="pill purple">AI 市场深诊</span></td><td>大模型</td><td class="num">1,580</td><td class="num">412</td><td class="num">¥0.0024</td><td><span class="pill gray">新调用</span></td></tr>
+              <tr><td>08:15</td><td>宁波特钢加工</td><td><span class="pill purple">AI 客户深诊</span></td><td>大模型</td><td class="num">—</td><td class="num">—</td><td class="num">¥0.0000</td><td><span class="pill green">命中缓存</span></td></tr>
+              <tr><td>02:00</td><td>月度批量报告</td><td><span class="pill purple">AI 全量诊断</span></td><td>大模型</td><td class="num">86,400</td><td class="num">24,200</td><td class="num">¥0.14</td><td><span class="pill blue">定时批量</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -160,8 +176,9 @@ function initCharts(){
     grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
     xAxis:C.cat({data:M}),yAxis:C.val({name:"万 Token"}),
     series:[
-      {name:"输入Token",type:"bar",stack:"t",data:[6,7,5,8,9,7,10,8,9,11,10,9],itemStyle:{color:"#8fb6ff"}},
-      {name:"输出Token",type:"bar",stack:"t",data:[2,2,1.5,2.4,2.8,2,3,2.4,2.8,3.2,3,2.6],itemStyle:{color:"#7c3aed",borderRadius:[3,3,0,0]}}]
+      {name:"报表Token(字节)",type:"bar",stack:"t",data:[12,13,11,14,15,13,16,14,15,17,16,15],itemStyle:{color:"#16a34a"}},
+      {name:"AI输入Token",type:"bar",stack:"t",data:[6,7,5,8,9,7,10,8,9,11,10,9],itemStyle:{color:"#8fb6ff"}},
+      {name:"AI输出Token",type:"bar",stack:"t",data:[2,2,1.5,2.4,2.8,2,3,2.4,2.8,3.2,3,2.6],itemStyle:{color:"#7c3aed",borderRadius:[3,3,0,0]}}]
   });
   window.addEventListener("resize",()=>tk.resize());
 

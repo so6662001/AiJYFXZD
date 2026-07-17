@@ -26,7 +26,7 @@
     </div>
     <div style="margin-top:14px" class="doc">
       <p><b>产品定位：</b>100% 复用现有销售明细字段自动取数，无需新增业务单据；把"分析能力"转化为一线可执行的日常动作。</p>
-      <p><b>核心价值：</b>①零思考可视化——色块颜色自动区分机会与风险；②规则引擎免费预警 + AI 付费深度诊断，成本可控；③分析结论自动转任务派发，形成"分析→动作→复盘"闭环。</p>
+      <p><b>核心价值：</b>①零思考可视化——色块颜色自动区分机会与风险；②全量 <b>TOKEN 计费</b>：常规报表按输入/输出字节折算 Token（低单价）、AI 按大模型 token（高单价），缓存节流控成本；③分析结论自动转任务派发，形成"分析→动作→复盘"闭环。</p>
     </div>
   </div></div>
 
@@ -65,7 +65,7 @@
       <div class="arch-flowdown">▼</div>
       <div class="archrow"><div class="rlabel" style="background:#7c3aed">智能诊断层</div>
         <div class="rboxes" style="grid-template-columns:repeat(4,1fr)">
-          <div class="pbox"><b>⚙️ 规则引擎</b><span>免费预警 · 零 Token</span></div>
+          <div class="pbox"><b>⚙️ 规则引擎</b><span>报表按字节计 Token</span></div>
           <div class="pbox"><b>🤖 AI 深度诊断</b><span>三段式归因 · 缓存节流</span></div>
           <div class="pbox"><b>💬 交互问答</b><span>总裁自然语言查询</span></div>
           <div class="pbox"><b>🔮 预测挖掘</b><span>流失/复购/增购预测</span></div>
@@ -223,8 +223,8 @@ flowchart TD
   B --> C[指标预计算宽表]
   C --> D[规则引擎打标签]
   D --> E{有风险/机会标签?}
-  E -->|否| F[仅展示指标 · 免费]
-  E -->|是| G[展示规则预警 · 免费]
+  E -->|否| F[生成常规报表 · 按字节计Token]
+  E -->|是| G[规则预警报表 · 按字节计Token]
   G --> H{开通AI且无缓存?}
   H -->|否| I[使用缓存 · 不扣Token]
   H -->|是| J[调用大模型 · 结构化Prompt]
@@ -259,7 +259,7 @@ sequenceDiagram
   DL->>DL: 清洗+预计算落宽表
   FE->>RE: 请求对象诊断
   RE->>DL: 读取指标宽表
-  RE-->>FE: 规则预警(免费·0Token)
+  RE-->>FE: 常规报表/规则预警(按字节计Token)
   RE->>AI: 高风险对象+结构化Prompt
   AI-->>RE: 三段式诊断文本
   RE->>DL: 写入诊断缓存(7天)
@@ -339,7 +339,7 @@ sequenceDiagram
         <tr><td>智能分配 + 我的客户任务</td><td>分配建议 + 任务派发 + 达标率</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td rowspan="2"><span class="pill purple">员工</span></td><td>能力四象限 + 六维雷达画像</td><td>业绩/资源/拓新/风控评分</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td>差异化管理 + 资源回收再分配</td><td>激励/考核/培训 + 回收清单</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
-        <tr><td rowspan="2"><span class="pill orange">诊断</span></td><td>规则预警(免费) + AI 深诊(付费)</td><td>双层展示 + Token 计费/缓存</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
+        <tr><td rowspan="2"><span class="pill orange">诊断</span></td><td>常规报表(字节计Token) + AI 深诊(大模型Token)</td><td>统一 Token 计费 + 缓存节流</td><td><span class="pill red">P0</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td>流失评分模型 + 总裁问答</td><td>四因子加权 + 交互问答</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td><span class="pill gray">配置</span></td><td>阈值/权重/规则可视化配置</td><td>流失模型、回收规则、全局阈值</td><td><span class="pill orange">P1</span></td><td><span class="pill green">✓</span></td></tr>
         <tr><td><span class="pill gray">智能</span></td><td>预测式挖掘</td><td>流失/复购/增购预测推荐</td><td><span class="pill gray">P2</span></td><td><span class="pill yellow">规划</span></td></tr>
@@ -352,7 +352,7 @@ sequenceDiagram
   <div class="grid g4">
     <div class="opt-card"><div class="o-ic bg-teal">⚡</div><h3>性能</h3><p>指标预计算落宽表建索引，凌晨跑批；分页/虚拟滚动，客户超5万自动分库分表，秒开。</p></div>
     <div class="opt-card"><div class="o-ic bg-blue">🔐</div><h3>权限与数据</h3><p>销售仅见自己客户；计算列锁定；诊断日志可审计，满足集团数据审计。</p></div>
-    <div class="opt-card"><div class="o-ic bg-purple">💰</div><h3>算力计费</h3><p>规则预警零 Token；AI 按预存/包月计费，缓存7天节流；余额不足提醒。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">💰</div><h3>Token 计费</h3><p>全量按 Token 计费：报表按输入/输出字节折算(约1.5字节≈1Token)、AI 按大模型 token；预存/按量/包月三模式，缓存7天节流，余额不足提醒。</p></div>
     <div class="opt-card"><div class="o-ic bg-orange">🏢</div><h3>部署兼容</h3><p>私有化/云 SaaS 双兼容；一套诊断引擎，计费体系自动适配买断/订阅+Token。</p></div>
   </div>
 

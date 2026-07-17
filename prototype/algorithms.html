@@ -275,9 +275,9 @@ S4 资金恶化(10%) : 存在逾期 或 现款转赊销 或 账期拉长≥30天
     </table></div></div>
 
     <!-- 5 AI -->
-    <div class="section-title"><span class="n">5</span><h2>AI 触发与节流规则</h2><span class="line"></span></div>
+    <div class="section-title"><span class="n">5</span><h2>Token 计费与触发节流规则</h2><span class="sub">全量报表+AI 均按 Token 计费</span><span class="line"></span></div>
     <div class="grid g3">
-      <div class="opt-card"><div class="o-ic bg-green">🆓</div><h3>规则预警（零 Token）</h3><p>上述全部指标、分层、评分、预警标签由 SQL/规则引擎本地计算，不消耗 AI。</p></div>
+      <div class="opt-card"><div class="o-ic bg-green">📊</div><h3>常规报表（按字节计 Token）</h3><p>上述指标、分层、评分、预警由 SQL/规则引擎本地计算，按输入/输出字节折算 Token，单价低、不走大模型。</p></div>
       <div class="opt-card"><div class="o-ic bg-purple">🤖</div><h3>AI 触发条件</h3><p>仅带风险/机会标签（高/极高、蓝海/衰退、资源失衡）的对象触发大模型深度归因。</p></div>
       <div class="opt-card"><div class="o-ic bg-blue">⚡</div><h3>缓存节流</h3><p>单对象诊断缓存 7 天、月度报告缓存 30 天；新业务单据（大额订单/逾期）触发缓存失效重算。</p></div>
     </div>

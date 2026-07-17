@@ -18,7 +18,7 @@
     <div class="kpi"><div class="k-top"><span class="k-label">复用现有字段</span><span class="k-ic bg-blue">🗂️</span></div><div class="k-val">36<small>项</small></div><div class="k-foot">零新增业务单据</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">分析维度</span><span class="k-ic bg-green">📊</span></div><div class="k-val">3<small>维</small></div><div class="k-foot">市场 · 客户 · 员工</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">可视化图表</span><span class="k-ic bg-purple">📈</span></div><div class="k-val">30<small>+</small></div><div class="k-foot">总裁看板直读结论</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">诊断分层</span><span class="k-ic bg-orange">🤖</span></div><div class="k-val">规则+AI</div><div class="k-foot">免费预警 + 付费深诊</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">诊断分层</span><span class="k-ic bg-orange">🤖</span></div><div class="k-val">规则+AI</div><div class="k-foot">报表按字节计 + AI大模型Token</div></div>
   </div>
 
   <div class="doc">
@@ -62,7 +62,7 @@
       <div class="chips"><b>销售明细表</b><b>客户档案表</b><b>销售员档案</b><b>结算应收表</b><b>库存表</b><b>→ 预制指标宽表</b></div>
     </div>
     <div class="arch-layer" style="border-left-color:#2563eb">
-      <h4><span class="lv">层2</span>规则引擎层 · 零 Token 成本</h4>
+      <h4><span class="lv">层2</span>规则引擎层 · 报表按字节计 Token（低）</h4>
       <p>SQL 存储过程 + ERP 内置表达式引擎，本地化计算。先靠固定业务规则标记机会点/风险点，过滤正常数据，减少大模型调用。</p>
       <div class="chips"><b>客户诊断规则库</b><b>市场诊断规则库</b><b>员工诊断规则库</b><b>输出：对象ID+风险标签+机会标签+类型</b></div>
     </div>
@@ -73,7 +73,7 @@
     </div>
     <div class="arch-layer" style="border-left-color:#f97316">
       <h4><span class="lv">层4</span>诊断输出与落地层</h4>
-      <p>双层展示：免费规则预警区（代码拼接，全客户可见）+ AI 智能诊断区（付费，未开通则隐藏）。诊断结果缓存 7 天，重复查看不重复扣 Token。</p>
+      <p>双层展示：常规报表预警区（规则拼接，按输入/输出字节计 Token）+ AI 智能诊断区（大模型 token 计费，未开通则隐藏）。诊断结果缓存 7 天，重复查看不重复扣 Token。</p>
       <div class="chips"><b>单对象详情弹窗</b><b>月度自动PDF报告</b><b>总裁问答窗口</b><b>企微/钉钉预警推送</b></div>
     </div>
 
@@ -92,17 +92,18 @@
       </div>
       <!-- 计费 -->
       <div class="card">
-        <div class="c-head"><h3>AI 算力计费与节流设计</h3><span class="pill purple">成本可控</span></div>
+        <div class="c-head"><h3>统一 Token 计费与节流设计</h3><span class="pill purple">全量报表+AI 均计 Token</span></div>
         <div class="c-body">
           <table class="tbl">
-            <thead><tr><th>模式</th><th class="num">输入(元/百万Token)</th><th class="num">输出(元/百万Token)</th></tr></thead>
+            <thead><tr><th>计费对象</th><th>计费方式</th><th class="num">输入(元/百万T)</th><th class="num">输出(元/百万T)</th></tr></thead>
             <tbody>
-              <tr><td>预存套餐</td><td class="num">0.5</td><td class="num">4.0</td></tr>
-              <tr><td>按量散客</td><td class="num">0.6</td><td class="num">4.8</td></tr>
-              <tr><td>包月不限量</td><td class="num" colspan="2" style="text-align:center">关闭扣费，仅记录调用日志</td></tr>
+              <tr><td>常规报表/看板/清单</td><td>输入+输出<b>字节</b>折Token</td><td class="num">0.2</td><td class="num">0.4</td></tr>
+              <tr><td>AI 深诊·预存套餐</td><td>大模型 token</td><td class="num">0.5</td><td class="num">4.0</td></tr>
+              <tr><td>AI 深诊·按量散客</td><td>大模型 token</td><td class="num">0.6</td><td class="num">4.8</td></tr>
+              <tr><td>包月不限量</td><td colspan="3" style="text-align:center">关闭扣费，仅记录调用日志</td></tr>
             </tbody>
           </table>
-          <div class="note" style="margin-top:12px"><span class="n-ic">💡</span><div>节流三招：① 无标签正常数据不调用 AI；② 高风险(橙/红)才触发深诊；③ 结果缓存 7 天，新业务单据触发失效。</div></div>
+          <div class="note" style="margin-top:12px"><span class="n-ic">💡</span><div>全量 Token 计费：报表按字节折算（约 1.5 字节≈1 Token，单价低），AI 按大模型 token（单价高）。节流：① 预计算宽表+分页降低取数字节；② 仅高风险触发 AI 深诊；③ 结果缓存 7 天。</div></div>
         </div>
       </div>
     </div>

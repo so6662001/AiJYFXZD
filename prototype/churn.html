@@ -11,19 +11,19 @@
 <div id="view" style="display:none">
   <div class="page-lead">
     <h1>购货频率分析 & 客户流失预警</h1>
-    <p>核心逻辑纯算法 / SQL 规则实现，本地批量运算、零 Token 消耗、支持上万客户凌晨跑批；AI 仅做深度归因与个性化挽留方案（可选付费）。评分模型四大因子的阈值与权重全部支持后台可视化配置。</p>
+    <p>核心逻辑纯算法 / SQL 规则实现，本地批量运算、支持上万客户凌晨跑批；报表按输入/输出字节折算 Token（消耗极低），AI 深度归因与挽留方案按大模型 token 计费。评分模型四大因子的阈值与权重全部支持后台可视化配置。</p>
   </div>
 
   <div class="grid g4" style="margin-bottom:18px">
     <div class="kpi"><div class="k-top"><span class="k-label">极高流失风险</span><span class="k-ic bg-red">🔴</span></div><div class="k-val" style="color:var(--red)" id="kpi-vh">—</div><div class="k-foot">3天内主管协同</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">高流失风险</span><span class="k-ic bg-orange">🟠</span></div><div class="k-val" style="color:var(--orange)" id="kpi-h">—</div><div class="k-foot">7天内上门挽留</div></div>
     <div class="kpi"><div class="k-top"><span class="k-label">潜在流失</span><span class="k-ic bg-yellow">🟡</span></div><div class="k-val" id="kpi-m">—</div><div class="k-foot">本月拜访1次</div></div>
-    <div class="kpi"><div class="k-top"><span class="k-label">跑批耗时</span><span class="k-ic bg-teal">⚡</span></div><div class="k-val">2:00<small>AM</small></div><div class="k-foot">全客户 · 零算力成本</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">跑批耗时</span><span class="k-ic bg-teal">⚡</span></div><div class="k-val">2:00<small>AM</small></div><div class="k-foot">全客户 · 报表 Token 极低</div></div>
   </div>
 
   <!-- 可配置评分模型 -->
   <div class="card" style="margin-bottom:18px">
-    <div class="c-head"><h3>多因子加权流失风险评分模型（可配置）</h3><span class="pill green">纯算法 · 0 Token</span>
+    <div class="c-head"><h3>多因子加权流失风险评分模型（可配置）</h3><span class="pill green">纯算法 · 按字节计 Token（低）</span>
       <div class="r"><span class="pill gray" id="formula">Total = S1×0.40 + S2×0.30 + S3×0.20 + S4×0.10</span></div></div>
     <div class="c-body">
       <div class="grid g4">
