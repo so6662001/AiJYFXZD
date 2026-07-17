@@ -23,6 +23,7 @@
     { g: "系统与权限", items: [
       { id: "roles", t: "角色与权限设计", ic: "🔐", href: "roles.html" },
       { id: "datasource", t: "数据源 & 平台接入", ic: "🔌", href: "datasource.html" },
+      { id: "jobs", t: "定时任务 · 自动化服务", ic: "⏰", href: "jobs.html" },
     ]},
   ];
 

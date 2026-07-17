@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>定时任务 · 自动化服务 · 钢智经营</title>
+<link rel="stylesheet" href="assets/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>.mermaid{display:flex;justify-content:center;overflow:auto;padding:8px 4px;font-family:inherit}.mermaid svg{max-width:100%;height:auto}</style>
+</head>
+<body>
+<div id="view" style="display:none">
+  <div class="page-lead">
+    <h1>定时任务 · 自动化服务（作业调度中心）</h1>
+    <p>系统每日凌晨自动跑批：<b>多源数据同步 → 清洗聚合落宽表 → 指标/分层/复购/流失计算 → 规则打标签 → 动态升降级 → AI 批量诊断 → 生成跟进任务 → 报表/预警推送</b>。全流程按 DAG 依赖编排、分租户执行、失败重试与告警，前端直接读预计算结果，打开秒开。</p>
+  </div>
+
+  <div class="grid g6" style="margin-bottom:18px">
+    <div class="kpi"><div class="k-top"><span class="k-label">今日执行任务</span><span class="k-ic bg-blue">⏰</span></div><div class="k-val">24</div><div class="k-foot">按租户×数据源展开</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">成功</span><span class="k-ic bg-green">✅</span></div><div class="k-val">23</div><div class="k-foot">含1次重试成功</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">失败</span><span class="k-ic bg-red">❌</span></div><div class="k-val" style="color:var(--red)">1</div><div class="k-foot">西南源·已告警</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">运行中</span><span class="k-ic bg-orange">🔄</span></div><div class="k-val">0</div><div class="k-foot">今日批次已完成</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">总耗时</span><span class="k-ic bg-teal">⏱</span></div><div class="k-val">38<small>分</small></div><div class="k-foot">02:00–02:38 主批</div></div>
+    <div class="kpi"><div class="k-top"><span class="k-label">下次执行</span><span class="k-ic bg-purple">📅</span></div><div class="k-val">02:00</div><div class="k-foot">明日 · 自动</div></div>
+  </div>
+
+  <!-- 数据管道 DAG -->
+  <div class="section-title"><span class="n">1</span><h2>每日数据管道（DAG 依赖编排）</h2><span class="sub">上游完成才触发下游，任一失败阻断并告警</span><span class="line"></span></div>
+  <div class="card" style="margin-bottom:16px"><div class="c-body"><div class="mermaid">
+flowchart LR
+  A["①多源数据同步<br/>SQLServer/MySQL/API"] --> B["②清洗·周期切片·维度聚合"]
+  B --> C["③指标宽表(市场/客户/员工)"]
+  C --> D["④客户分层·购货频率·复购预测"]
+  C --> E["⑤流失评分跑批"]
+  C --> F["⑥市场/员工指标计算"]
+  D --> G["⑦规则引擎打标签"]
+  E --> G
+  F --> G
+  G --> H["⑧客户分级动态升降级"]
+  H --> I["⑨AI批量诊断(消耗Token)"]
+  H --> J["⑩智能分配/回收+生成跟进任务"]
+  I --> K["⑪报表/预警推送 企微·钉钉"]
+  J --> K
+    </div></div></div>
+
+  <!-- 今日执行时间线 -->
+  <div class="section-title"><span class="n">2</span><h2>今日执行时间线</h2><span class="sub">各作业启停时刻与耗时</span><span class="line"></span></div>
+  <div class="card" style="margin-bottom:16px"><div class="c-body tight"><div id="gantt" style="width:100%;height:420px"></div></div></div>
+
+  <!-- 任务调度表 -->
+  <div class="section-title"><span class="n">3</span><h2>任务调度表</h2><span class="sub">cron 调度 · 状态 · 操作</span><span class="line"></span></div>
+  <div class="card"><div class="c-body" style="padding:0;overflow:auto">
+    <table class="tbl" id="job-table">
+      <thead><tr><th>任务</th><th>类型</th><th>调度(cron)</th><th>上次执行</th><th>耗时</th><th>状态</th><th>下次</th><th>操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div></div>
+
+  <!-- 机制 -->
+  <div class="section-title"><span class="n">4</span><h2>调度与容错机制</h2><span class="line"></span></div>
+  <div class="grid g4">
+    <div class="opt-card"><div class="o-ic bg-blue">🗓️</div><h3>Cron 调度 + DAG</h3><p>标准 cron 定时；任务间 DAG 依赖编排，上游成功才触发下游。</p></div>
+    <div class="opt-card"><div class="o-ic bg-orange">🔁</div><h3>失败重试 + 告警</h3><p>失败自动重试（退避 3 次），仍失败则阻断下游并推送告警至运维/运营经理。</p></div>
+    <div class="opt-card"><div class="o-ic bg-green">♻️</div><h3>幂等 + 补数重跑</h3><p>按业务日期幂等写入，可指定日期手动补数/重跑，不产生重复数据。</p></div>
+    <div class="opt-card"><div class="o-ic bg-purple">🏢</div><h3>分租户 + 增量</h3><p>按租户隔离并行执行；增量同步(CDC/时间戳)只拉变化数据，降低负载。</p></div>
+  </div>
+
+  <!-- 执行日志 -->
+  <div class="section-title"><span class="n">5</span><h2>执行日志（最近批次）</h2><span class="line"></span></div>
+  <div class="card"><div class="c-body">
+    <div class="mono" id="log"></div>
+  </div></div>
+
+  <div class="note" style="margin-top:18px"><span class="n-ic">🔗</span><div>与其他模块联动：数据同步对接「数据源管理」；跑批产物驱动市场/客户/员工看板、复购催单与流失预警；AI 批量诊断计入「Token 计费中心」；推送遵循「角色权限」按销售分发。手动执行、启停、补数需相应权限并留痕。</div></div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+function initCharts(){
+  const C=window.CHART;
+  function toast(msg){const t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0d1b33;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,.28)";document.body.appendChild(t);setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";},1500);setTimeout(()=>t.remove(),2000);}
+
+  // 甘特：今日执行时间线（x=小时）
+  const gantt=echarts.init(document.getElementById("gantt"));
+  const lanes=["①数据同步","②清洗聚合","③指标宽表","④分层/频率/复购","⑤流失评分","⑥市场/员工","⑦规则打标签","⑧动态升降级","⑨AI批量诊断","⑩分配+生成任务","⑪报表/预警推送"];
+  const G="#16a34a",P="#7c3aed",O="#ea6d0b";
+  // [laneIdx, start, end, color]
+  const jobs=[
+    [0,2.00,2.33,G],[1,2.33,2.75,G],[2,2.75,2.85,G],[3,2.85,3.02,G],[4,3.02,3.12,G],
+    [5,3.10,3.30,G],[6,3.30,3.45,G],[7,3.45,3.55,G],[8,4.00,4.65,P],[9,7.50,7.72,G],[10,8.00,8.12,O]
+  ];
+  function hhmm(v){const h=Math.floor(v),m=Math.round((v-h)*60);return (h<10?"0"+h:h)+":"+(m<10?"0"+m:m);}
+  gantt.setOption({
+    grid:{left:150,right:24,top:16,bottom:34},
+    tooltip:{trigger:"item",backgroundColor:"rgba(13,27,51,.92)",borderWidth:0,textStyle:{color:"#e8eefb",fontSize:12},
+      formatter:p=>`${lanes[p.value[0]]}<br/>${hhmm(p.value[1])} – ${hhmm(p.value[2])}（${Math.round((p.value[2]-p.value[1])*60)}分）`},
+    xAxis:{type:"value",min:2,max:8.5,interval:0.5,axisLabel:{formatter:v=>hhmm(v),color:C.axisText,fontSize:10},
+      axisLine:{show:false},axisTick:{show:false},splitLine:{lineStyle:{color:"#eef1f7"}}},
+    yAxis:{type:"category",data:lanes,axisLine:{lineStyle:{color:"#dbe1ee"}},axisTick:{show:false},axisLabel:{color:"#2c3a52",fontSize:11.5}},
+    series:[{type:"custom",renderItem:function(params,api){
+      const lane=api.value(0),s=api.coord([api.value(1),lane]),e=api.coord([api.value(2),lane]);
+      const h=api.size([0,1])[1]*0.5,w=e[0]-s[0];if(w<=0)return;
+      return {type:"rect",shape:{x:s[0],y:s[1]-h/2,width:Math.max(w,3),height:h,r:5},style:{fill:api.value(3),opacity:.9}};
+    },encode:{x:[1,2],y:0},data:jobs}]
+  });
+  window.addEventListener("resize",()=>gantt.resize());
+
+  // 调度表
+  const T=[
+    ["多源数据同步","数据同步","0 0 2 * * ?","02:00:00","20s","成功(重试1)","warn","明日02:00"],
+    ["清洗·聚合·落宽表","数据加工","DAG:①后","02:00:20","25s","成功","ok","-"],
+    ["客户分层/频率/复购预测","指标计算","DAG:②后","02:02:40","6s","成功","ok","-"],
+    ["流失评分跑批","指标计算","DAG:③后","02:03:00","6s","成功","ok","-"],
+    ["市场/员工指标计算","指标计算","DAG:③后","02:03:06","12s","成功","ok","-"],
+    ["规则引擎打标签","规则引擎","DAG:④⑤⑥后","02:03:18","9s","成功","ok","-"],
+    ["客户分级动态升降级","规则引擎","DAG:⑦后","02:03:27","5s","成功","ok","-"],
+    ["AI 批量诊断","AI(计Token)","0 0 4 * * ?","04:00:00","39s","成功","ok","明日04:00"],
+    ["智能分配/回收+生成任务","任务编排","0 30 7 * * ?","07:30:00","13s","成功","ok","明日07:30"],
+    ["报表/预警推送(企微/钉钉)","消息推送","0 0 8 * * ?","08:00:00","7s","成功","ok","明日08:00"],
+  ];
+  const stMap={ok:["成功","green"],warn:["成功·重试","yellow"],err:["失败","red"]};
+  document.querySelector("#job-table tbody").innerHTML=T.map((r,i)=>`<tr>
+    <td><b>${r[0]}</b></td><td><span class="pill ${r[1].indexOf('AI')>=0?'purple':r[1]==='消息推送'?'orange':'blue'}">${r[1]}</span></td>
+    <td class="mono-cell" style="font-size:11.5px">${r[2]}</td><td>${r[3]}</td><td class="num">${r[4]}</td>
+    <td><span class="pill ${stMap[r[6]][1]}">${r[5]}</span></td><td>${r[7]}</td>
+    <td style="white-space:nowrap"><button class="rowbtn" data-run="${i}">立即执行</button> <button class="rowbtn" data-log="${i}">日志</button></td>
+  </tr>`).join("");
+  document.querySelectorAll("#job-table [data-run]").forEach(b=>b.addEventListener("click",()=>toast(`已手动触发「${T[b.dataset.run][0]}」，后台执行中…（需权限+留痕）`)));
+  document.querySelectorAll("#job-table [data-log]").forEach(b=>b.addEventListener("click",()=>toast(`查看「${T[b.dataset.log][0]}」执行日志`)));
+
+  // 日志样例
+  document.getElementById("log").innerHTML=[
+    '<span class="c">02:00:00</span> [INFO] 批次 batch_20260717 开始，租户=A/B/C 并行',
+    '<span class="c">02:00:00</span> [INFO] ①数据同步：华东(SQLServer) 增量 12,480 行 ✓',
+    '<span class="c">02:00:11</span> <span style="color:#f7c948">[WARN]</span> 西南(MySQL) 连接超时，重试 1/3 …',
+    '<span class="c">02:00:16</span> [INFO] 西南(MySQL) 重试成功，增量 3,210 行 ✓',
+    '<span class="c">02:00:20</span> [INFO] ②清洗聚合：剔除作废/退货冲红 214 行，落宽表 ✓',
+    '<span class="c">02:02:40</span> [INFO] ③-⑦ 指标/分层/复购/流失/规则标签 完成 ✓',
+    '<span class="c">02:03:27</span> [INFO] ⑧动态升降级：升级 A 客户 6、降级 D 客户 11 ✓',
+    '<span class="c">04:00:39</span> [INFO] ⑨AI批量诊断：46 对象，输入86.4万T/输出24.2万T，计费¥0.14 ✓',
+    '<span class="c">07:30:13</span> [INFO] ⑩生成跟进任务 128 条(含复购催单 60)，按销售分发 ✓',
+    '<span class="c">08:00:07</span> [INFO] ⑪推送：企微/钉钉 42 名销售个人清单 ✓  批次完成，总耗时 38m',
+  ].join("\n");
+
+  if(window.mermaid){try{mermaid.initialize({startOnLoad:false,theme:"base",securityLevel:"loose",
+    themeVariables:{primaryColor:"#e6efff",primaryBorderColor:"#2563eb",primaryTextColor:"#16233d",lineColor:"#8592ac",fontFamily:"inherit",fontSize:"12px"},flowchart:{curve:"basis",useMaxWidth:true}});
+    mermaid.run({querySelector:".content .mermaid"});}catch(e){console.warn(e);}}
+}
+Layout.render("jobs",{title:"定时任务 · 自动化服务",crumb:"定时任务 · 自动化服务"});
+</script>
+</body>
+</html>
