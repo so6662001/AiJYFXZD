@@ -210,32 +210,38 @@ function initCharts(){
       {type:"bar",stack:"t",data:val,itemStyle:{color:"#16a34a",borderRadius:[3,3,0,0]},label:{show:true,position:"top",formatter:"{c}",fontSize:10,color:C.axisText}}]
   });
 
-  // 品类趋势
+  // 品类趋势（12 个月真实模拟数据）
   const line=echarts.init(document.getElementById("cat-line"));
-  function series(name,base,amp,color){return {name,type:"line",smooth:true,data:M.map((_,i)=>Math.round(base+amp*Math.sin(i/2)+ (Math.random()*10-5))),lineStyle:{width:2.4,color},itemStyle:{color}};}
+  const catColors={"热轧板卷":"#2563eb","H型钢":"#0d9488","不锈钢卷板":"#7c3aed","合金圆钢":"#f97316"};
   line.setOption({
     grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
     xAxis:C.cat({data:M}),yAxis:C.val({name:"销量(千吨)"}),
-    series:[series("热轧板",380,60,"#2563eb"),series("H型钢",290,90,"#0d9488"),series("不锈钢",90,20,"#7c3aed"),series("合金",70,15,"#f97316")]
+    series:Object.keys(DATA.categoryTrend).map(k=>({name:k,type:"line",smooth:true,symbolSize:5,
+      data:DATA.categoryTrend[k],lineStyle:{width:2.4,color:catColors[k]},itemStyle:{color:catColors[k]},
+      markPoint:k==="H型钢"?{data:[{type:"max",name:"基建旺季"}],symbolSize:38,itemStyle:{color:"#0d9488"},label:{color:"#fff",fontSize:10}}:undefined}))
   });
 
   // 产地对比
   const origin=echarts.init(document.getElementById("cat-origin"));
   origin.setOption({
     grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
-    xAxis:C.cat({data:["沙钢","南钢","日照","永锋","中天"]}),yAxis:C.val({name:"单吨毛利(元)"}),
+    xAxis:C.cat({data:DATA.origins.map(o=>o.name)}),
+    yAxis:[C.val({name:"单吨毛利(元)"}),C.val({name:"采购量(千吨)",splitLine:{show:false}})],
     series:[
-      {name:"挂牌毛利",type:"bar",barGap:0,barWidth:16,data:[128,142,96,156,112],itemStyle:{color:"#8fb6ff",borderRadius:[3,3,0,0]}},
-      {name:"实际净利",type:"bar",barWidth:16,data:[112,138,72,148,98],itemStyle:{color:"#16a34a",borderRadius:[3,3,0,0]}}]
+      {name:"挂牌毛利",type:"bar",barGap:0,barWidth:15,data:DATA.origins.map(o=>o.list),itemStyle:{color:"#8fb6ff",borderRadius:[3,3,0,0]},
+        label:{show:true,position:"top",color:C.axisText,fontSize:10}},
+      {name:"实际净利",type:"bar",barWidth:15,data:DATA.origins.map(o=>o.real),itemStyle:{color:"#16a34a",borderRadius:[3,3,0,0]}},
+      {name:"采购量",type:"line",yAxisIndex:1,smooth:true,data:DATA.origins.map(o=>o.vol),lineStyle:{color:"#f97316",width:2.4},itemStyle:{color:"#f97316"}}]
   });
 
-  // 行业面积
+  // 行业面积（堆叠面积）
   const area=echarts.init(document.getElementById("ind-area"));
-  function areaS(name,base,color){return {name,type:"line",stack:"a",areaStyle:{opacity:.75},smooth:true,emphasis:{focus:"series"},lineStyle:{width:0},itemStyle:{color},data:M.map((_,i)=>Math.round(base+base*0.3*Math.sin(i/2.2)))};}
+  const indColors={"制造终端":"#2563eb","基建工程":"#0ea5e9","二级贸易":"#f97316"};
   area.setOption({
     grid:C.grid,tooltip:C.tip(),legend:{right:10,top:2,textStyle:{color:C.axisText,fontSize:11}},
     xAxis:C.cat({data:M,boundaryGap:false}),yAxis:C.val({name:"销量(千吨)"}),
-    series:[areaS("制造终端",120,"#2563eb"),areaS("基建工程",95,"#0ea5e9"),areaS("二级贸易",70,"#f97316")]
+    series:Object.keys(DATA.industryTrend).map(k=>({name:k,type:"line",stack:"a",areaStyle:{opacity:.72},smooth:true,
+      emphasis:{focus:"series"},lineStyle:{width:0},itemStyle:{color:indColors[k]},data:DATA.industryTrend[k]}))
   });
 
   // 行业雷达
@@ -244,10 +250,7 @@ function initCharts(){
     tooltip:C.tipItem(),legend:{bottom:0,textStyle:{color:C.axisText,fontSize:11}},
     radar:{indicator:[{name:"销量规模",max:10},{name:"单吨毛利",max:10},{name:"购货频次",max:10},{name:"账期健康",max:10},{name:"逾期风险(低)",max:10}],
       radius:"62%",center:["50%","46%"],axisName:{color:C.axisText,fontSize:11},splitLine:{lineStyle:{color:"#e5e9f2"}},splitArea:{areaStyle:{color:["#fafbfe","#fff"]}}},
-    series:[{type:"radar",data:[
-      {name:"制造终端",value:[7,9,8,9,9],itemStyle:{color:"#2563eb"},areaStyle:{opacity:.15}},
-      {name:"基建工程",value:[9,6,6,5,6],itemStyle:{color:"#0ea5e9"},areaStyle:{opacity:.15}},
-      {name:"二级贸易",value:[8,3,7,3,4],itemStyle:{color:"#f97316"},areaStyle:{opacity:.15}}]}]
+    series:[{type:"radar",data:Object.keys(DATA.industryRadar).map(k=>({name:k,value:DATA.industryRadar[k],itemStyle:{color:indColors[k]},areaStyle:{opacity:.15}}))}]
   });
 
   const all=[map,quad,trend,struct,rank,settle,bubble,water,line,origin,area,radar];

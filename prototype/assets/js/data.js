@@ -46,14 +46,56 @@ window.DATA = {
     { name: "陈刚", dept: "西南部", net: 178, ton: 2.4, perTon: 118, custA: 3, custB: 6, revive: 3, churn: 0.14, newCust: 3, radar: [6, 7, 6, 6, 7, 6], type: "存量守成型", conc: 0.62 },
     { name: "周琳", dept: "华东二部", net: 214, ton: 2.9, perTon: 121, custA: 5, custB: 5, revive: 2, churn: 0.08, newCust: 2, radar: [7, 7, 5, 6, 8, 7], type: "存量守成型", conc: 0.68 },
   ],
-  // 客户流失预警
+  // 客户流失预警 —— 原始因子（分数由可配置模型实时计算）
+  // drop: 近3月采购同比(负=下滑)  rate: 近期间隔/历史间隔(节奏)  fund: 资金恶化  loss: 连续亏损
   churn: [
-    { name: "廊坊金属贸易", type: "高走量", sale: "李四", lastDays: 74, drop: -0.62, score: 88, level: "极高", tag: "现金流客户流失预警" },
-    { name: "佛山五金城", type: "量利双弱", sale: "王五", lastDays: 145, drop: -0.81, score: 92, level: "极高", tag: "亏损客户流失预警" },
-    { name: "天津建工物资", type: "量利双弱", sale: "李四", lastDays: 88, drop: -0.55, score: 71, level: "高", tag: "—" },
-    { name: "武汉钢联商贸", type: "高走量", sale: "赵敏", lastDays: 46, drop: -0.28, score: 48, level: "潜在", tag: "—" },
-    { name: "宁波特钢加工", type: "高盈利", sale: "王五", lastDays: 32, drop: -0.12, score: 34, level: "潜在", tag: "核心利润客户流失预警" },
-    { name: "无锡精机制造", type: "量利双优", sale: "张三", lastDays: 12, drop: 0.08, score: 12, level: "低", tag: "—" },
+    { name: "佛山五金城",   type: "量利双弱", sale: "王五", lastDays: 145, drop: -0.81, rate: 2.4, fund: true,  ext: 45, loss: true },
+    { name: "常州建材集散", type: "量利双弱", sale: "李四", lastDays: 210, drop: -0.70, rate: 2.6, fund: true,  ext: 60, loss: true },
+    { name: "廊坊金属贸易", type: "高走量",   sale: "李四", lastDays: 74,  drop: -0.62, rate: 1.9, fund: true,  ext: 38, loss: false },
+    { name: "天津建工物资", type: "量利双弱", sale: "李四", lastDays: 88,  drop: -0.55, rate: 1.6, fund: true,  ext: 25, loss: false },
+    { name: "南京中转贸易", type: "高走量",   sale: "王五", lastDays: 65,  drop: -0.42, rate: 1.5, fund: false, ext: 20, loss: false },
+    { name: "苏州轨道建设", type: "高走量",   sale: "赵敏", lastDays: 55,  drop: -0.35, rate: 1.4, fund: false, ext: 12, loss: false },
+    { name: "武汉钢联商贸", type: "高走量",   sale: "赵敏", lastDays: 46,  drop: -0.28, rate: 1.2, fund: false, ext: 8,  loss: false },
+    { name: "宁波特钢加工", type: "高盈利",   sale: "王五", lastDays: 32,  drop: -0.12, rate: 1.1, fund: false, ext: 5,  loss: false },
+    { name: "成都装备制造", type: "高盈利",   sale: "陈刚", lastDays: 20,  drop: -0.05, rate: 1.05,fund: false, ext: 0,  loss: false },
+    { name: "无锡精机制造", type: "量利双优", sale: "张三", lastDays: 12,  drop: 0.08,  rate: 0.9, fund: false, ext: 0,  loss: false },
   ],
+  // 流失评分模型默认配置（可在页面配置面板修改）
+  churnConfig: {
+    weights: { s1: 40, s2: 30, s3: 20, s4: 10 },
+    s1: [ { max: 30, score: 0 }, { max: 90, score: 30 }, { max: 180, score: 70 }, { max: 99999, score: 100 } ],       // 断单时长(天)
+    s2: [ { max: 0,  score: 0 }, { max: 0.3, score: 40 }, { max: 0.6, score: 70 }, { max: 99,   score: 100 } ],        // 采购下滑率
+    s3: [ { max: 1,  score: 0 }, { max: 1.3, score: 30 }, { max: 1.8, score: 60 }, { max: 99,   score: 100 } ],        // 节奏恶化倍数
+    s4: { extendDays: 30 },      // 账期拉长阈值(天)，或存在逾期/现款转赊销 → 100
+    levels: [ { max: 25, name: "低",  color: "green" }, { max: 50, name: "潜在", color: "yellow" },
+              { max: 75, name: "高",  color: "orange" }, { max: 100, name: "极高", color: "red" } ],
+  },
+  // 品类 12 个月需求趋势(千吨)
+  categoryTrend: {
+    "热轧板卷": [352,338,366,402,388,360,412,398,372,430,418,405],
+    "H型钢":    [268,242,290,336,362,318,398,412,356,388,372,344],
+    "不锈钢卷板":[82,78,90,96,102,94,110,98,92,108,104,96],
+    "合金圆钢":  [64,60,72,78,84,76,92,86,78,88,82,74],
+  },
+  // 下游行业月度销量(千吨)
+  industryTrend: {
+    "制造终端": [120,112,128,140,152,138,166,158,142,170,164,150],
+    "基建工程": [95,82,108,132,148,120,110,96,132,158,140,118],
+    "二级贸易": [70,88,76,92,64,102,80,58,96,72,84,90],
+  },
+  // 同规格不同产地毛利对比
+  origins: [
+    { name: "沙钢",   list: 128, real: 112, vol: 4.2 },
+    { name: "南钢",   list: 142, real: 138, vol: 3.1 },
+    { name: "日照",   list: 96,  real: 72,  vol: 5.6 },
+    { name: "永锋",   list: 156, real: 148, vol: 2.4 },
+    { name: "中天",   list: 112, real: 98,  vol: 3.8 },
+  ],
+  // 下游行业综合评分(满分10)：销量规模/单吨毛利/购货频次/账期健康/逾期风险(低)
+  industryRadar: {
+    "制造终端": [7, 9, 8, 9, 9],
+    "基建工程": [9, 6, 6, 5, 6],
+    "二级贸易": [8, 3, 7, 3, 4],
+  },
   months: ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
 };

@@ -102,7 +102,18 @@
         const scope = group;
         scope.querySelectorAll(".tabpane").forEach(p => p.classList.remove("on"));
         const pane = scope.querySelector('.tabpane[data-pane="' + target + '"]');
-        if (pane) { pane.classList.add("on"); }
+        if (pane) {
+          pane.classList.add("on");
+          // 关键修复：隐藏标签页里的图表初始化时尺寸为 0，切换显示后需重新计算尺寸
+          setTimeout(() => {
+            if (window.echarts) {
+              pane.querySelectorAll(".chart").forEach(el => {
+                const inst = window.echarts.getInstanceByDom(el);
+                if (inst) { inst.resize(); }
+              });
+            }
+          }, 30);
+        }
         window.dispatchEvent(new Event("resize"));
       }));
     });
